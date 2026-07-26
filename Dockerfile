@@ -35,6 +35,10 @@ RUN npm run build
 # ── Étape 2 : runtime nginx ────────────────────────────────────────
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+# En-têtes de sécurité (CSP…) : fichier `include`é par nginx.conf. Copié HORS
+# de conf.d/ pour ne pas être auto-chargé par le wildcard `include conf.d/*.conf`
+# — il n'est monté que via l'`include` explicite de default.conf.
+COPY security-headers.conf /etc/nginx/security-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80

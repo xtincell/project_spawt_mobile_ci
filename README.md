@@ -45,7 +45,7 @@ les écrans concernés). Pour développer le tunnel de paiement sans backend :
 ```bash
 npm run lint:vocab   # dialecte SPAWT + « aucun hex hors src/theme/tokens.* »
 npm run typecheck    # tsc --noEmit
-npm test             # vitest (93 tests)
+npm test             # vitest
 npm run build        # tsc + vite build
 ```
 
@@ -141,9 +141,40 @@ pointant vers lui (enregistrement A).
 7. **Redéploiement** — chaque changement de variable `VITE_*` nécessite un
    redeploy (elles sont compilées dans le bundle).
 
+### En-têtes de sécurité HTTP (CSP, anti-clickjacking, nosniff)
+
+Le portail gère l'auth OTP et le paiement : nginx pose une batterie d'en-têtes
+de sécurité (défense en profondeur). Ils vivent dans **`security-headers.conf`**
+(source unique), `include`é par `nginx.conf` au niveau `server` **et dans chaque
+bloc `location`** — nécessaire car nginx n'hérite pas les `add_header` d'un bloc
+parent dès qu'un enfant pose les siens (Cache-Control). Le `Dockerfile` copie ce
+fichier dans l'image. En-têtes posés : `Content-Security-Policy`,
+`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+`Referrer-Policy: strict-origin-when-cross-origin`,
+`Permissions-Policy: geolocation=(), camera=(), microphone=()`.
+
+- ⚠️ **`connect-src` et l'hôte Supabase.** La CSP autorise les appels REST/Edge
+  vers **`https://api.spawt.online`** (l'hôte de prod). Cette valeur est **codée
+  en dur dans `security-headers.conf`** : contrairement au bundle, nginx ne
+  connaît pas `VITE_SUPABASE_URL`. **Si tu déploies contre un AUTRE hôte
+  Supabase** (projet cloud `*.supabase.co`, préprod, autre VPS…), **ajoute cet
+  hôte à la directive `connect-src`** de `security-headers.conf`, sinon le
+  navigateur bloquera connexion et paiement. Le test
+  `src/__tests__/security-headers.test.ts` verrouille cette directive.
+- **CinetPay** ne nécessite aucune entrée CSP : le checkout est une redirection
+  pleine page (`window.location`), pas un `fetch` ni une iframe — la navigation
+  top-level échappe à la CSP. Idem pour les liens sortants (quiz, stores).
+- **HSTS n'est volontairement PAS posé ici** : le TLS est terminé en amont
+  (proxy Coolify / Cloudflare), qui gère HSTS. Un HSTS applicatif mal réglé peut
+  rendre le domaine inaccessible. Ligne commentée dans `security-headers.conf`
+  si besoin de l'y déplacer un jour.
+
 ## Structure
 
 ```
+nginx.conf               config nginx de prod (SPA fallback + include sécurité)
+security-headers.conf    en-têtes de sécurité HTTP (CSP…), include unique
+Dockerfile               build Vite (node) → runtime nginx:alpine
 public/fonts/            Klinsman + Gotham (copiées depuis l'app mobile)
 scripts/lint-vocab.mjs   lint dialecte + hex hors tokens
 src/theme/               tokens.ts + tokens.css (SEULES sources de hex)
