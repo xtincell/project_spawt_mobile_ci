@@ -16,7 +16,7 @@ ici).
 | `/gold/retour` | Retour paiement : poll de l'entitlement (3 s / 2 min), succès, attente ou échec |
 | `/compte` | Mon abonnement : statut, renouvellement, factures, déconnexion |
 | `/pro` | Espace lieux (B2B) : Spawt Libre 0 F · Pro 15 000 F HT/mois · Gold 65 000 F HT/mois |
-| `/pro/dashboard` | Shell du tableau de bord lieux (Aperçu / Avis / Audience), prêt pour les vues SQL |
+| `/pro/dashboard` | Tableau de bord lieux (Aperçu / Réservations / Avis / Audience) branché sur les vues B2B (0042/0043) + rapport mensuel imprimable |
 | `/legal/confidentialite` · `/legal/cgu` · `/legal/cgv` | Squelettes juridiques (loi 2013-450, ARTCI, TVA 18 %, rétractation 7 jours) — marqueurs `[À VALIDER PAR JURISTE]` |
 | `/legal/suppression-compte` | Demande de suppression de compte, accessible sans connexion (exigence Google Play Data Safety) |
 
@@ -44,7 +44,7 @@ les écrans concernés). Pour développer le tunnel de paiement sans backend :
 ```bash
 npm run lint:vocab   # dialecte SPAWT + « aucun hex hors src/theme/tokens.* »
 npm run typecheck    # tsc --noEmit
-npm test             # vitest (49 tests)
+npm test             # vitest (78 tests)
 npm run build        # tsc + vite build
 ```
 
@@ -100,10 +100,17 @@ spawter) toutes les 3 s pendant 2 min max (`src/lib/entitlement.ts`, parsing
 défensif du schéma). Le compte lit aussi
 `GET /rest/v1/invoices?select=invoice_number,price_ttc,currency,status,issued_at&order=issued_at.desc`.
 
-Le dashboard B2B (`src/lib/b2b-data.ts`) est prêt pour les vues
-`b2b_place_stats_monthly` et `b2b_place_funnel` (chantier parallèle) : tant
-qu'elles n'existent pas (404 / `42P01`), l'UI affiche « stats en
-construction » sans casser.
+Le dashboard B2B (`src/lib/b2b-data.ts`) est branché sur les vraies vues des
+migrations 0042/0043 du repo mobile : `b2b_place_stats_monthly` (agrégats
+mensuels, valeurs NULL sous 3 événements → « — » + infobulle),
+`b2b_place_funnel` (réservée au role `gold` — un compte `pro` voit l'upsell
+Spawt Gold, souscription par contact en V1), `reservation_requests` (lecture
+seule : la policy UPDATE de 0042 est réservée au spawter) et les avis publiés
+(RLS 0021 — mêmes avis publics que dans l'app, sans réponse possible). Tant
+qu'une vue n'existe pas (404 / `42P01`), l'UI affiche « stats en
+construction » sans casser — le portail peut être déployé avant la base
+migrée. Bouton « Télécharger le rapport (PDF) » : vue `@media print` dédiée
++ `window.print()`, zéro dépendance.
 
 ## Déploiement Coolify (runbook pas-à-pas)
 
