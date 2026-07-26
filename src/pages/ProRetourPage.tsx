@@ -1,15 +1,16 @@
 // /pro/retour — retour de la page de paiement CinetPay pour un plan LIEU
 // (pro / b2b_gold). Même mécanique que /gold/retour : lit ?transaction_id=
 // puis poll la vue RLS active_entitlements (3 s, max 2 min) — mais avec le
-// prédicat hasActiveB2b (lignes pro/b2b_gold uniquement). Le webhook
-// synchronise aussi b2b_accounts.role à l'activation : au retour dashboard,
-// le funnel Gold est déjà ouvert si le lieu a pris b2b_gold.
+// prédicat STRICT hasFreshlyActivatedB2b (lignes pro/b2b_gold RÉELLEMENT
+// actives, grâce préexistante exclue). Le webhook synchronise aussi
+// b2b_accounts.role à l'activation : au retour dashboard, le funnel Gold est
+// déjà ouvert si le lieu a pris b2b_gold.
 // Mode démo : transaction_id `mock-...` + VITE_PAYMENT_MOCK=1 → succès simulé.
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import Confetti from "../components/Confetti";
-import { hasActiveB2b, pollEntitlement } from "../lib/entitlement";
+import { hasFreshlyActivatedB2b, pollEntitlement } from "../lib/entitlement";
 import { isPaymentMock } from "../lib/config";
 import { useAuth } from "../providers/AuthProvider";
 import { usePageTitle } from "../lib/use-page-title";
@@ -50,7 +51,10 @@ export default function ProRetourPage() {
       accessToken: session.access_token,
       signal: abort.signal,
       onAttempt: setAttempt,
-      isActive: hasActiveB2b,
+      // Succès sur `active` STRICT : un lieu qui renouvelle pendant sa grâce a
+      // déjà une ligne pro/b2b_gold `status='grace'` dans la vue — elle ne doit
+      // pas valider le retour tant que le nouveau paiement n'a pas activé.
+      isActive: (rows) => hasFreshlyActivatedB2b(rows, transactionId),
     }).then((outcome) => {
       if (!abort.signal.aborted) setStatus(outcome);
     });

@@ -111,6 +111,109 @@ export function hasActiveB2b(rows: EntitlementRow[]): boolean {
   return rows.filter(isB2bEntitlementRow).some(isEntitlementActive);
 }
 
+// ── Retour de paiement : « fraîchement activé » (strict, grâce EXCLUE) ──
+//
+// `isEntitlementActive` compte la grâce comme active — c'est CORRECT pour le
+// dashboard et /compte (l'accès reste ouvert pendant la fenêtre de grâce).
+// MAIS c'est un piège sur le retour de paiement : un spawter qui renouvelle
+// PENDANT sa grâce (le checkout l'autorise par design) a déjà une ancienne
+// souscription `status='grace'` dans la vue. Avec le prédicat souple, le 1er
+// tick de poll validerait le retour (« Bienvenue chez les Gold ») quel que
+// soit le sort du NOUVEAU paiement — l'échec ne se découvrirait qu'à
+// l'expiration de la grâce. Le retour exige donc un prédicat STRICT : seule
+// une ligne réellement `active` (période courante non échue, grâce exclue)
+// déclare le succès.
+
+/** Colonnes candidates portant l'identifiant de transaction (schéma non figé). */
+const TXN_ID_COLUMNS = [
+  "transaction_id",
+  "last_transaction_id",
+  "latest_transaction_id",
+  "provider_transaction_id",
+  "checkout_transaction_id",
+  "cinetpay_transaction_id",
+  "cpm_trans_id",
+  "txn_id",
+] as const;
+
+/** Identifiant de transaction porté par la ligne, si la vue l'expose. */
+function rowTransactionId(row: EntitlementRow): string | null {
+  for (const key of TXN_ID_COLUMNS) {
+    const v = row[key];
+    if (typeof v === "string" && v.length > 0) return v;
+  }
+  return null;
+}
+
+/**
+ * Variante STRICTE d'`isEntitlementActive` : la grâce n'est PAS un état actif.
+ * Une ligne est strictement active si :
+ *  - son `status` (s'il existe) vaut active/actif/trialing — grace/grace_period
+ *    et tout autre statut sont refusés, ET
+ *  - sa fin de période (si exposée) n'est pas passée (une échéance dépassée =
+ *    au mieux une grâce, jamais une activation fraîche).
+ * Sans status ni date exposés, la présence dans la vue fait foi (rétro-compat) ;
+ * la corrélation transaction_id (cf. isFreshlyActivated) lève alors l'ambiguïté.
+ */
+export function isStrictlyActive(row: EntitlementRow): boolean {
+  const status = row.status;
+  if (typeof status === "string") {
+    const ok = ["active", "actif", "trialing"].includes(status.toLowerCase());
+    if (!ok) return false;
+  }
+  const end = entitlementEndDate(row);
+  if (end !== null && end.getTime() < Date.now()) return false;
+  return true;
+}
+
+/**
+ * La ligne correspond-elle à une activation FRAÎCHE issue de ce retour ?
+ *  - strictement active (grâce exclue), ET
+ *  - si `transactionId` est connu ET que la vue expose l'identifiant de
+ *    transaction sur cette ligne, il doit correspondre (défense en profondeur
+ *    contre une activation concurrente). Colonne absente → on retombe sur le
+ *    strict-actif (la vue peut ne pas exposer la transaction).
+ */
+export function isFreshlyActivated(
+  row: EntitlementRow,
+  transactionId?: string | null,
+): boolean {
+  if (!isStrictlyActive(row)) return false;
+  if (transactionId) {
+    const rowTxn = rowTransactionId(row);
+    if (rowTxn !== null && rowTxn !== transactionId) return false;
+  }
+  return true;
+}
+
+/**
+ * Prédicat de retour Gold (B2C) : succès UNIQUEMENT si une ligne Gold est
+ * fraîchement activée (grâce préexistante exclue). Optionnellement corrélé au
+ * transaction_id du retour. Les lignes B2B sont ignorées (cf. hasActiveGold).
+ */
+export function hasFreshlyActivatedGold(
+  rows: EntitlementRow[],
+  transactionId?: string | null,
+): boolean {
+  return rows
+    .filter((r) => !isB2bEntitlementRow(r))
+    .some((r) => isFreshlyActivated(r, transactionId));
+}
+
+/**
+ * Prédicat de retour lieu (B2B) : succès UNIQUEMENT si une ligne pro/b2b_gold
+ * est fraîchement activée (grâce préexistante exclue), optionnellement corrélée
+ * au transaction_id du retour.
+ */
+export function hasFreshlyActivatedB2b(
+  rows: EntitlementRow[],
+  transactionId?: string | null,
+): boolean {
+  return rows
+    .filter(isB2bEntitlementRow)
+    .some((r) => isFreshlyActivated(r, transactionId));
+}
+
 export type PollOutcome = "active" | "timeout" | "session_expired";
 
 export interface PollOptions {
@@ -126,7 +229,10 @@ export interface PollOptions {
   onAttempt?: (attempt: number) => void;
   /**
    * Prédicat d'activation sur les lignes de la vue (défaut : hasActiveGold).
-   * Le retour B2B (/pro/retour) passe hasActiveB2b — même poll, autre plan.
+   * Les pages de retour passent le prédicat STRICT correspondant
+   * (hasFreshlyActivatedGold / hasFreshlyActivatedB2b) : elles ne déclarent le
+   * succès que sur une ligne réellement `active`, jamais sur une grâce
+   * préexistante (cf. isFreshlyActivated).
    */
   isActive?: (rows: EntitlementRow[]) => boolean;
 }

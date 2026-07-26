@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import Confetti from "../components/Confetti";
-import { pollEntitlement } from "../lib/entitlement";
+import { hasFreshlyActivatedGold, pollEntitlement } from "../lib/entitlement";
 import { APP_DEEP_LINK, isPaymentMock } from "../lib/config";
 import { useAuth } from "../providers/AuthProvider";
 import { usePageTitle } from "../lib/use-page-title";
@@ -48,6 +48,10 @@ export default function RetourPage() {
       accessToken: session.access_token,
       signal: abort.signal,
       onAttempt: setAttempt,
+      // Succès sur `active` STRICT : une grâce préexistante (renouvellement
+      // pendant la fenêtre de grâce) ne doit PAS déclarer « Bienvenue chez les
+      // Gold » tant que le nouveau paiement n'a pas réellement activé la ligne.
+      isActive: (rows) => hasFreshlyActivatedGold(rows, transactionId),
     }).then((outcome) => {
       if (!abort.signal.aborted) setStatus(outcome);
     });

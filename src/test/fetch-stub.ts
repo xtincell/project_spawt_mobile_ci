@@ -105,6 +105,24 @@ export const entitlementsEmpty = () => jsonResponse([]);
 export const entitlementsActive = () =>
   jsonResponse([{ product: "gold", status: "active", expires_at: new Date(Date.now() + 86_400_000).toISOString() }]);
 
+/**
+ * active_entitlements : ancienne souscription Gold B2C ENCORE EN GRÂCE
+ * (échéance passée, grace_until futur). La vue la remonte comme active
+ * (`is_active: true`) — c'est le piège : un retour de paiement ne doit PAS
+ * la prendre pour une activation fraîche tant que le nouveau paiement n'a pas
+ * réellement basculé une ligne en `status='active'`.
+ */
+export const entitlementsGraceGold = () =>
+  jsonResponse([
+    {
+      product: "gold",
+      status: "grace",
+      is_active: true,
+      expires_at: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+      grace_until: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+    },
+  ]);
+
 /** active_entitlements filtrée plans lieux (pro / b2b_gold). */
 export const b2bEntitlementsNone = () => jsonResponse([]);
 export const b2bEntitlementsActivePro = () =>

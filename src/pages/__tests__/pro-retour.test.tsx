@@ -10,6 +10,7 @@ import ProRetourPage from "../ProRetourPage";
 import {
   makeFetchStub,
   b2bEntitlementsActivePro,
+  b2bEntitlementsGraceGold,
   entitlementsActive,
 } from "../../test/fetch-stub";
 
@@ -65,6 +66,21 @@ describe("ProRetourPage", () => {
     // d'attendre : la page reste sur l'état « on confirme ».
     const stub = makeFetchStub([
       { urlIncludes: "active_entitlements", respond: entitlementsActive },
+    ]);
+    vi.stubGlobal("fetch", stub.impl);
+    renderRetour("/pro/retour?transaction_id=SPAWT-TX-test-b2b");
+
+    expect(await screen.findByText(/on confirme ton paiement/i)).toBeInTheDocument();
+    expect(screen.queryByText(/l'abonnement de ton lieu est actif/i)).not.toBeInTheDocument();
+  });
+
+  it("renouvellement pendant la grâce, paiement échoué : une ligne b2b_gold en GRÂCE ne déclare pas succès", async () => {
+    // Le lieu renouvelle pendant sa fenêtre de grâce ; le nouveau paiement
+    // échoue → la vue ne remonte que l'ancienne ligne `status='grace'`. Le
+    // prédicat strict la refuse : la page reste sur « on confirme », jamais
+    // « abonnement actif ». (Le timeout 2 min réel est couvert en unitaire.)
+    const stub = makeFetchStub([
+      { urlIncludes: "active_entitlements", respond: b2bEntitlementsGraceGold },
     ]);
     vi.stubGlobal("fetch", stub.impl);
     renderRetour("/pro/retour?transaction_id=SPAWT-TX-test-b2b");
