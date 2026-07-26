@@ -5,6 +5,7 @@
 import { describe, expect, it } from "vitest";
 import {
   fetchB2bAccount,
+  fetchB2bSubscription,
   fetchPlaceMonthlyStats,
   fetchPlaceFunnel,
   fetchReservationRequests,
@@ -17,6 +18,11 @@ import {
   formatMonthFr,
   formatStatValue,
   countReservationsInMonth,
+  computeTtc,
+  b2bPlanLabel,
+  deriveB2bSubscriptionStatus,
+  B2B_PLAN_CATALOG,
+  type B2bEntitlementRow,
   type PlaceMonthlyStats,
   type ReservationRequest,
 } from "../b2b-data";
@@ -29,6 +35,8 @@ import {
   b2bFunnelRows,
   b2bReservations,
   b2bReviews,
+  b2bEntitlementsActivePro,
+  b2bEntitlementsGraceGold,
   placeInfoRow,
   relationMissing404,
   relationMissing42P01,
@@ -257,5 +265,107 @@ describe("helpers d'affichage", () => {
     ] as ReservationRequest[];
     expect(countReservationsInMonth(resas, moisKey(0))).toBe(2);
     expect(countReservationsInMonth(resas, moisKey(1))).toBe(1);
+  });
+});
+
+describe("abonnement du lieu — catalogue, dérivation d'état, fetch", () => {
+  const FUTUR = new Date(Date.now() + 30 * 86_400_000).toISOString();
+  const PASSE = new Date(Date.now() - 2 * 86_400_000).toISOString();
+
+  it("computeTtc : TVA 18 % — pro 15 000 → 17 700, b2b_gold 65 000 → 76 700", () => {
+    expect(computeTtc(B2B_PLAN_CATALOG.pro.priceHt)).toBe(17700);
+    expect(computeTtc(B2B_PLAN_CATALOG.b2b_gold.priceHt)).toBe(76700);
+  });
+
+  it("b2bPlanLabel : codes connus traduits, repli sur le code brut", () => {
+    expect(b2bPlanLabel("pro")).toBe("Spawt Pro");
+    expect(b2bPlanLabel("b2b_gold")).toBe("Spawt Gold");
+    expect(b2bPlanLabel("mystere")).toBe("mystere");
+    expect(b2bPlanLabel(null)).toBe("—");
+  });
+
+  it("deriveB2bSubscriptionStatus : active / grace / expired / none", () => {
+    const active: B2bEntitlementRow = {
+      plan: "pro",
+      status: "active",
+      is_active: true,
+      expires_at: FUTUR,
+      grace_until: null,
+    };
+    const grace: B2bEntitlementRow = {
+      plan: "b2b_gold",
+      status: "grace",
+      is_active: true,
+      expires_at: PASSE,
+      grace_until: FUTUR,
+    };
+    const expired: B2bEntitlementRow = {
+      plan: "pro",
+      status: "expired",
+      is_active: false,
+      expires_at: PASSE,
+      grace_until: null,
+    };
+
+    expect(deriveB2bSubscriptionStatus([active])).toMatchObject({ kind: "active", plan: "pro" });
+    expect(deriveB2bSubscriptionStatus([grace])).toMatchObject({ kind: "grace", plan: "b2b_gold" });
+    expect(deriveB2bSubscriptionStatus([expired])).toMatchObject({ kind: "expired", plan: "pro" });
+    expect(deriveB2bSubscriptionStatus([])).toEqual({ kind: "none" });
+  });
+
+  it("deriveB2bSubscriptionStatus : les lignes pending/cancelled ne comptent pas", () => {
+    const pending: B2bEntitlementRow = {
+      plan: "pro",
+      status: "pending",
+      is_active: false,
+      expires_at: null,
+      grace_until: null,
+    };
+    const cancelled: B2bEntitlementRow = {
+      plan: "b2b_gold",
+      status: "cancelled",
+      is_active: false,
+      expires_at: null,
+      grace_until: null,
+    };
+    expect(deriveB2bSubscriptionStatus([pending, cancelled])).toEqual({ kind: "none" });
+  });
+
+  it("fetchB2bSubscription : requête active_entitlements filtrée plans lieux", async () => {
+    const stub = makeFetchStub([
+      { urlIncludes: "active_entitlements", respond: b2bEntitlementsActivePro },
+    ]);
+    const result = await fetchB2bSubscription(JETON, stub.impl);
+    expect(result).toMatchObject({ available: true, status: { kind: "active", plan: "pro" } });
+    expect(stub.calls[0].url).toContain("/rest/v1/active_entitlements");
+    expect(stub.calls[0].url).toContain("plan=in.(pro,b2b_gold)");
+    const headers = stub.calls[0].init?.headers as Record<string, string>;
+    expect(headers.authorization).toBe(`Bearer ${JETON}`);
+  });
+
+  it("fetchB2bSubscription : grâce détectée (b2b_gold)", async () => {
+    const stub = makeFetchStub([
+      { urlIncludes: "active_entitlements", respond: b2bEntitlementsGraceGold },
+    ]);
+    const result = await fetchB2bSubscription(JETON, stub.impl);
+    expect(result).toMatchObject({ available: true, status: { kind: "grace", plan: "b2b_gold" } });
+  });
+
+  it("fetchB2bSubscription : vue absente → not_ready ; 401 → session_expired", async () => {
+    const stub404 = makeFetchStub([
+      { urlIncludes: "active_entitlements", respond: relationMissing404 },
+    ]);
+    expect(await fetchB2bSubscription(JETON, stub404.impl)).toEqual({
+      available: false,
+      reason: "not_ready",
+    });
+
+    const stub401 = makeFetchStub([
+      { urlIncludes: "active_entitlements", respond: () => jsonResponse({ message: "JWT expired" }, 401) },
+    ]);
+    expect(await fetchB2bSubscription(JETON, stub401.impl)).toEqual({
+      available: false,
+      reason: "session_expired",
+    });
   });
 });

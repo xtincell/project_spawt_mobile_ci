@@ -280,6 +280,118 @@ export async function fetchPlaceInfo(
   return typeof row?.name === "string" ? row : null;
 }
 
+// ── Abonnement du lieu — souscription en ligne (payment-checkout) ─
+
+/** Codes de plan B2B — alignés subscriptions.plan (0032) et payment-checkout. */
+export type B2bPlanCode = "pro" | "b2b_gold";
+
+/** TVA CI (convention PRD : les prix B2B s'affichent HT + TVA en sus). */
+export const B2B_TVA_RATE = 18;
+
+/** TTC = HT + TVA arrondie au franc (miroir de computeTtc côté Edge). */
+export function computeTtc(priceHt: number): number {
+  return priceHt + Math.round((priceHt * B2B_TVA_RATE) / 100);
+}
+
+/**
+ * Catalogue d'affichage des plans lieux — prix HT (source de vérité runtime :
+ * _shared/payment/types.ts, repo app ; 15 000 → 17 700 TTC, 65 000 → 76 700).
+ */
+export const B2B_PLAN_CATALOG: Record<
+  B2bPlanCode,
+  { label: string; priceHt: number; pitch: string }
+> = {
+  pro: {
+    label: "Spawt Pro",
+    priceHt: 15000,
+    pitch: "Badge Vérifié, réponse aux avis, le Carnet et les stats de base.",
+  },
+  b2b_gold: {
+    label: "Spawt Gold",
+    priceHt: 65000,
+    pitch: "Tout Pro + funnel complet, tendances, archétypes et benchmark.",
+  },
+};
+
+/** Libellé d'un code plan B2B (« Spawt Pro ») — repli sur le code brut. */
+export function b2bPlanLabel(plan: string | null): string {
+  if (plan === "pro" || plan === "b2b_gold") return B2B_PLAN_CATALOG[plan].label;
+  return plan ?? "—";
+}
+
+/**
+ * Ligne de la vue active_entitlements (0032) restreinte aux plans lieux.
+ * security_invoker : le token du compte B2B ne voit que SES lignes (la RLS
+ * subscriptions_select_own passe par customers.spawter_id = auth.uid(), et le
+ * customer B2B est ancré sur l'auth du compte lieu — cf. payment-checkout).
+ */
+export interface B2bEntitlementRow {
+  plan: string;
+  status: string;
+  is_active: boolean | null;
+  expires_at: string | null;
+  grace_until: string | null;
+}
+
+/** État d'abonnement dérivé pour l'UI du dashboard. */
+export type B2bSubscriptionStatus =
+  | { kind: "none" }
+  | { kind: "active"; plan: string; until: Date | null }
+  | { kind: "grace"; plan: string; until: Date | null }
+  | { kind: "expired"; plan: string; since: Date | null };
+
+function toDate(iso: string | null | undefined): Date | null {
+  if (typeof iso !== "string") return null;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** Dérive l'état d'abonnement du lieu depuis les lignes de la vue (pur, testé). */
+export function deriveB2bSubscriptionStatus(rows: B2bEntitlementRow[]): B2bSubscriptionStatus {
+  // La vue 0032 liste TOUTES les subscriptions (y compris 'pending' — un
+  // checkout jamais payé — et 'cancelled') : seuls active/grace/expired
+  // racontent l'histoire d'un droit.
+  const relevant = rows.filter((r) => ["active", "grace", "expired"].includes(r.status));
+  const live = relevant.find((r) => r.is_active === true);
+  if (live) {
+    const end = toDate(live.expires_at);
+    // Échéance passée mais droit encore vivant → fenêtre de grâce.
+    if (live.status === "grace" || (end !== null && end.getTime() < Date.now())) {
+      return { kind: "grace", plan: live.plan, until: toDate(live.grace_until) };
+    }
+    return { kind: "active", plan: live.plan, until: end };
+  }
+  if (relevant.length > 0) {
+    return { kind: "expired", plan: relevant[0].plan, since: toDate(relevant[0].expires_at) };
+  }
+  return { kind: "none" };
+}
+
+export type B2bSubscriptionResult =
+  | { available: true; status: B2bSubscriptionStatus }
+  | { available: false; reason: "not_ready" | "error" | "session_expired" };
+
+/**
+ * Abonnement payant du lieu pour la session connectée.
+ * GET /rest/v1/active_entitlements
+ *     ?select=plan,status,is_active,expires_at,grace_until
+ *     &plan=in.(pro,b2b_gold)&order=expires_at.desc.nullsfirst
+ * La vue 0032 couvre les plans B2B (aucun filtre de famille en SQL) — on
+ * restreint côté requête. Dégradation « not_ready » si la vue n'est pas
+ * encore déployée (même tolérance d'ordre de déploiement que le reste).
+ */
+export async function fetchB2bSubscription(
+  accessToken: string,
+  fetchImpl: FetchImpl = fetch,
+): Promise<B2bSubscriptionResult> {
+  const path =
+    `/rest/v1/active_entitlements?select=plan,status,is_active,expires_at,grace_until` +
+    `&plan=in.(pro,b2b_gold)&order=expires_at.desc.nullsfirst`;
+  const result = await fetchRestList<B2bEntitlementRow>(path, accessToken, fetchImpl);
+  if (!result.available) return result;
+  return { available: true, status: deriveB2bSubscriptionStatus(result.rows) };
+}
+
 // ── Helpers d'affichage (purs, testés unitairement) ───────────────
 
 /** Seuil anti-réidentification des vues 0043 : sous 3 événements → NULL. */

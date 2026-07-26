@@ -7,12 +7,16 @@
 //  - `payment-checkout` N'EXISTE PAS ENCORE côté backend (chantier parallèle) :
 //    on code contre le contrat exact ci-dessous + mode démo VITE_PAYMENT_MOCK=1.
 //
-// Contrat payment-checkout (à implémenter côté supabase/functions) :
+// Contrat payment-checkout (supabase/functions/payment-checkout, repo app) :
 //   POST {SUPABASE_URL}/functions/v1/payment-checkout
-//   Headers : Authorization: Bearer <access_token du spawter> · apikey: <anon>
-//   Body    : {"plan":"gold_monthly"|"gold_annual","return_url":"<origin>/gold/retour"}
+//   Headers : Authorization: Bearer <access_token spawter OU compte lieu> · apikey: <anon>
+//   Body    : {"plan":"gold_monthly"|"gold_annual"|"pro"|"b2b_gold",
+//              "return_url":"<origin>/gold/retour" ou "<origin>/pro/retour"}
 //   200 → {"payment_url":"https://checkout.cinetpay.com/...","transaction_id":"..."}
-//   401 → session expirée (relogin) · 409 {"error":"already_active"} (déjà Gold)
+//   401 → session expirée (relogin)
+//   403 {"error":"not_b2b"} (plan lieu sans compte b2b_accounts actif — le
+//       rattachement du lieu est fait par l'équipe, le paiement est en ligne)
+//   409 {"error":"already_active"} (droit déjà actif — B2B : par lieu)
 //   502 {"error":"provider_error"} (CinetPay indisponible → réessayer)
 
 import { SUPABASE_URL, SUPABASE_ANON_KEY, isPaymentMock } from "./config";
@@ -123,9 +127,15 @@ export function verifyOtp(
   );
 }
 
-// ── Checkout Gold (contrat payment-checkout) ──────────────────────
+// ── Checkout Gold + lieux (contrat payment-checkout) ──────────────
 
 export type GoldPlan = "gold_monthly" | "gold_annual";
+
+/** Plans B2B (espace lieux) — mêmes codes que subscriptions.plan (0032). */
+export type B2bPlan = "pro" | "b2b_gold";
+
+/** Tout plan payable en ligne via payment-checkout. */
+export type CheckoutPlan = GoldPlan | B2bPlan;
 
 export interface CheckoutResponse {
   payment_url: string;
@@ -133,7 +143,7 @@ export interface CheckoutResponse {
 }
 
 export interface CheckoutOptions {
-  plan: GoldPlan;
+  plan: CheckoutPlan;
   accessToken: string;
   returnUrl: string;
   fetchImpl?: FetchImpl;
@@ -142,10 +152,12 @@ export interface CheckoutOptions {
 }
 
 /**
- * Lance le checkout CinetPay (Orange Money, Wave, MTN MoMo).
+ * Lance le checkout CinetPay (Orange Money, Wave, MTN MoMo) — plans Gold
+ * spawter comme plans lieux (pro / b2b_gold).
  * En mode démo (VITE_PAYMENT_MOCK=1) : aucune requête réseau, on renvoie une
- * `payment_url` qui pointe directement sur /gold/retour avec un
- * transaction_id `mock-...` — la page retour simule alors le succès.
+ * `payment_url` qui pointe directement sur la page retour fournie
+ * (/gold/retour ou /pro/retour) avec un transaction_id `mock-...` — la page
+ * retour simule alors le succès.
  */
 export function startCheckout(opts: CheckoutOptions): Promise<CheckoutResponse> {
   const mock = opts.mock ?? isPaymentMock;

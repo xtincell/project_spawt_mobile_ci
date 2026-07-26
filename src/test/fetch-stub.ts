@@ -97,10 +97,60 @@ export const checkoutAlreadyActive = () => jsonResponse({ error: "already_active
 /** payment-checkout : prestataire indisponible (502). */
 export const checkoutProviderError = () => jsonResponse({ error: "provider_error" }, 502);
 
+/** payment-checkout : plan lieu sans compte b2b_accounts actif (403). */
+export const checkoutNotB2b = () => jsonResponse({ error: "not_b2b" }, 403);
+
 /** active_entitlements : réponses PostgREST. */
 export const entitlementsEmpty = () => jsonResponse([]);
 export const entitlementsActive = () =>
   jsonResponse([{ product: "gold", status: "active", expires_at: new Date(Date.now() + 86_400_000).toISOString() }]);
+
+/** active_entitlements filtrée plans lieux (pro / b2b_gold). */
+export const b2bEntitlementsNone = () => jsonResponse([]);
+export const b2bEntitlementsActivePro = () =>
+  jsonResponse([
+    {
+      plan: "pro",
+      status: "active",
+      is_active: true,
+      expires_at: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+      grace_until: null,
+    },
+  ]);
+export const b2bEntitlementsGraceGold = () =>
+  jsonResponse([
+    {
+      plan: "b2b_gold",
+      status: "grace",
+      is_active: true,
+      expires_at: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+      grace_until: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+    },
+  ]);
+export const b2bEntitlementsExpiredPro = () =>
+  jsonResponse([
+    {
+      plan: "pro",
+      status: "expired",
+      is_active: false,
+      expires_at: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+      grace_until: null,
+    },
+  ]);
+
+/** invoices (RLS own) : une facture B2B payée — HT + TVA + TTC (trigger 0032). */
+export const invoicesB2bRows = () =>
+  jsonResponse([
+    {
+      invoice_number: "SPAWT-2026-0042",
+      price_ht: 15000,
+      tva_rate: 18,
+      price_ttc: 17700,
+      currency: "XOF",
+      status: "paid",
+      issued_at: "2026-07-01T10:00:00Z",
+    },
+  ]);
 
 // ── Espace lieux (B2B) : b2b_accounts, vues 0043, résas, avis ─────
 

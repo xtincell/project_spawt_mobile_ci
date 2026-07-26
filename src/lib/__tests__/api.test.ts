@@ -13,6 +13,7 @@ import {
   checkoutExpired,
   checkoutAlreadyActive,
   checkoutProviderError,
+  checkoutNotB2b,
 } from "../../test/fetch-stub";
 
 const PHONE = "+2250708091011";
@@ -118,5 +119,52 @@ describe("startCheckout — contrat payment-checkout", () => {
     const url = new URL(resp.payment_url);
     expect(url.pathname).toBe("/gold/retour");
     expect(url.searchParams.get("transaction_id")).toBe(resp.transaction_id);
+  });
+});
+
+describe("startCheckout — plans lieux (contrat B2B payment-checkout)", () => {
+  const b2bOpts = {
+    accessToken: "jeton-b2b",
+    returnUrl: "https://spawt.online/pro/retour",
+    mock: false,
+  };
+
+  it("200 : poste plan 'pro' + return_url /pro/retour avec le Bearer du compte lieu", async () => {
+    const stub = makeFetchStub([{ urlIncludes: "payment-checkout", respond: () => checkoutOk() }]);
+    const resp = await startCheckout({ ...b2bOpts, plan: "pro", fetchImpl: stub.impl });
+    expect(resp.payment_url).toContain("cinetpay");
+    expect(stub.calls[0].body).toEqual({
+      plan: "pro",
+      return_url: "https://spawt.online/pro/retour",
+    });
+    const headers = stub.calls[0].init?.headers as Record<string, string>;
+    expect(headers.authorization).toBe("Bearer jeton-b2b");
+  });
+
+  it("403 : not_b2b (compte non relié à un lieu vérifié — gate métier Edge)", async () => {
+    const stub = makeFetchStub([{ urlIncludes: "payment-checkout", respond: checkoutNotB2b }]);
+    const err = await startCheckout({ ...b2bOpts, plan: "b2b_gold", fetchImpl: stub.impl }).catch(
+      (e) => e as ApiError,
+    );
+    expect((err as ApiError).status).toBe(403);
+    expect((err as ApiError).code).toBe("not_b2b");
+  });
+
+  it("409 : already_active (abonnement déjà actif pour le lieu)", async () => {
+    const stub = makeFetchStub([{ urlIncludes: "payment-checkout", respond: checkoutAlreadyActive }]);
+    const err = await startCheckout({ ...b2bOpts, plan: "pro", fetchImpl: stub.impl }).catch(
+      (e) => e as ApiError,
+    );
+    expect((err as ApiError).status).toBe(409);
+    expect((err as ApiError).code).toBe("already_active");
+  });
+
+  it("mode démo : payment_url pointe sur /pro/retour avec un transaction_id mock", async () => {
+    const stub = makeFetchStub([]);
+    const resp = await startCheckout({ ...b2bOpts, plan: "b2b_gold", fetchImpl: stub.impl, mock: true });
+    expect(stub.calls).toHaveLength(0);
+    expect(resp.transaction_id).toMatch(/^mock-b2b_gold-/);
+    const url = new URL(resp.payment_url);
+    expect(url.pathname).toBe("/pro/retour");
   });
 });

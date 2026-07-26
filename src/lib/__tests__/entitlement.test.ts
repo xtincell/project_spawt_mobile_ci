@@ -5,7 +5,9 @@ import { describe, expect, it } from "vitest";
 import {
   fetchActiveEntitlements,
   isEntitlementActive,
+  isB2bEntitlementRow,
   hasActiveGold,
+  hasActiveB2b,
   pollEntitlement,
 } from "../entitlement";
 import {
@@ -14,6 +16,7 @@ import {
   jsonResponse,
   entitlementsEmpty,
   entitlementsActive,
+  b2bEntitlementsActivePro,
 } from "../../test/fetch-stub";
 
 const FUTUR = new Date(Date.now() + 86_400_000).toISOString();
@@ -119,5 +122,52 @@ describe("pollEntitlement", () => {
       fetchImpl: stub.impl,
     });
     expect(outcome).toBe("active");
+  });
+});
+
+describe("familles de plans — B2C Gold vs B2B lieux", () => {
+  const goldRow = { plan: "gold_monthly", status: "active", expires_at: FUTUR };
+  const proRow = { plan: "pro", status: "active", expires_at: FUTUR };
+  const b2bGoldRow = { plan: "b2b_gold", status: "grace", expires_at: PASSE, grace_until: FUTUR };
+  const sansPlan = { status: "active", expires_at: FUTUR };
+
+  it("isB2bEntitlementRow : pro/b2b_gold oui, plans Gold spawter et lignes sans plan non", () => {
+    expect(isB2bEntitlementRow(proRow)).toBe(true);
+    expect(isB2bEntitlementRow(b2bGoldRow)).toBe(true);
+    expect(isB2bEntitlementRow(goldRow)).toBe(false);
+    expect(isB2bEntitlementRow(sansPlan)).toBe(false);
+  });
+
+  it("hasActiveGold ignore les lignes B2B (un compte lieu n'est pas Gold spawter)", () => {
+    expect(hasActiveGold([proRow, b2bGoldRow])).toBe(false);
+    expect(hasActiveGold([proRow, goldRow])).toBe(true);
+    // Rétro-compat : ligne sans colonne plan = B2C (comportement historique).
+    expect(hasActiveGold([sansPlan])).toBe(true);
+  });
+
+  it("hasActiveB2b ne compte que les lignes pro/b2b_gold actives (grâce incluse)", () => {
+    expect(hasActiveB2b([goldRow, sansPlan])).toBe(false);
+    expect(hasActiveB2b([proRow])).toBe(true);
+    expect(hasActiveB2b([b2bGoldRow])).toBe(true);
+    expect(hasActiveB2b([{ plan: "pro", status: "expired", expires_at: PASSE }])).toBe(false);
+  });
+
+  it("pollEntitlement accepte un prédicat : hasActiveB2b active sur une ligne pro", async () => {
+    const stub = makeFetchStub([
+      {
+        urlIncludes: "active_entitlements",
+        respond: respondQueue(entitlementsActive, b2bEntitlementsActivePro),
+      },
+    ]);
+    // 1er tick : ligne Gold B2C uniquement → le prédicat B2B ne valide PAS.
+    const outcome = await pollEntitlement({
+      accessToken: "jeton-b2b",
+      intervalMs: 10,
+      timeoutMs: 2_000,
+      fetchImpl: stub.impl,
+      isActive: hasActiveB2b,
+    });
+    expect(outcome).toBe("active");
+    expect(stub.mock.mock.calls.length).toBe(2);
   });
 });

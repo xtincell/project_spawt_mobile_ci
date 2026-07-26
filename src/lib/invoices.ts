@@ -1,6 +1,9 @@
-// Factures du spawter — /compte.
-// GET /rest/v1/invoices?select=invoice_number,price_ttc,currency,status,issued_at
-//     &order=issued_at.desc   (RLS own rows)
+// Factures — /compte (spawter) et /pro/dashboard (compte lieu, RLS own via
+// customers.spawter_id = auth.uid(), valable aussi pour le customer B2B).
+// GET /rest/v1/invoices?select=invoice_number,price_ht,tva_rate,price_ttc,
+//     currency,status,issued_at&order=issued_at.desc   (RLS own rows)
+// price_ht/tva_rate servent à l'affichage B2B (convention PRD : HT + TVA) —
+// optionnels dans le type pour tolérer d'anciens déploiements de la table.
 // La table peut ne pas encore être déployée (chantier facturation) : 404 /
 // 42P01 → { available: false } et l'UI affiche « historique bientôt là ».
 
@@ -11,6 +14,8 @@ type FetchImpl = typeof fetch;
 
 export interface Invoice {
   invoice_number: string;
+  price_ht?: number;
+  tva_rate?: number;
   price_ttc: number;
   currency: string;
   status: string;
@@ -28,7 +33,7 @@ export async function fetchInvoices(
   let resp: Response;
   try {
     resp = await fetchImpl(
-      `${SUPABASE_URL}/rest/v1/invoices?select=invoice_number,price_ttc,currency,status,issued_at&order=issued_at.desc`,
+      `${SUPABASE_URL}/rest/v1/invoices?select=invoice_number,price_ht,tva_rate,price_ttc,currency,status,issued_at&order=issued_at.desc`,
       {
         headers: {
           apikey: SUPABASE_ANON_KEY,

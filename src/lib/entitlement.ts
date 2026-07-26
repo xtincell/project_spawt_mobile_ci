@@ -84,9 +84,31 @@ export function isEntitlementActive(row: EntitlementRow): boolean {
   return true;
 }
 
-/** Le spawter a-t-il un entitlement Gold actif ? */
+/** Codes des plans B2B (espace lieux) — alignés subscriptions.plan (0032). */
+export const B2B_PLAN_CODES = ["pro", "b2b_gold"] as const;
+
+/**
+ * La ligne porte-t-elle un plan B2B (lieu) ? La vue active_entitlements ne
+ * filtre pas par famille de plan : un compte lieu y voit ses lignes pro /
+ * b2b_gold. Parsing défensif : sans colonne `plan`, on considère la ligne
+ * B2C (comportement historique de la vue).
+ */
+export function isB2bEntitlementRow(row: EntitlementRow): boolean {
+  return (
+    typeof row.plan === "string" &&
+    (B2B_PLAN_CODES as readonly string[]).includes(row.plan)
+  );
+}
+
+/** Le spawter a-t-il un entitlement Gold (B2C) actif ? Les lignes de plans
+ *  B2B (pro / b2b_gold) sont exclues — un compte lieu n'est pas Gold spawter. */
 export function hasActiveGold(rows: EntitlementRow[]): boolean {
-  return rows.some(isEntitlementActive);
+  return rows.filter((r) => !isB2bEntitlementRow(r)).some(isEntitlementActive);
+}
+
+/** Le compte lieu a-t-il un abonnement B2B (pro / b2b_gold) actif ? */
+export function hasActiveB2b(rows: EntitlementRow[]): boolean {
+  return rows.filter(isB2bEntitlementRow).some(isEntitlementActive);
 }
 
 export type PollOutcome = "active" | "timeout" | "session_expired";
@@ -102,6 +124,11 @@ export interface PollOptions {
   fetchImpl?: FetchImpl;
   /** Callback à chaque tentative (n° de tentative, 1-indexé). */
   onAttempt?: (attempt: number) => void;
+  /**
+   * Prédicat d'activation sur les lignes de la vue (défaut : hasActiveGold).
+   * Le retour B2B (/pro/retour) passe hasActiveB2b — même poll, autre plan.
+   */
+  isActive?: (rows: EntitlementRow[]) => boolean;
 }
 
 /**
@@ -120,7 +147,7 @@ export async function pollEntitlement(opts: PollOptions): Promise<PollOutcome> {
     opts.onAttempt?.(attempt);
     try {
       const rows = await fetchActiveEntitlements(opts.accessToken, opts.fetchImpl ?? fetch);
-      if (hasActiveGold(rows)) return "active";
+      if ((opts.isActive ?? hasActiveGold)(rows)) return "active";
     } catch (err) {
       if (err instanceof ApiError && err.code === "session_expired") return "session_expired";
       // transitoire (réseau, 5xx) : on laisse le prochain tick réessayer.
