@@ -1,0 +1,759 @@
+/* Styles globaux du portail SPAWT.
+   Mobile-first (le trafic CI est majoritairement mobile), léger, sans lib UI.
+   Toutes les couleurs passent par les variables de ../theme/tokens.css —
+   aucun hex ici (règle auditée par scripts/lint-vocab.mjs). */
+
+@import "../theme/tokens.css";
+@import "./fonts.css";
+
+/* ── Reset sobre ─────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 var(--sp-base);
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0 0 var(--sp-base);
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--vert-chat-profond);
+}
+
+:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+  border-radius: var(--r-s);
+}
+
+/* ── Structure de page ───────────────────────────── */
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-main {
+  flex: 1;
+}
+
+.container {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: var(--sp-base);
+}
+
+.container--narrow {
+  max-width: 640px;
+}
+
+.section {
+  padding-block: var(--sp-2xl);
+}
+
+.section--warm {
+  background: var(--gr-sand);
+}
+
+.section--night {
+  background: var(--gr-night);
+  color: var(--ink-inverse);
+}
+
+.section--night h2,
+.section--night h3 {
+  color: var(--ink-inverse);
+}
+
+.section-kicker {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--or);
+  margin-bottom: var(--sp-sm);
+}
+
+.section-title {
+  font-size: var(--fs-2xl);
+}
+
+/* ── En-tête / navigation ────────────────────────── */
+.site-header {
+  background: var(--bg-night);
+  color: var(--ink-inverse);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--line-inverse);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-base);
+  min-height: 60px;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-xl);
+  letter-spacing: 0.06em;
+  color: var(--or);
+  text-decoration: none;
+}
+
+.wordmark:hover {
+  color: var(--or-clair);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-base);
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  color: var(--ink-inverse);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  padding: var(--sp-sm) 0;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  color: var(--or-clair);
+}
+
+/* ── Boutons ─────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--fs-base);
+  padding: 14px 26px;
+  border-radius: var(--r-full);
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  min-height: 48px; /* zone tactile confortable */
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--gold {
+  background: var(--or);
+  color: var(--noir); /* texte noir sur or : contraste AA */
+  box-shadow: 0 0 20px var(--glow-or);
+}
+
+.btn--gold:hover {
+  color: var(--noir);
+}
+
+.btn--night {
+  background: var(--noir);
+  color: var(--blanc-casse);
+}
+
+.btn--night:hover {
+  color: var(--blanc-casse);
+}
+
+.btn--accent {
+  background: var(--vert-chat);
+  color: var(--blanc-casse); /* AA ≈ 6,3:1 */
+}
+
+.btn--accent:hover {
+  color: var(--blanc-casse);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.section--night .btn--ghost {
+  border-color: var(--line-inverse);
+  color: var(--ink-inverse);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* ── Héro landing ────────────────────────────────── */
+.hero {
+  background: var(--gr-night);
+  color: var(--ink-inverse);
+  padding-block: var(--sp-3xl) var(--sp-2xl);
+  text-align: center;
+}
+
+.hero__title {
+  font-size: clamp(2.4rem, 9vw, 4.2rem);
+  color: var(--or);
+  margin-bottom: var(--sp-md);
+  text-wrap: balance;
+}
+
+.hero__promise {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 4.5vw, 1.9rem);
+  color: var(--blanc-casse);
+  margin-bottom: var(--sp-base);
+}
+
+.hero__pitch {
+  color: var(--or-clair);
+  font-size: var(--fs-lg);
+  max-width: 34ch;
+  margin-inline: auto;
+  margin-bottom: var(--sp-xl);
+}
+
+.hero__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-base);
+}
+
+/* ── Badges stores ───────────────────────────────── */
+.store-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-md);
+}
+
+.store-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 20px;
+  min-width: 180px;
+  border-radius: var(--r-m);
+  border: 1px solid var(--line-inverse);
+  background: var(--noir);
+  color: var(--blanc-casse);
+  text-decoration: none;
+  text-align: left;
+}
+
+.store-badge:hover {
+  border-color: var(--or);
+  color: var(--blanc-casse);
+}
+
+.store-badge__hint {
+  font-size: var(--fs-xs);
+  color: var(--or-clair);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.store-badge__name {
+  font-weight: 700;
+  font-size: var(--fs-base);
+}
+
+.store-badge--soon {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ── Grilles de cartes ───────────────────────────── */
+.card-grid {
+  display: grid;
+  gap: var(--sp-base);
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card--warm {
+  background: var(--bg-warm);
+  border-color: transparent;
+}
+
+.card__icon {
+  font-size: var(--fs-2xl);
+  line-height: 1;
+  margin-bottom: var(--sp-md);
+}
+
+.card h3 {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--sp-sm);
+}
+
+.card p:last-child {
+  margin-bottom: 0;
+  color: var(--ink-soft);
+}
+
+/* ── Tarifs ──────────────────────────────────────── */
+.price-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  background: var(--bg-card);
+  border: 2px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--sp-lg);
+}
+
+.price-card--featured {
+  border-color: var(--or);
+  box-shadow: 0 0 24px var(--glow-or);
+}
+
+.price-card__flag {
+  position: absolute;
+  top: calc(-1 * var(--sp-md));
+  right: var(--sp-base);
+  background: var(--or);
+  color: var(--noir);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.price-card__amount {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  line-height: 1;
+}
+
+.price-card__period {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.price-card__ht {
+  font-size: var(--fs-xs);
+  color: var(--ink-mute);
+}
+
+.price-card ul {
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--ink-soft);
+}
+
+.price-card li {
+  margin-bottom: var(--sp-xs);
+}
+
+/* ── Formulaires ─────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-xs);
+  margin-bottom: var(--sp-base);
+}
+
+.field label {
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+
+.field__hint {
+  font-size: var(--fs-xs);
+  color: var(--ink-mute);
+}
+
+.input {
+  font-family: var(--font-body);
+  font-size: var(--fs-lg);
+  padding: 12px var(--sp-base);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-l);
+  background: var(--bg-card);
+  color: var(--ink);
+  width: 100%;
+}
+
+.input:focus {
+  outline: 3px solid var(--or);
+  outline-offset: 1px;
+  border-color: var(--or);
+}
+
+.input-phone {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-phone__prefix {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--sp-base);
+  border: 1px solid var(--line-strong);
+  border-right: 0;
+  border-radius: var(--r-l) 0 0 var(--r-l);
+  background: var(--bg-warm);
+  font-weight: 700;
+}
+
+.input-phone .input {
+  border-radius: 0 var(--r-l) var(--r-l) 0;
+}
+
+.input--otp {
+  text-align: center;
+  letter-spacing: 0.5em;
+  font-size: var(--fs-2xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  margin: var(--sp-sm) 0;
+}
+
+.form-info {
+  color: var(--vert-chat);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  margin: var(--sp-sm) 0;
+}
+
+/* ── FAQ (details/summary accessibles) ───────────── */
+.faq details {
+  border-bottom: 1px solid var(--line);
+  padding-block: var(--sp-md);
+}
+
+.faq summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--fs-base);
+  list-style-position: outside;
+}
+
+.faq details[open] summary {
+  color: var(--vert-chat-profond);
+}
+
+.faq details p {
+  margin-top: var(--sp-sm);
+  color: var(--ink-soft);
+}
+
+/* ── Badges / statuts ────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.pill--gold {
+  background: var(--or);
+  color: var(--noir);
+}
+
+.pill--warm {
+  background: var(--creme-sable);
+  color: var(--vert-chat-profond);
+}
+
+.pill--danger {
+  background: var(--danger);
+  color: var(--blanc-casse);
+}
+
+/* ── Tableaux (factures) ─────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: var(--sp-sm) var(--sp-md);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.table th {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+}
+
+/* ── Onglets (dashboard pro) ─────────────────────── */
+.tabs {
+  display: flex;
+  gap: var(--sp-sm);
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: var(--sp-lg);
+  overflow-x: auto;
+}
+
+.tabs button {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: var(--sp-md) var(--sp-base);
+  cursor: pointer;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.tabs button[aria-selected="true"] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--or);
+}
+
+/* ── Encart statut / info ────────────────────────── */
+.notice {
+  border-radius: var(--r-l);
+  padding: var(--sp-base) var(--sp-lg);
+  background: var(--bg-warm);
+  border: 1px solid var(--line);
+  margin-bottom: var(--sp-base);
+}
+
+.notice--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: var(--bg-card);
+}
+
+/* ── Pied de page ────────────────────────────────── */
+.site-footer {
+  background: var(--bg-night);
+  color: var(--ink-inverse);
+  padding-block: var(--sp-xl);
+  margin-top: auto;
+}
+
+.site-footer a {
+  color: var(--or-clair);
+}
+
+.site-footer__cols {
+  display: grid;
+  gap: var(--sp-lg);
+  grid-template-columns: 1fr;
+  margin-bottom: var(--sp-lg);
+}
+
+.site-footer h4 {
+  color: var(--or);
+  font-size: var(--fs-base);
+  margin-bottom: var(--sp-sm);
+}
+
+.site-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-footer li {
+  margin-bottom: var(--sp-xs);
+  font-size: var(--fs-sm);
+}
+
+.site-footer__legal {
+  border-top: 1px solid var(--line-inverse);
+  padding-top: var(--sp-base);
+  font-size: var(--fs-xs);
+  color: var(--ink-inverse-soft);
+}
+
+/* ── Pages légales ───────────────────────────────── */
+.legal h1 {
+  font-size: var(--fs-3xl);
+}
+
+.legal h2 {
+  font-size: var(--fs-xl);
+  margin-top: var(--sp-xl);
+}
+
+.legal mark {
+  background: var(--or-clair);
+  color: var(--noir);
+  padding: 0 4px;
+  border-radius: var(--r-s);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+/* ── Confetti sobre (retour paiement) ────────────── */
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 50;
+}
+
+.confetti span {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confetti-fall 2.8s ease-in forwards;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(105vh) rotate(540deg);
+    opacity: 0.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti span {
+    animation: none;
+    display: none;
+  }
+
+  .btn,
+  .btn:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ── Spinner d'attente ───────────────────────────── */
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--line-strong);
+  border-top-color: var(--or);
+  border-radius: var(--r-full);
+  animation: spin 0.9s linear infinite;
+  margin-inline: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Breakpoints (mobile-first) ──────────────────── */
+@media (min-width: 640px) {
+  .container {
+    padding-inline: var(--sp-lg);
+  }
+
+  .card-grid--2,
+  .card-grid--3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero__actions {
+    flex-direction: column;
+  }
+
+  .site-footer__cols {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .card-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .section {
+    padding-block: var(--sp-3xl);
+  }
+}
