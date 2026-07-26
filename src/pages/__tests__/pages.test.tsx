@@ -40,6 +40,15 @@ describe("LandingPage", () => {
     const lien = screen.getByRole("link", { name: /découvre ton archétype/i });
     expect(lien).toHaveAttribute("href", "https://quiz.spawt.online");
   });
+
+  it("présente le programme ambassadeur et pointe vers /ambassadeurs", () => {
+    renderAt(<LandingPage />);
+    expect(
+      screen.getByRole("heading", { name: /deviens la voix de la meute/i }),
+    ).toBeInTheDocument();
+    const lien = screen.getByRole("link", { name: /découvrir les 3 paliers/i });
+    expect(lien).toHaveAttribute("href", "/ambassadeurs");
+  });
 });
 
 describe("GoldPage", () => {

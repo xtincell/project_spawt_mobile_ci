@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 import { AuthProvider, RequireAuth } from "./providers/AuthProvider";
 import LandingPage from "./pages/LandingPage";
 import GoldPage from "./pages/GoldPage";
+import AmbassadeursPage from "./pages/AmbassadeursPage";
 import ConnexionPage from "./pages/ConnexionPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import RetourPage from "./pages/RetourPage";
@@ -53,6 +54,7 @@ export default function App() {
                 </RequireAuth>
               }
             />
+            <Route path="/ambassadeurs" element={<AmbassadeursPage />} />
             <Route path="/pro" element={<ProPage />} />
             <Route
               path="/pro/dashboard"

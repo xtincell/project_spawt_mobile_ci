@@ -194,3 +194,12 @@ export const b2bReviews = () =>
 /** places (fiche publique) : nom + quartier du lieu relié. */
 export const placeInfoRow = () =>
   jsonResponse([{ name: "Chez Tantie Alice", neighborhood: "Cocody" }]);
+
+// ── Programme ambassadeur : table ambassadors (0044, RLS own) ─────
+
+/** ambassadors : le spawter connecté a un palier (RLS own → 1 ligne max). */
+export const ambassadorRow = (palier = 2, since = "2026-06-15T10:00:00Z") =>
+  jsonResponse([{ palier, since }]);
+
+/** ambassadors : aucun palier attribué (l'équipe décide → CTA candidature). */
+export const ambassadorNone = () => jsonResponse([]);

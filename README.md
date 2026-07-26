@@ -15,6 +15,7 @@ ici).
 | `/gold/paiement` | Checkout Gold (auth requis) → page CinetPay (Orange Money, Wave, MTN MoMo) |
 | `/gold/retour` | Retour paiement : poll de l'entitlement (3 s / 2 min), succès, attente ou échec |
 | `/compte` | Mon abonnement : statut, renouvellement, factures, déconnexion |
+| `/ambassadeurs` | Programme ambassadeur (3 paliers : Allié Content / Ambassadeur Actif / Guide Ambassadeur), « Ton palier » si connecté (table `ambassadors`, migration 0044, RLS own, fallback table absente), candidature par mailto |
 | `/pro` | Espace lieux (B2B) : Spawt Libre 0 F · Pro 15 000 F HT/mois · Gold 65 000 F HT/mois |
 | `/pro/dashboard` | Tableau de bord lieux (Aperçu / Réservations / Avis / Audience) branché sur les vues B2B (0042/0043) + rapport mensuel imprimable |
 | `/legal/confidentialite` · `/legal/cgu` · `/legal/cgv` | Squelettes juridiques (loi 2013-450, ARTCI, TVA 18 %, rétractation 7 jours) — marqueurs `[À VALIDER PAR JURISTE]` |
@@ -44,7 +45,7 @@ les écrans concernés). Pour développer le tunnel de paiement sans backend :
 ```bash
 npm run lint:vocab   # dialecte SPAWT + « aucun hex hors src/theme/tokens.* »
 npm run typecheck    # tsc --noEmit
-npm test             # vitest (78 tests)
+npm test             # vitest (93 tests)
 npm run build        # tsc + vite build
 ```
 
@@ -147,10 +148,10 @@ public/fonts/            Klinsman + Gotham (copiées depuis l'app mobile)
 scripts/lint-vocab.mjs   lint dialecte + hex hors tokens
 src/theme/               tokens.ts + tokens.css (SEULES sources de hex)
 src/styles/              fonts.css + global.css (mobile-first, var(--...) only)
-src/lib/                 config, supabase, phone, api, entitlement, invoices, b2b-data
+src/lib/                 config, supabase, phone, api, entitlement, invoices, b2b-data, ambassadors
 src/providers/           AuthProvider (session + RequireAuth)
 src/components/          Layout, StoreBadges, Confetti
 src/pages/               Landing, Gold, Connexion, Checkout, Retour, Compte,
-                         Pro, ProDashboard, legal/ (x4), NotFound
+                         Ambassadeurs, Pro, ProDashboard, legal/ (x4), NotFound
 src/test/                setup vitest + stub fetch contractuel (façon MSW)
 ```

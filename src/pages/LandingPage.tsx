@@ -91,6 +91,23 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="section" aria-labelledby="ambassadeurs-titre">
+        <div className="container container--narrow">
+          <p className="section-kicker">Programme ambassadeur</p>
+          <h2 className="section-title" id="ambassadeurs-titre">
+            Deviens la voix de la Meute
+          </h2>
+          <p>
+            Tu spawtes déjà, tu racontes déjà, ta communauté t'écoute déjà&nbsp;?
+            Le programme ambassadeur te donne un micro — Gold offert, visibilité
+            éditoriale, et une rétribution qui monte avec ton palier.
+          </p>
+          <Link className="btn btn--accent" to="/ambassadeurs">
+            Découvrir les 3 paliers
+          </Link>
+        </div>
+      </section>
+
       <section className="section section--warm" aria-labelledby="crew-titre">
         <div className="container">
           <h2 className="section-title" id="crew-titre">

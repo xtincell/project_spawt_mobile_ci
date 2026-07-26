@@ -48,6 +48,9 @@ function Footer() {
               <li>
                 <Link to="/pro">Ton lieu sur SPAWT</Link>
               </li>
+              <li>
+                <Link to="/ambassadeurs">Deviens ambassadeur</Link>
+              </li>
             </ul>
           </div>
           <div>
