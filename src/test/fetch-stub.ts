@@ -101,3 +101,96 @@ export const checkoutProviderError = () => jsonResponse({ error: "provider_error
 export const entitlementsEmpty = () => jsonResponse([]);
 export const entitlementsActive = () =>
   jsonResponse([{ product: "gold", status: "active", expires_at: new Date(Date.now() + 86_400_000).toISOString() }]);
+
+// ── Espace lieux (B2B) : b2b_accounts, vues 0043, résas, avis ─────
+
+export const PLACE_ID_TEST = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+export const b2bAccountPro = () => jsonResponse([{ place_id: PLACE_ID_TEST, role: "pro" }]);
+export const b2bAccountGold = () => jsonResponse([{ place_id: PLACE_ID_TEST, role: "gold" }]);
+export const b2bAccountNone = () => jsonResponse([]);
+
+/** PostgREST : relation absente (PostgREST moderne → 404 + code PGRST205). */
+export const relationMissing404 = () =>
+  jsonResponse({ code: "PGRST205", message: "Could not find the table in the schema cache" }, 404);
+
+/** PostgREST : relation absente (variante 400 + code PostgreSQL 42P01). */
+export const relationMissing42P01 = () =>
+  jsonResponse({ code: "42P01", message: "relation does not exist" }, 400);
+
+/** Clé mois PostgREST (« 2026-07-01 ») décalée de `offset` mois avant le mois courant. */
+export function moisKey(offset: number): string {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - offset, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-01`;
+}
+
+/**
+ * b2b_place_stats_monthly : mois courant fourni, mois -1 sous le seuil n<3
+ * (tout NULL — la vue 0043 masque les agrégats), mois -2 fourni.
+ */
+export const b2bMonthlyStats = () =>
+  jsonResponse([
+    { month: moisKey(0), spawts_verifies: 12, avis: 5, note_moyenne_ponderee: 4.2 },
+    { month: moisKey(1), spawts_verifies: null, avis: null, note_moyenne_ponderee: null },
+    { month: moisKey(2), spawts_verifies: 7, avis: 3, note_moyenne_ponderee: 3.8 },
+  ]);
+
+/** b2b_place_funnel (role gold) : shares du mois courant sous le seuil → NULL. */
+export const b2bFunnelRows = () =>
+  jsonResponse([
+    { month: moisKey(0), views: 240, saves: 58, shares: null, spawts: 21 },
+    { month: moisKey(1), views: 180, saves: 40, shares: 12, spawts: 15 },
+  ]);
+
+/** reservation_requests : 2 demandes du mois courant + 1 du mois précédent. */
+export const b2bReservations = () =>
+  jsonResponse([
+    {
+      id: "resa-3",
+      party_size: 4,
+      slot_at: `${moisKey(0).slice(0, 8)}15T20:30:00Z`,
+      channel: "whatsapp",
+      status: "confirmed",
+      created_at: `${moisKey(0).slice(0, 8)}12T10:00:00Z`,
+    },
+    {
+      id: "resa-2",
+      party_size: 2,
+      slot_at: null,
+      channel: "phone",
+      status: "sent",
+      created_at: `${moisKey(0).slice(0, 8)}05T18:00:00Z`,
+    },
+    {
+      id: "resa-1",
+      party_size: 6,
+      slot_at: `${moisKey(1).slice(0, 8)}20T19:00:00Z`,
+      channel: "whatsapp",
+      status: "cancelled",
+      created_at: `${moisKey(1).slice(0, 8)}18T09:00:00Z`,
+    },
+  ]);
+
+/** spawt_checkin (avis publiés, RLS 0021) avec le join spawters_public. */
+export const b2bReviews = () =>
+  jsonResponse([
+    {
+      id: "avis-1",
+      note_etoiles: 5,
+      texte_avis: "Le poisson braisé est une claque. On revient dimanche.",
+      created_at: `${moisKey(0).slice(0, 8)}10T19:00:00Z`,
+      spawters_public: { display_name: "Awa", stade: "djidji" },
+    },
+    {
+      id: "avis-2",
+      note_etoiles: 4,
+      texte_avis: null,
+      created_at: `${moisKey(1).slice(0, 8)}22T13:00:00Z`,
+      spawters_public: { display_name: "Karim", stade: "explorateur" },
+    },
+  ]);
+
+/** places (fiche publique) : nom + quartier du lieu relié. */
+export const placeInfoRow = () =>
+  jsonResponse([{ name: "Chez Tantie Alice", neighborhood: "Cocody" }]);
