@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Couleur de barre navigateur = noir SPAWT (#0A0A0A, palette canonique).
+         Seule exception au « zéro hex hors tokens » : index.html est hors src/
+         et une meta ne peut pas consommer une variable CSS. -->
+    <meta name="theme-color" content="#0A0A0A" />
+    <meta
+      name="description"
+      content="SPAWT — La carte du bon goût. Ne plus jamais regretter un lieu à Abidjan : ton Palais, ton archétype, ta Meute."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/Klinsman-Bold.otf"
+      as="font"
+      type="font/otf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Gotham-Book.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <title>SPAWT — La carte du bon goût</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

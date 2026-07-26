@@ -1,0 +1,13 @@
+# Dépendances et artefacts de build
+node_modules/
+dist/
+
+# Environnements locaux — seul .env.example est versionné
+.env
+.env.local
+.env.*.local
+
+# Divers outillage
+*.log
+.DS_Store
+coverage/
