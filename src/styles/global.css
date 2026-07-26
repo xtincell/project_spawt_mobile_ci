@@ -596,6 +596,238 @@ table.table {
   border-bottom-color: var(--or);
 }
 
+/* ── Dashboard lieux (/pro/dashboard) ────────────── */
+.dashboard-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-base);
+  margin-bottom: var(--sp-lg);
+}
+
+.stat-grid {
+  display: grid;
+  gap: var(--sp-base);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--sp-base) var(--sp-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card__value {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  line-height: 1.1;
+  margin: 0;
+  color: var(--ink);
+}
+
+.stat-card__suffix {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  color: var(--ink-mute);
+}
+
+.stat-card__label {
+  margin: var(--sp-xs) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+
+/* Agrégat sous le seuil n<3 : tiret + infobulle (title) au survol/focus. */
+.seuil {
+  cursor: help;
+  text-decoration: underline dotted var(--ink-mute);
+  text-underline-offset: 4px;
+}
+
+/* Graphique à barres SVG maison (aucune dépendance graphique). */
+.bar-chart {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+}
+
+.bar-chart__bar {
+  fill: var(--or);
+}
+
+.bar-chart__axis {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.bar-chart__label,
+.bar-chart__empty {
+  fill: var(--gris-moyen);
+  font-family: var(--font-body);
+  font-size: 12px;
+}
+
+.bar-chart__value {
+  fill: var(--graphite);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Funnel horizontal (Audience Gold). */
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.funnel__step {
+  display: grid;
+  grid-template-columns: minmax(96px, 130px) 1fr 56px;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+.funnel__label {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+
+.funnel__track {
+  display: block;
+  background: var(--bg-warm);
+  border-radius: var(--r-full);
+  height: 18px;
+  overflow: hidden;
+}
+
+.funnel__bar {
+  display: block;
+  height: 100%;
+  background: var(--or);
+  border-radius: var(--r-full);
+}
+
+.funnel__value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Liste d'avis publics. */
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.review-item {
+  border-bottom: 1px solid var(--line);
+  padding-block: var(--sp-md);
+}
+
+.review-item:last-child {
+  border-bottom: 0;
+}
+
+.review-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-xs);
+}
+
+.review-item__meta {
+  font-size: var(--fs-sm);
+  color: var(--ink-mute);
+}
+
+.review-item__text {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.stars {
+  color: var(--or);
+  letter-spacing: 2px;
+}
+
+.pill--accent {
+  background: var(--vert-chat);
+  color: var(--blanc-casse);
+}
+
+/* ── Rapport mensuel imprimable ──────────────────── */
+/* Invisible à l'écran ; en impression, seule cette section reste (le bouton
+   « Télécharger le rapport (PDF) » déclenche window.print(), le navigateur
+   fait le PDF — zéro dépendance). */
+.print-report {
+  display: none;
+}
+
+@media print {
+  .site-header,
+  .site-footer,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: var(--blanc-pur);
+  }
+
+  .print-report {
+    display: block;
+    padding: var(--sp-lg);
+    color: var(--noir);
+  }
+
+  .print-report__head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-lg);
+    border-bottom: 2px solid var(--noir);
+    padding-bottom: var(--sp-base);
+    margin-bottom: var(--sp-lg);
+  }
+
+  .print-report__wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-3xl);
+    letter-spacing: 0.06em;
+    color: var(--or);
+  }
+
+  .print-report h1 {
+    font-size: var(--fs-2xl);
+    margin-bottom: var(--sp-xs);
+  }
+
+  .print-report h2 {
+    font-size: var(--fs-xl);
+    margin-top: var(--sp-lg);
+  }
+
+  .print-report__note {
+    font-size: var(--fs-xs);
+    color: var(--graphite);
+  }
+
+  .print-report__foot {
+    margin-top: var(--sp-xl);
+    padding-top: var(--sp-base);
+    border-top: 1px solid var(--line-strong);
+    font-size: var(--fs-xs);
+    color: var(--gris-moyen);
+  }
+}
+
 /* ── Encart statut / info ────────────────────────── */
 .notice {
   border-radius: var(--r-l);
@@ -737,6 +969,10 @@ table.table {
   .card-grid--2,
   .card-grid--3 {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .hero__actions {
