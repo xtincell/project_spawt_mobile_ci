@@ -70,6 +70,9 @@ export default function ProPage() {
                 <li>Le Carnet : tes actus poussées à la Meute</li>
                 <li>Stats de base (visites, spawts, notes)</li>
               </ul>
+              <p className="price-card__ht">
+                Souscription en ligne après vérification de ton lieu.
+              </p>
             </article>
             <article className="price-card">
               <h3>Spawt Gold</h3>
@@ -83,10 +86,16 @@ export default function ProPage() {
                 <li>Ciblage par archétype de spawter</li>
                 <li>Benchmark face aux lieux comparables</li>
               </ul>
+              <p className="price-card__ht">
+                Souscription en ligne après vérification de ton lieu.
+              </p>
             </article>
           </div>
           <p style={{ marginTop: "var(--sp-lg)" }}>
-            Ton lieu n'est pas encore sur SPAWT, ou tu veux passer Pro&nbsp;?{" "}
+            Une fois ton lieu vérifié et relié par l'équipe, la souscription Pro
+            ou Gold se paie directement en ligne depuis ton tableau de bord
+            (Orange Money, Wave, MTN MoMo). Ton lieu n'est pas encore sur
+            SPAWT&nbsp;?{" "}
             <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Mon lieu sur SPAWT")}`}>
               Écris-nous
             </a>{" "}

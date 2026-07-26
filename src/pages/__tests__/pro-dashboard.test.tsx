@@ -1,11 +1,14 @@
 // Tests du tableau de bord lieux : rendu des onglets sur fixtures, seuil
 // n<3 → « — » + infobulle, upsell Gold pour un compte pro (funnel jamais
-// appelé), funnel affiché pour un compte gold, dégradation « stats en
-// construction » quand les vues SQL ne sont pas déployées.
+// appelé) avec souscription EN LIGNE, funnel affiché pour un compte gold,
+// onglet Abonnement (panneau Pro/Gold HT + TTC, checkout b2b, statut actif +
+// factures, erreurs 403/409), dégradation « stats en construction » quand
+// les vues SQL ne sont pas déployées.
 import { describe, expect, it, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router";
 import ProDashboardPage from "../ProDashboardPage";
+import * as api from "../../lib/api";
 import {
   makeFetchStub,
   jsonResponse,
@@ -16,10 +19,24 @@ import {
   b2bFunnelRows,
   b2bReservations,
   b2bReviews,
+  b2bEntitlementsNone,
+  b2bEntitlementsActivePro,
+  b2bEntitlementsGraceGold,
+  b2bEntitlementsExpiredPro,
+  invoicesB2bRows,
+  checkoutOk,
+  checkoutNotB2b,
+  checkoutAlreadyActive,
   placeInfoRow,
   relationMissing404,
   type StubRoute,
 } from "../../test/fetch-stub";
+
+// redirectTo espionné (window.location.assign n'est pas implémenté en jsdom).
+vi.mock("../../lib/api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../lib/api")>();
+  return { ...actual, redirectTo: vi.fn() };
+});
 
 // Session factice : la page est derrière RequireAuth en prod, ici on mocke
 // directement le hook (même approche que checkout.test.tsx). L'objet session
@@ -51,20 +68,26 @@ function renderDashboard() {
 }
 
 /** Routes REST complètes d'un compte relié (le rôle vient de `compte`). */
-function routesFor(compte: () => Response): StubRoute[] {
+function routesFor(compte: () => Response, extra: StubRoute[] = []): StubRoute[] {
   return [
+    ...extra,
     { urlIncludes: "b2b_accounts", respond: compte },
     { urlIncludes: "b2b_place_stats_monthly", respond: b2bMonthlyStats },
     { urlIncludes: "b2b_place_funnel", respond: b2bFunnelRows },
     { urlIncludes: "reservation_requests", respond: b2bReservations },
     { urlIncludes: "spawt_checkin", respond: b2bReviews },
     { urlIncludes: "rest/v1/places", respond: placeInfoRow },
+    { urlIncludes: "active_entitlements", respond: b2bEntitlementsNone },
+    // Factures vides par défaut (les montants des fixtures factures entreraient
+    // en collision de texte avec les cartes de plans dans les tests).
+    { urlIncludes: "rest/v1/invoices", respond: () => jsonResponse([]) },
   ];
 }
 
 afterEach(() => {
   vi.unstubAllGlobals();
   signOut.mockClear();
+  vi.mocked(api.redirectTo).mockClear();
 });
 
 describe("ProDashboardPage — compte non relié", () => {
@@ -148,21 +171,164 @@ describe("ProDashboardPage — compte pro", () => {
     expect(within(panneau).getByText(/pas de réponse ni de modération/i)).toBeInTheDocument();
   });
 
-  it("onglet Audience : upsell Spawt Gold, mailto, et AUCUN appel au funnel", async () => {
-    const stub = makeFetchStub(routesFor(b2bAccountPro));
+  it("onglet Audience : upsell Spawt Gold EN LIGNE (HT + TTC), AUCUN appel au funnel", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountPro, [{ urlIncludes: "payment-checkout", respond: () => checkoutOk() }]),
+    );
     vi.stubGlobal("fetch", stub.impl);
     renderDashboard();
     await screen.findByRole("heading", { name: "Chez Tantie Alice" });
 
     fireEvent.click(screen.getByRole("tab", { name: "Audience" }));
     const panneau = screen.getByRole("tabpanel");
+    // Convention PRD : prix B2B affiché HT + TVA (et le TTC est annoncé).
     expect(within(panneau).getByText(/65 000 F/)).toBeInTheDocument();
+    expect(within(panneau).getByText(/76 700 F/)).toBeInTheDocument();
     expect(within(panneau).getByText(/archétypes/i)).toBeInTheDocument();
-    const mailto = within(panneau).getByRole("link", { name: /passer gold/i });
-    expect(mailto.getAttribute("href")).toContain(encodeURIComponent("Passer Spawt Gold"));
+
+    // Plus de mailto : la souscription Gold se paie en ligne.
+    expect(within(panneau).queryByRole("link", { name: /écris-nous/i })).not.toBeInTheDocument();
+    fireEvent.click(within(panneau).getByRole("button", { name: /passer gold — payer en ligne/i }));
+    await waitFor(() => {
+      expect(api.redirectTo).toHaveBeenCalledWith("https://checkout.cinetpay.example/txn-test-001");
+    });
+    const checkoutCall = stub.calls.find((c) => c.url.includes("payment-checkout"));
+    expect(checkoutCall?.body).toMatchObject({ plan: "b2b_gold" });
+    expect((checkoutCall?.body as { return_url: string }).return_url).toContain("/pro/retour");
 
     // Le gate SQL rendrait la vue vide pour un compte pro : on ne l'appelle pas.
     expect(stub.calls.some((c) => c.url.includes("b2b_place_funnel"))).toBe(false);
+  });
+});
+
+describe("ProDashboardPage — onglet Abonnement (souscription en ligne)", () => {
+  it("sans abonnement actif : panneau « Passe en Spawt Pro / Gold », 2 plans HT + TTC", async () => {
+    const stub = makeFetchStub(routesFor(b2bAccountPro));
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    const panneau = screen.getByRole("tabpanel");
+    expect(within(panneau).getByText(/passe en spawt pro \/ gold/i)).toBeInTheDocument();
+    // Pro : 15 000 HT → 17 700 TTC ; Gold : 65 000 HT → 76 700 TTC (TVA 18 %).
+    expect(within(panneau).getByText(/15 000 F/)).toBeInTheDocument();
+    expect(within(panneau).getByText(/17 700 F/)).toBeInTheDocument();
+    expect(within(panneau).getByText(/65 000 F/)).toBeInTheDocument();
+    expect(within(panneau).getByText(/76 700 F/)).toBeInTheDocument();
+    expect(within(panneau).getByRole("button", { name: /souscrire spawt pro/i })).toBeEnabled();
+    expect(within(panneau).getByRole("button", { name: /souscrire spawt gold/i })).toBeEnabled();
+  });
+
+  it("checkout Pro : POST payment-checkout {plan:'pro', return_url /pro/retour} puis redirection", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountPro, [{ urlIncludes: "payment-checkout", respond: () => checkoutOk() }]),
+    );
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    fireEvent.click(screen.getByRole("button", { name: /souscrire spawt pro/i }));
+
+    await waitFor(() => {
+      expect(api.redirectTo).toHaveBeenCalledWith("https://checkout.cinetpay.example/txn-test-001");
+    });
+    const call = stub.calls.find((c) => c.url.includes("payment-checkout"));
+    expect(call?.body).toMatchObject({ plan: "pro" });
+    expect((call?.body as { return_url: string }).return_url).toContain("/pro/retour");
+    const headers = call?.init?.headers as Record<string, string>;
+    expect(headers.authorization).toBe("Bearer jeton-b2b");
+  });
+
+  it("403 not_b2b : message « lieu à vérifier », pas de redirection", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountPro, [{ urlIncludes: "payment-checkout", respond: checkoutNotB2b }]),
+    );
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    fireEvent.click(screen.getByRole("button", { name: /souscrire spawt pro/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/vérifié par l'équipe/i);
+    expect(api.redirectTo).not.toHaveBeenCalled();
+  });
+
+  it("409 already_active : message « déjà actif », pas de redirection", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountPro, [{ urlIncludes: "payment-checkout", respond: checkoutAlreadyActive }]),
+    );
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    fireEvent.click(screen.getByRole("button", { name: /souscrire spawt gold/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/déjà actif/i);
+    expect(api.redirectTo).not.toHaveBeenCalled();
+  });
+
+  it("abonnement actif : statut (plan, échéance) + factures HT/TVA/TTC, pas de panneau de vente", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountPro, [
+        { urlIncludes: "active_entitlements", respond: b2bEntitlementsActivePro },
+        { urlIncludes: "rest/v1/invoices", respond: invoicesB2bRows },
+      ]),
+    );
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    const panneau = screen.getByRole("tabpanel");
+    expect(within(panneau).getByText(/spawt pro actif/i)).toBeInTheDocument();
+    expect(within(panneau).getByText(/court jusqu'au/i)).toBeInTheDocument();
+    expect(within(panneau).queryByText(/passe en spawt pro \/ gold/i)).not.toBeInTheDocument();
+    // Factures : n° légal + montants HT / TVA / TTC (convention PRD).
+    expect(within(panneau).getByText("SPAWT-2026-0042")).toBeInTheDocument();
+    expect(within(panneau).getByText("15 000 F CFA")).toBeInTheDocument();
+    expect(within(panneau).getByText("18 %")).toBeInTheDocument();
+    expect(within(panneau).getByText("17 700 F CFA")).toBeInTheDocument();
+    expect(within(panneau).getByText("Payée")).toBeInTheDocument();
+  });
+
+  it("période de grâce : statut + panneau de renouvellement", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountGold, [
+        { urlIncludes: "active_entitlements", respond: b2bEntitlementsGraceGold },
+      ]),
+    );
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    const panneau = screen.getByRole("tabpanel");
+    expect(within(panneau).getByText(/période de grâce/i)).toBeInTheDocument();
+    expect(within(panneau).getByText(/renouveler maintenant/i)).toBeInTheDocument();
+    expect(within(panneau).getByRole("button", { name: /souscrire spawt gold/i })).toBeEnabled();
+  });
+
+  it("abonnement expiré : « abonnement expiré » (coupure humaine : le rôle reste) + reprise", async () => {
+    const stub = makeFetchStub(
+      routesFor(b2bAccountPro, [
+        { urlIncludes: "active_entitlements", respond: b2bEntitlementsExpiredPro },
+      ]),
+    );
+    vi.stubGlobal("fetch", stub.impl);
+    renderDashboard();
+    await screen.findByRole("heading", { name: "Chez Tantie Alice" });
+
+    fireEvent.click(screen.getByRole("tab", { name: "Abonnement" }));
+    const panneau = screen.getByRole("tabpanel");
+    expect(within(panneau).getByText(/abonnement expiré/i)).toBeInTheDocument();
+    expect(within(panneau).getByText(/reprendre un abonnement/i)).toBeInTheDocument();
+    // Le compte garde son badge Spawt Pro : la coupure d'accès est un acte
+    // humain (décision produit), le dashboard signale juste l'expiration.
+    expect(screen.getAllByText("Spawt Pro").length).toBeGreaterThanOrEqual(1);
   });
 });
 

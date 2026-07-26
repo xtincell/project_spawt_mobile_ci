@@ -15,6 +15,7 @@ import RetourPage from "./pages/RetourPage";
 import ComptePage from "./pages/ComptePage";
 import ProPage from "./pages/ProPage";
 import ProDashboardPage from "./pages/ProDashboardPage";
+import ProRetourPage from "./pages/ProRetourPage";
 import ConfidentialitePage from "./pages/legal/ConfidentialitePage";
 import CguPage from "./pages/legal/CguPage";
 import CgvPage from "./pages/legal/CgvPage";
@@ -61,6 +62,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <ProDashboardPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/pro/retour"
+              element={
+                <RequireAuth>
+                  <ProRetourPage />
                 </RequireAuth>
               }
             />

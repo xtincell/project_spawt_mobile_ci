@@ -4,9 +4,17 @@
 // Décisions produit/RLS (vérifiées dans le repo app, cf. lib/b2b-data.ts) :
 //  - Agrégats seuillés : toute valeur NULL (n<3 dans le mois) s'affiche « — »
 //    avec une infobulle qui explique le seuil anti-réidentification.
+//  - SOUSCRIPTION EN LIGNE (plus de mailto d'upsell) : un compte relié sans
+//    abonnement payant actif voit le panneau « Passe en Spawt Pro / Gold »
+//    (onglet Abonnement) → checkout via le MÊME payment-checkout que /gold,
+//    plans 'pro' (15 000 F HT) / 'b2b_gold' (65 000 F HT), retour
+//    /pro/retour. Abonnement actif → statut (plan, échéance, grâce) +
+//    factures (RLS own). Le compte NON relié garde le mailto : le
+//    rattachement lieu↔compte est la vérification du lieu par l'équipe
+//    (process métier), le paiement, lui, est 100 % en ligne.
 //  - Funnel = réservé au role 'gold' → un compte 'pro' voit l'upsell Spawt
-//    Gold (65 000 F HT/mois). Pas de checkout B2B en V1 : la souscription se
-//    fait par contact (mailto) — le commercial gère le contrat et la facture.
+//    Gold avec souscription en ligne directe (le webhook synchronise le rôle
+//    à l'activation du plan b2b_gold).
 //  - Réservations : lecture seule (0042 ne donne l'UPDATE qu'au spawter ;
 //    0043 ne donne que le SELECT au B2B) — l'UI l'assume et l'explique.
 //  - Avis : la RLS 0021 rend les avis PUBLIÉS lisibles par tout compte
@@ -20,6 +28,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   fetchB2bAccount,
+  fetchB2bSubscription,
   fetchPlaceInfo,
   fetchPlaceMonthlyStats,
   fetchPlaceFunnel,
@@ -31,21 +40,26 @@ import {
   formatMonthFr,
   formatStatValue,
   countReservationsInMonth,
+  computeTtc,
+  b2bPlanLabel,
+  B2B_PLAN_CATALOG,
   type B2bAccount,
   type B2bDataResult,
+  type B2bPlanCode,
+  type B2bSubscriptionResult,
   type PlaceInfo,
   type PlaceMonthlyStats,
   type PlaceFunnelMonth,
   type ReservationRequest,
   type PlaceReview,
 } from "../lib/b2b-data";
-import { formatDateFr } from "../lib/invoices";
-import { ApiError } from "../lib/api";
+import { fetchInvoices, formatDateFr, formatFcfa, type InvoicesResult } from "../lib/invoices";
+import { ApiError, redirectTo, startCheckout } from "../lib/api";
 import { CONTACT_EMAIL } from "../lib/config";
 import { useAuth } from "../providers/AuthProvider";
 import { usePageTitle } from "../lib/use-page-title";
 
-type Tab = "apercu" | "reservations" | "avis" | "audience";
+type Tab = "apercu" | "reservations" | "avis" | "audience" | "abonnement";
 
 type AccountState =
   | { kind: "loading" }
@@ -60,6 +74,10 @@ interface DashboardData {
   reviews: B2bDataResult<PlaceReview>;
   /** null = compte pro : le funnel n'est jamais demandé (gate gold en SQL). */
   funnel: B2bDataResult<PlaceFunnelMonth> | null;
+  /** Abonnement payant du lieu (vue active_entitlements, plans pro/b2b_gold). */
+  subscription: B2bSubscriptionResult;
+  /** Factures du compte (RLS own — couvre le customer B2B). */
+  invoices: InvoicesResult;
 }
 
 /** Infobulle du seuil n<3 — même règle que les vues SQL 0043. */
@@ -521,33 +539,255 @@ function AudienceGoldTab({
   );
 }
 
-function UpsellGoldTab() {
+function UpsellGoldTab({
+  busyPlan,
+  checkoutError,
+  onSubscribe,
+}: {
+  busyPlan: B2bPlanCode | null;
+  checkoutError: string | null;
+  onSubscribe: (plan: B2bPlanCode) => void;
+}) {
+  const gold = B2B_PLAN_CATALOG.b2b_gold;
   return (
     <div className="card" role="tabpanel">
       <article className="price-card price-card--featured" style={{ maxWidth: 520 }}>
         <span className="price-card__flag">Spawt Gold</span>
         <h3>Vois venir la Meute avant qu'elle s'assoie</h3>
         <p className="price-card__amount">
-          65&nbsp;000&nbsp;F<span className="price-card__period"> HT /mois</span>
+          {formatFcfa(gold.priceHt)}
+          <span className="price-card__period"> HT /mois</span>
         </p>
-        <p className="price-card__ht">+ TVA 18&nbsp;%</p>
+        <p className="price-card__ht">
+          + TVA 18&nbsp;% — soit {formatFcfa(computeTtc(gold.priceHt))} TTC /mois
+        </p>
         <ul>
           <li>Le funnel complet&nbsp;: vues de fiche → sauvegardes → spawts, mois par mois</li>
           <li>Les tendances de ton lieu&nbsp;: ce qui monte, ce qui s'essouffle</li>
           <li>Les archétypes qui te regardent — parle à ceux qui te choisissent déjà</li>
           <li>Benchmark face aux lieux comparables de ton quartier</li>
         </ul>
-        <a
+        <button
+          type="button"
           className="btn btn--gold"
-          href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Passer Spawt Gold")}`}
+          onClick={() => onSubscribe("b2b_gold")}
+          disabled={busyPlan !== null}
         >
-          Passer Gold — écris-nous
-        </a>
+          {busyPlan === "b2b_gold" ? "Ouverture du paiement…" : "Passer Gold — payer en ligne"}
+        </button>
+        {checkoutError && (
+          <p className="form-error" role="alert">
+            {checkoutError}
+          </p>
+        )}
         <p style={{ color: "var(--ink-mute)", fontSize: "var(--fs-sm)", marginBottom: 0 }}>
-          La souscription Gold se fait avec l'équipe (contrat + facture HT)&nbsp;: un email et
-          on te rappelle. Pas de paiement en ligne pour les lieux en V1.
+          Paiement sécurisé via CinetPay (Orange Money, Wave, MTN MoMo). La
+          facture HT + TVA arrive directement dans l'onglet Abonnement — ton
+          funnel s'ouvre dès la confirmation du paiement.
         </p>
       </article>
+    </div>
+  );
+}
+
+// ── Onglet Abonnement (souscription en ligne + statut + factures) ─
+
+function PlanPriceCard({
+  plan,
+  featured,
+  busyPlan,
+  onSubscribe,
+}: {
+  plan: B2bPlanCode;
+  featured?: boolean;
+  busyPlan: B2bPlanCode | null;
+  onSubscribe: (plan: B2bPlanCode) => void;
+}) {
+  const info = B2B_PLAN_CATALOG[plan];
+  return (
+    <article className={`price-card${featured ? " price-card--featured" : ""}`}>
+      {featured && <span className="price-card__flag">Le plus complet</span>}
+      <h3>{info.label}</h3>
+      <p className="price-card__amount">
+        {formatFcfa(info.priceHt)}
+        <span className="price-card__period"> HT /mois</span>
+      </p>
+      <p className="price-card__ht">
+        + TVA 18&nbsp;% — soit {formatFcfa(computeTtc(info.priceHt))} TTC /mois
+      </p>
+      <p>{info.pitch}</p>
+      <button
+        type="button"
+        className="btn btn--gold"
+        onClick={() => onSubscribe(plan)}
+        disabled={busyPlan !== null}
+      >
+        {busyPlan === plan ? "Ouverture du paiement…" : `Souscrire ${info.label}`}
+      </button>
+    </article>
+  );
+}
+
+function SubscribePanel({
+  title,
+  busyPlan,
+  checkoutError,
+  onSubscribe,
+}: {
+  title: string;
+  busyPlan: B2bPlanCode | null;
+  checkoutError: string | null;
+  onSubscribe: (plan: B2bPlanCode) => void;
+}) {
+  return (
+    <>
+      <h4>{title}</h4>
+      <p style={{ color: "var(--ink-soft)" }}>
+        Prix professionnels HT, TVA 18&nbsp;% en sus — paiement sécurisé via
+        CinetPay (Orange Money, Wave, MTN MoMo), facture en bonne et due forme
+        dans ton espace dès la confirmation.
+      </p>
+      <div className="card-grid card-grid--2">
+        <PlanPriceCard plan="pro" busyPlan={busyPlan} onSubscribe={onSubscribe} />
+        <PlanPriceCard plan="b2b_gold" featured busyPlan={busyPlan} onSubscribe={onSubscribe} />
+      </div>
+      {checkoutError && (
+        <p className="form-error" role="alert">
+          {checkoutError}
+        </p>
+      )}
+    </>
+  );
+}
+
+function InvoicesBlock({ invoices }: { invoices: InvoicesResult }) {
+  return (
+    <>
+      <h4 style={{ marginTop: "var(--sp-lg)" }}>Les factures du lieu</h4>
+      {!invoices.available ? (
+        <p style={{ color: "var(--ink-soft)" }}>
+          L'historique de facturation arrive ici. Besoin d'une facture tout de
+          suite&nbsp;? Écris-nous.
+        </p>
+      ) : invoices.invoices.length === 0 ? (
+        <p style={{ color: "var(--ink-soft)" }}>Aucune facture pour le moment.</p>
+      ) : (
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">N°</th>
+                <th scope="col">Date</th>
+                <th scope="col">Montant HT</th>
+                <th scope="col">TVA</th>
+                <th scope="col">TTC</th>
+                <th scope="col">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.invoices.map((inv) => (
+                <tr key={inv.invoice_number}>
+                  <td>{inv.invoice_number}</td>
+                  <td>{formatDateFr(inv.issued_at)}</td>
+                  <td>{typeof inv.price_ht === "number" ? formatFcfa(inv.price_ht) : "—"}</td>
+                  <td>{typeof inv.tva_rate === "number" ? `${inv.tva_rate} %` : "—"}</td>
+                  <td>{formatFcfa(inv.price_ttc)}</td>
+                  <td>{inv.status === "paid" ? "Payée" : inv.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
+}
+
+function AbonnementTab({
+  data,
+  busyPlan,
+  checkoutError,
+  onSubscribe,
+}: {
+  data: DashboardData;
+  busyPlan: B2bPlanCode | null;
+  checkoutError: string | null;
+  onSubscribe: (plan: B2bPlanCode) => void;
+}) {
+  const sub = data.subscription;
+  return (
+    <div className="card" role="tabpanel">
+      <h3>L'abonnement de ton lieu</h3>
+      {!sub.available ? (
+        <Fallback
+          reason={sub.reason === "error" ? "error" : "not_ready"}
+          notReadyText="La souscription en ligne s'active ici dès que la facturation sera déployée. Recharge un peu plus tard."
+        />
+      ) : sub.status.kind === "active" ? (
+        <>
+          <div className="notice">
+            <p>
+              <span className="pill pill--gold">{b2bPlanLabel(sub.status.plan)} actif</span>
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              {sub.status.until
+                ? `Ton abonnement court jusqu'au ${formatDateFr(sub.status.until)}. Rien n'est prélevé tout seul — on te fait signe avant l'échéance pour le renouvellement.`
+                : "Ton abonnement est actif. Rien n'est prélevé tout seul — on te fait signe avant l'échéance."}
+            </p>
+          </div>
+          <InvoicesBlock invoices={data.invoices} />
+        </>
+      ) : sub.status.kind === "grace" ? (
+        <>
+          <div className="notice">
+            <p>
+              <span className="pill pill--warm">Période de grâce</span>
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              {sub.status.until
+                ? `L'échéance de ton ${b2bPlanLabel(sub.status.plan)} est passée, mais ton tableau de bord reste ouvert jusqu'au ${formatDateFr(sub.status.until)}. Renouvelle avant cette date pour ne rien perdre.`
+                : `L'échéance de ton ${b2bPlanLabel(sub.status.plan)} est passée — tu es dans la fenêtre de grâce. Renouvelle pour ne rien perdre.`}
+            </p>
+          </div>
+          <SubscribePanel
+            title="Renouveler maintenant"
+            busyPlan={busyPlan}
+            checkoutError={checkoutError}
+            onSubscribe={onSubscribe}
+          />
+          <InvoicesBlock invoices={data.invoices} />
+        </>
+      ) : sub.status.kind === "expired" ? (
+        <>
+          <div className="notice">
+            <p>
+              <span className="pill pill--danger">Abonnement expiré</span>
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              {sub.status.since
+                ? `Ton ${b2bPlanLabel(sub.status.plan)} s'est arrêté le ${formatDateFr(sub.status.since)}. Repars quand tu veux — tout est en ligne.`
+                : `Ton ${b2bPlanLabel(sub.status.plan)} est arrivé à échéance. Repars quand tu veux — tout est en ligne.`}
+            </p>
+          </div>
+          <SubscribePanel
+            title="Reprendre un abonnement"
+            busyPlan={busyPlan}
+            checkoutError={checkoutError}
+            onSubscribe={onSubscribe}
+          />
+          <InvoicesBlock invoices={data.invoices} />
+        </>
+      ) : (
+        <>
+          <SubscribePanel
+            title="Passe en Spawt Pro / Gold"
+            busyPlan={busyPlan}
+            checkoutError={checkoutError}
+            onSubscribe={onSubscribe}
+          />
+          <InvoicesBlock invoices={data.invoices} />
+        </>
+      )}
     </div>
   );
 }
@@ -671,6 +911,59 @@ export default function ProDashboardPage() {
   const [account, setAccount] = useState<AccountState>({ kind: "loading" });
   const [data, setData] = useState<DashboardData | null>(null);
   const [tab, setTab] = useState<Tab>("apercu");
+  const [busyPlan, setBusyPlan] = useState<B2bPlanCode | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  // Souscription en ligne — MÊME payment-checkout que /gold, plan B2B,
+  // retour /pro/retour (poll de l'abonnement puis retour dashboard).
+  const subscribe = async (plan: B2bPlanCode) => {
+    if (busyPlan !== null || !session) return;
+    setCheckoutError(null);
+    setBusyPlan(plan);
+    try {
+      const { payment_url } = await startCheckout({
+        plan,
+        accessToken: session.access_token,
+        returnUrl: `${window.location.origin}/pro/retour`,
+      });
+      redirectTo(payment_url);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          await signOut();
+          navigate(`/connexion?next=${encodeURIComponent("/pro/dashboard")}`);
+          return;
+        }
+        if (err.code === "not_b2b") {
+          // Gate métier côté Edge : le rattachement lieu↔compte est un acte
+          // de l'équipe — si le compte a été délié entre-temps, on l'explique.
+          setCheckoutError(
+            "Ton compte n'est pas (ou plus) relié à un lieu vérifié par l'équipe. Écris-nous pour finaliser le rattachement — le paiement se fera ensuite en ligne.",
+          );
+          return;
+        }
+        if (err.code === "already_active") {
+          setCheckoutError(
+            "Un abonnement est déjà actif pour ce lieu. Recharge la page pour voir son statut.",
+          );
+          return;
+        }
+        if (err.code === "provider_error") {
+          setCheckoutError(
+            "Notre partenaire de paiement ne répond pas. Rien n'a été débité — réessaie dans un instant.",
+          );
+          return;
+        }
+        if (err.code === "network_error") {
+          setCheckoutError("Pas de réseau. Vérifie ta connexion et réessaie.");
+          return;
+        }
+      }
+      setCheckoutError("Un pépin de notre côté. Rien n'a été débité — réessaie.");
+    } finally {
+      setBusyPlan(null);
+    }
+  };
 
   useEffect(() => {
     if (!session) return;
@@ -693,24 +986,27 @@ export default function ProDashboardPage() {
         setAccount({ kind: "linked", account: acc });
         // Chargement parallèle ; le funnel n'est demandé QUE pour un compte
         // gold (pour un compte pro le gate SQL rendrait la vue vide).
-        const [place, monthly, reservations, reviews, funnel] = await Promise.all([
-          fetchPlaceInfo(acc.place_id, token),
-          fetchPlaceMonthlyStats(acc.place_id, token),
-          fetchReservationRequests(acc.place_id, token),
-          fetchPlaceReviews(acc.place_id, token),
-          isGoldAccount(acc)
-            ? fetchPlaceFunnel(acc.place_id, token)
-            : Promise.resolve<B2bDataResult<PlaceFunnelMonth> | null>(null),
-        ]);
+        const [place, monthly, reservations, reviews, funnel, subscription, invoices] =
+          await Promise.all([
+            fetchPlaceInfo(acc.place_id, token),
+            fetchPlaceMonthlyStats(acc.place_id, token),
+            fetchReservationRequests(acc.place_id, token),
+            fetchPlaceReviews(acc.place_id, token),
+            isGoldAccount(acc)
+              ? fetchPlaceFunnel(acc.place_id, token)
+              : Promise.resolve<B2bDataResult<PlaceFunnelMonth> | null>(null),
+            fetchB2bSubscription(token),
+            fetchInvoices(token),
+          ]);
         if (cancelled) return;
-        const sessionExpired = [monthly, reservations, reviews, funnel].some(
+        const sessionExpired = [monthly, reservations, reviews, funnel, subscription].some(
           (r) => r !== null && !r.available && r.reason === "session_expired",
         );
         if (sessionExpired) {
           await expire();
           return;
         }
-        setData({ place, monthly, reservations, reviews, funnel });
+        setData({ place, monthly, reservations, reviews, funnel, subscription, invoices });
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && err.code === "session_expired") {
@@ -742,10 +1038,12 @@ export default function ProDashboardPage() {
           <p className="section-kicker">Espace lieux</p>
           <h1>Ton lieu n'est pas encore relié</h1>
           <p>
-            Ce numéro n'est rattaché à aucun lieu pour l'instant. C'est vite
-            réglé&nbsp;: écris-nous avec le nom de ton lieu et ton quartier, on
-            fait le rattachement à la main (et on en profite pour te dire
-            bonjour).
+            Ce numéro n'est rattaché à aucun lieu pour l'instant. Ton lieu doit
+            d'abord être vérifié par l'équipe — c'est le seul passage obligé, et
+            c'est vite réglé&nbsp;: écris-nous avec le nom de ton lieu et ton
+            quartier, on fait le rattachement à la main (et on en profite pour
+            te dire bonjour). Une fois relié, la souscription Spawt Pro / Gold
+            se fait directement en ligne, ici même.
           </p>
           <a
             className="btn btn--accent"
@@ -778,6 +1076,7 @@ export default function ProDashboardPage() {
     { id: "reservations", label: "Réservations" },
     { id: "avis", label: "Avis" },
     { id: "audience", label: "Audience" },
+    { id: "abonnement", label: "Abonnement" },
   ];
 
   return (
@@ -820,8 +1119,20 @@ export default function ProDashboardPage() {
           (isGold && data.funnel !== null ? (
             <AudienceGoldTab funnel={data.funnel} monthKeys={monthKeys} />
           ) : (
-            <UpsellGoldTab />
+            <UpsellGoldTab
+              busyPlan={busyPlan}
+              checkoutError={checkoutError}
+              onSubscribe={(plan) => void subscribe(plan)}
+            />
           ))}
+        {tab === "abonnement" && (
+          <AbonnementTab
+            data={data}
+            busyPlan={busyPlan}
+            checkoutError={checkoutError}
+            onSubscribe={(plan) => void subscribe(plan)}
+          />
+        )}
       </div>
 
       <PrintReport data={data} account={account.account} monthKeys={monthKeys} isGold={isGold} />
