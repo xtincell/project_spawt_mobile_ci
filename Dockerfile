@@ -18,12 +18,16 @@ ARG VITE_APPSTORE_URL
 ARG VITE_PLAYSTORE_URL
 ARG VITE_QUIZ_URL
 ARG VITE_PAYMENT_MOCK
+# Rideau d'avant-lancement : « true » = ecran Bientot sauf pour l'equipe
+# connectee (cf. README). Absent = build public normal.
+ARG VITE_PREVIEW_GATE
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
     VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
     VITE_APPSTORE_URL=$VITE_APPSTORE_URL \
     VITE_PLAYSTORE_URL=$VITE_PLAYSTORE_URL \
     VITE_QUIZ_URL=$VITE_QUIZ_URL \
-    VITE_PAYMENT_MOCK=$VITE_PAYMENT_MOCK
+    VITE_PAYMENT_MOCK=$VITE_PAYMENT_MOCK \
+    VITE_PREVIEW_GATE=$VITE_PREVIEW_GATE
 
 # Dépendances d'abord (cache Docker), sources ensuite.
 COPY package.json package-lock.json ./
