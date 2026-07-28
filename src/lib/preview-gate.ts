@@ -61,25 +61,26 @@ export interface StaffIdentity {
 }
 
 /**
- * Lit la ligne `spawt_staff` du compte connecté.
+ * Qui est l'appelant, côté équipe ? RPC `current_staff()` (migration 0062) :
+ * sa ligne `spawt_staff` si elle existe et que le compte est actif, aucune
+ * ligne sinon.
  *
- * La policy `spawt_staff_select_own` (migration 0001) autorise un membre de
- * l'équipe à lire SA ligne — et personne d'autre à lire quoi que ce soit. Un
- * compte ordinaire qui se connecterait ici obtiendrait donc zéro ligne, pas
- * une erreur : c'est le serveur qui tranche, pas une liste côté client.
+ * ⚠️ NE PAS revenir à un `select` direct sur `spawt_staff`. C'est ce qu'on
+ * faisait, et ça cassait la porte pour les admins : `spawt_staff_select_admin`
+ * (migration 0001) autorise un admin à lire TOUTE l'équipe, donc la requête
+ * renvoyait trois lignes et `maybeSingle()` sortait en erreur. Un moderator
+ * passait, un admin non — seul le cas nominal était touché. La RPC pose la
+ * question que le serveur sait trancher seul, sans paramètre : impossible d'y
+ * réintroduire ce piège, ni de s'en servir pour sonder un autre compte.
  *
- * `is_active` est filtré côté SQL : désactiver un compte dans la console doit
- * refermer la porte, pas seulement retirer l'accès à la modération.
+ * Trouvé en recette navigateur contre le vrai backend. Les tests, qui simulent
+ * le client, ne pouvaient pas le voir.
  */
 export async function fetchStaffIdentity(): Promise<StaffIdentity | null> {
   if (!isSupabaseConfigured) return null;
-  const { data, error } = await previewClient
-    .from("spawt_staff")
-    .select("id, display_name, role")
-    .eq("is_active", true)
-    .maybeSingle();
-  if (error || !data) return null;
-  return data as StaffIdentity;
+  const { data, error } = await previewClient.rpc("current_staff");
+  if (error || !Array.isArray(data) || data.length === 0) return null;
+  return data[0] as StaffIdentity;
 }
 
 /** Connexion équipe (mêmes identifiants que la console admin). */
