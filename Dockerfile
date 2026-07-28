@@ -46,4 +46,8 @@ COPY security-headers.conf /etc/nginx/security-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost/ >/dev/null || exit 1
+# 127.0.0.1 explicitement, pas `localhost` : sous Alpine, localhost résout
+# ::1 en premier. Doublé par le `listen [::]:80` de nginx.conf — ceinture
+# et bretelles, parce qu'un healthcheck faux négatif annule un déploiement
+# qui fonctionne et fait chercher le bug dans le mauvais fichier.
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
