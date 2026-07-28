@@ -993,3 +993,139 @@ table.table {
     padding-block: var(--sp-3xl);
   }
 }
+
+/* ── Rideau d'avant-lancement (PreviewGate) ────────
+   Visiteur : l'écran « Bientôt ». Équipe connectée : le portail réel, coiffé
+   d'un bandeau qui rappelle que ce qu'on regarde n'est pas public. */
+.gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-lg);
+  text-align: center;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.gate__inner {
+  max-width: 32rem;
+  width: 100%;
+}
+
+.gate__wait {
+  color: var(--ink-mute);
+}
+
+.gate__kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: var(--fs-sm);
+  color: var(--or);
+  margin: 0 0 var(--sp-md);
+}
+
+.gate__cat {
+  font-size: 3rem;
+  margin: 0 0 var(--sp-sm);
+}
+
+.gate__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 12vw, 4.5rem);
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.gate__promise {
+  font-size: var(--fs-lg);
+  margin: var(--sp-sm) 0 0;
+}
+
+.gate__sub {
+  color: var(--ink-mute);
+  margin: var(--sp-xs) 0 var(--sp-lg);
+}
+
+.gate__quiz {
+  display: inline-block;
+}
+
+/* Discret sans être caché : l'équipe doit le trouver, le visiteur ne doit pas
+   avoir l'impression qu'on lui refuse quelque chose. */
+.gate__staff {
+  display: block;
+  margin: var(--sp-xl) auto 0;
+  background: none;
+  border: 0;
+  color: var(--ink-mute);
+  font-size: var(--fs-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.gate__form {
+  margin: var(--sp-lg) auto 0;
+  max-width: 22rem;
+  text-align: left;
+  display: grid;
+  gap: var(--sp-sm);
+}
+
+.gate__form-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.gate__label {
+  display: grid;
+  gap: 4px;
+  font-size: var(--fs-sm);
+  color: var(--ink-mute);
+}
+
+.gate__label input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-card);
+  color: var(--ink);
+  font: inherit;
+}
+
+.gate__form-actions {
+  display: flex;
+  gap: var(--sp-sm);
+  margin-top: var(--sp-xs);
+}
+
+.gate__error {
+  color: var(--danger);
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+
+.gate__hint {
+  font-size: var(--fs-sm);
+  color: var(--ink-mute);
+  margin: 0;
+}
+
+.gate-banner {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--or);
+  color: var(--noir);
+  padding: 8px 16px;
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.gate-banner__out {
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

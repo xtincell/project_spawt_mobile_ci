@@ -169,6 +169,32 @@ fichier dans l'image. En-têtes posés : `Content-Security-Policy`,
   rendre le domaine inaccessible. Ligne commentée dans `security-headers.conf`
   si besoin de l'y déplacer un jour.
 
+## Rideau d'avant-lancement (`VITE_PREVIEW_GATE`)
+
+`spawt.online` sert une page « Bientôt » aux visiteurs. Le portail réel est
+prêt, mais le montrer au public avant que CinetPay encaisse coûterait plus cher
+que d'attendre : un bouton d'achat qui ne mène nulle part. L'équipe, elle, doit
+pouvoir le regarder en vrai, sur le vrai backend.
+
+Quand `VITE_PREVIEW_GATE=true` est posé **au build** (comme toute variable Vite),
+le portail affiche l'écran « Bientôt » à tout le monde, sauf à un membre de
+l'équipe connecté avec ses identifiants de la console admin. C'est la table
+`spawt_staff` qui tranche, via la policy `spawt_staff_select_own` : un compte
+ordinaire n'obtient pas une erreur, il obtient zéro ligne. Désactiver un compte
+(`is_active = false`) referme la porte au même endroit que le reste.
+
+Le rideau enveloppe le routeur entier, pas seulement la page d'accueil — sinon
+`/gold` resterait atteignable en tapant l'URL.
+
+**C'est un rideau, pas un coffre.** Le bundle JavaScript reste public (comme
+celui de tout site statique) : les routes sont lisibles dans le code. Ce qui est
+protégé, ce sont les DONNÉES — elles restent derrière la RLS et les Edge
+Functions. Le jour du lancement, on retire la variable et on rebuild ; il n'y a
+rien d'autre à défaire.
+
+Déploiement type : une app Coolify sur un sous-domaine (`portail.spawt.online`)
+avec `VITE_PREVIEW_GATE=true`, pendant que `spawt.online` garde sa page statique.
+
 ## Structure
 
 ```

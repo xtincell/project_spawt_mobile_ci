@@ -5,6 +5,7 @@
 
 import { BrowserRouter, Routes, Route } from "react-router";
 import Layout from "./components/Layout";
+import PreviewGate from "./components/PreviewGate";
 import { AuthProvider, RequireAuth } from "./providers/AuthProvider";
 import LandingPage from "./pages/LandingPage";
 import GoldPage from "./pages/GoldPage";
@@ -24,63 +25,75 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
   return (
+    // Le rideau enveloppe le routeur ENTIER : sinon /gold resterait atteignable
+    // en tapant l'URL, et c'est justement la page qu'on ne veut pas montrer
+    // avant que CinetPay encaisse. Build public (sans VITE_PREVIEW_GATE) : le
+    // composant se réduit à ses enfants, aucun code de porte n'est monté.
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/gold" element={<GoldPage />} />
-            <Route path="/connexion" element={<ConnexionPage />} />
-            <Route
-              path="/gold/paiement"
-              element={
-                <RequireAuth>
-                  <CheckoutPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/gold/retour"
-              element={
-                <RequireAuth>
-                  <RetourPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/compte"
-              element={
-                <RequireAuth>
-                  <ComptePage />
-                </RequireAuth>
-              }
-            />
-            <Route path="/ambassadeurs" element={<AmbassadeursPage />} />
-            <Route path="/pro" element={<ProPage />} />
-            <Route
-              path="/pro/dashboard"
-              element={
-                <RequireAuth>
-                  <ProDashboardPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/pro/retour"
-              element={
-                <RequireAuth>
-                  <ProRetourPage />
-                </RequireAuth>
-              }
-            />
-            <Route path="/legal/confidentialite" element={<ConfidentialitePage />} />
-            <Route path="/legal/cgu" element={<CguPage />} />
-            <Route path="/legal/cgv" element={<CgvPage />} />
-            <Route path="/legal/suppression-compte" element={<SuppressionComptePage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
+      <PreviewGate>
+        <AuthProvider>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/gold" element={<GoldPage />} />
+              <Route path="/connexion" element={<ConnexionPage />} />
+              <Route
+                path="/gold/paiement"
+                element={
+                  <RequireAuth>
+                    <CheckoutPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/gold/retour"
+                element={
+                  <RequireAuth>
+                    <RetourPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/compte"
+                element={
+                  <RequireAuth>
+                    <ComptePage />
+                  </RequireAuth>
+                }
+              />
+              <Route path="/ambassadeurs" element={<AmbassadeursPage />} />
+              <Route path="/pro" element={<ProPage />} />
+              <Route
+                path="/pro/dashboard"
+                element={
+                  <RequireAuth>
+                    <ProDashboardPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/pro/retour"
+                element={
+                  <RequireAuth>
+                    <ProRetourPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/legal/confidentialite"
+                element={<ConfidentialitePage />}
+              />
+              <Route path="/legal/cgu" element={<CguPage />} />
+              <Route path="/legal/cgv" element={<CgvPage />} />
+              <Route
+                path="/legal/suppression-compte"
+                element={<SuppressionComptePage />}
+              />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </PreviewGate>
     </BrowserRouter>
   );
 }
