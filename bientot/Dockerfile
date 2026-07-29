@@ -15,6 +15,12 @@
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY index.html /usr/share/nginx/html/index.html
+# Assets de MARQUE — les vrais, pas des substituts. La page servait un emoji
+# à la place de Moka et une pile de polices système à la place de Klinsman +
+# Gotham, alors que les fichiers existent depuis toujours dans le dépôt.
+COPY fonts/ /usr/share/nginx/html/fonts/
+COPY moka.png /usr/share/nginx/html/moka.png
+COPY favicon.svg /usr/share/nginx/html/favicon.svg
 
 EXPOSE 80
 # 127.0.0.1 explicitement : sous Alpine, `localhost` résout ::1 en premier, et
