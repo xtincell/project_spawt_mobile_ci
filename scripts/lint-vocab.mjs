@@ -18,6 +18,22 @@ const ROOT = fileURLToPath(new URL("../", import.meta.url));
 // Strip les commentaires (// pleine ligne + blocs /* */) en préservant les
 // numéros de ligne : un linter de vocab PRODUIT ne doit pas flaguer la
 // documentation interne qui nomme les règles interdites.
+// `bientot/index.html` est une page AUTONOME : un seul fichier, sans build, sans
+// dépendance réseau (sa CSP porte `connect-src 'none'`). Elle ne peut donc pas
+// importer le fichier de tokens — son bloc `:root` EST son site de déclaration.
+//
+// On neutralise ce bloc-là, et RIEN d'autre : un hex qui traîne plus bas dans
+// la feuille reste une erreur. C'est important — la divergence de palette de
+// cette page (or #E8B23A au lieu de #C8A44E) vivait justement dans des règles
+// éparpillées, et une exception posée sur le fichier entier l'aurait laissée
+// passer une seconde fois.
+const FICHIERS_DECLARANT_LEURS_TOKENS = ["bientot/index.html"];
+
+function stripRootBlock(src, relPath) {
+  if (!FICHIERS_DECLARANT_LEURS_TOKENS.some((f) => relPath.includes(f))) return src;
+  return src.replace(/:root\s*\{[^}]*\}/g, (m) => m.replace(/[^\n]/g, " "));
+}
+
 function stripComments(src) {
   const noBlocks = src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
   return noBlocks
@@ -79,21 +95,7 @@ const FORBIDDEN = [
     pattern: /#[0-9a-f]{3,8}\b/gi,
     name: "hex hors tokens",
     message: "Aucun hex hors src/theme/tokens.ts et src/theme/tokens.css : utiliser var(--...) ou le module tokens",
-    // `bientot/index.html` est une exception ASSUMÉE et TEMPORAIRE. Cette page
-    // a été conçue hors dépôt, avec sa propre palette : or #E8B23A au lieu du
-    // #C8A44E du brandbook, noir #0B0A08 au lieu de #0A0A0A, crème #F5EFE2 au
-    // lieu de #FAFAF8. C'est un vrai écart de direction artistique sur la SEULE
-    // page publique du produit.
-    //
-    // On ne le corrige pas ici : réaligner la palette change l'apparence d'une
-    // page en ligne, et c'est une décision de marque, pas de linter. L'écart
-    // est signalé pour arbitrage ; d'ici là on préfère une exception explicite
-    // à une page qu'on aurait restylée en douce.
-    //
-    // Les règles de VOCABULAIRE, elles, s'appliquent bien à ce fichier — et
-    // elles y ont trouvé « restaurant » deux fois, dont une dans la meta
-    // description lue par les moteurs de recherche.
-    allowFiles: ["theme/tokens.ts", "theme/tokens.css", "bientot/index.html"],
+    allowFiles: ["theme/tokens.ts", "theme/tokens.css"],
   },
 ];
 
@@ -113,10 +115,11 @@ function walk(dir) {
 }
 
 function checkFile(path) {
-  const content = stripComments(readFileSync(path, "utf8"));
+  const brut = stripComments(readFileSync(path, "utf8"));
   // Normalise les séparateurs (\ Windows → /) pour un comportement identique
   // en local Windows et en CI Linux.
   const relPath = path.replace(ROOT, "").replace(/\\/g, "/");
+  const content = stripRootBlock(brut, relPath);
   for (const rule of FORBIDDEN) {
     if (rule.allowFiles.some((a) => relPath.includes(a))) continue;
     rule.pattern.lastIndex = 0;
