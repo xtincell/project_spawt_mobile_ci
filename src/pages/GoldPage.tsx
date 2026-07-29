@@ -12,6 +12,10 @@ export default function GoldPage() {
   const checkoutHref = session
     ? "/gold/paiement"
     : `/connexion?next=${encodeURIComponent("/gold/paiement")}`;
+  // Même logique pour le versement déclaré : il doit être rattaché à un compte.
+  const manualHref = session
+    ? "/gold/paiement-manuel"
+    : `/connexion?next=${encodeURIComponent("/gold/paiement-manuel")}`;
 
   return (
     <>
@@ -105,6 +109,17 @@ export default function GoldPage() {
               </Link>
             </article>
           </div>
+
+          {/* Wave, Orange Money et MoMo font l'essentiel des paiements à
+              Abidjan, et beaucoup se font d'un compte à l'autre sans passer
+              par une passerelle. Ne proposer que la carte reviendrait à fermer
+              la porte à la majorité des gens. */}
+          <p className="gold-autrement">
+            Tu préfères payer par <strong>Wave, Orange Money, MTN MoMo</strong> ou
+            en espèces&nbsp;?{" "}
+            <Link to={manualHref}>Déclare ton versement ici</Link> — on ouvre ton
+            accès dès qu'on l'a vu arriver.
+          </p>
         </div>
       </section>
 

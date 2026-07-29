@@ -1129,3 +1129,11 @@ table.table {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Paiement hors passerelle — le lien doit se voir sans voler la vedette aux
+   cartes de prix : c'est un second chemin, pas un second produit. */
+.gold-autrement {
+  margin-top: var(--sp-lg);
+  text-align: center;
+  color: var(--ink-soft);
+}

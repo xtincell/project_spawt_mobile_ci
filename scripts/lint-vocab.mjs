@@ -26,8 +26,12 @@ function stripComments(src) {
     .join("\n");
 }
 
-const SCAN_DIRS = ["src"];
-const EXTENSIONS = new Set([".ts", ".tsx", ".css"]);
+// `bientot/` est scanné aussi : c'est la seule page PUBLIQUE du produit, et
+// c'est justement celle qui échappait au linter tant qu'elle vivait hors dépôt.
+// Elle disait « restaurant » deux fois, dont une dans la meta description
+// lue par Google.
+const SCAN_DIRS = ["src", "bientot"];
+const EXTENSIONS = new Set([".ts", ".tsx", ".css", ".html"]);
 
 // Patterns interdits avec exceptions explicites (chemins relatifs au repo).
 const FORBIDDEN = [
@@ -75,7 +79,21 @@ const FORBIDDEN = [
     pattern: /#[0-9a-f]{3,8}\b/gi,
     name: "hex hors tokens",
     message: "Aucun hex hors src/theme/tokens.ts et src/theme/tokens.css : utiliser var(--...) ou le module tokens",
-    allowFiles: ["theme/tokens.ts", "theme/tokens.css"],
+    // `bientot/index.html` est une exception ASSUMÉE et TEMPORAIRE. Cette page
+    // a été conçue hors dépôt, avec sa propre palette : or #E8B23A au lieu du
+    // #C8A44E du brandbook, noir #0B0A08 au lieu de #0A0A0A, crème #F5EFE2 au
+    // lieu de #FAFAF8. C'est un vrai écart de direction artistique sur la SEULE
+    // page publique du produit.
+    //
+    // On ne le corrige pas ici : réaligner la palette change l'apparence d'une
+    // page en ligne, et c'est une décision de marque, pas de linter. L'écart
+    // est signalé pour arbitrage ; d'ici là on préfère une exception explicite
+    // à une page qu'on aurait restylée en douce.
+    //
+    // Les règles de VOCABULAIRE, elles, s'appliquent bien à ce fichier — et
+    // elles y ont trouvé « restaurant » deux fois, dont une dans la meta
+    // description lue par les moteurs de recherche.
+    allowFiles: ["theme/tokens.ts", "theme/tokens.css", "bientot/index.html"],
   },
 ];
 

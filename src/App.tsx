@@ -12,6 +12,7 @@ import GoldPage from "./pages/GoldPage";
 import AmbassadeursPage from "./pages/AmbassadeursPage";
 import ConnexionPage from "./pages/ConnexionPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import PaiementManuelPage from "./pages/PaiementManuelPage";
 import RetourPage from "./pages/RetourPage";
 import ComptePage from "./pages/ComptePage";
 import ProPage from "./pages/ProPage";
@@ -42,6 +43,17 @@ export default function App() {
                 element={
                   <RequireAuth>
                     <CheckoutPage />
+                  </RequireAuth>
+                }
+              />
+              {/* Paiement hors passerelle (Wave, Orange Money, MoMo…). Sous
+                  RequireAuth : la déclaration doit être rattachée à un compte,
+                  sinon personne ne sait à qui ouvrir le droit. */}
+              <Route
+                path="/gold/paiement-manuel"
+                element={
+                  <RequireAuth>
+                    <PaiementManuelPage />
                   </RequireAuth>
                 }
               />
