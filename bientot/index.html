@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>SPAWT — Bientôt</title>
+<meta name="description" content="Ta carte de goût arrive à Abidjan. Ne plus jamais regretter un lieu.">
+<style>
+  /* Palette CANONIQUE du brandbook (documentation/ux/spawt-tokens.css).
+     Cette page avait sa propre palette, conçue hors dépôt : or #E8B23A au lieu
+     de #C8A44E, noir #0B0A08 au lieu de #0A0A0A, vert #1F9D6B au lieu de
+     #2D6B4F, crème #F5EFE2 au lieu de #FAFAF8. C'était la SEULE page publique
+     du produit, et la seule à ne pas porter ses couleurs.
+     Les valeurs dérivées (--nuit, --fg2, --fg3, --line) n'existent pas dans le
+     brandbook : elles sont recalculées EN TRANSPARENCE sur le noir canonique,
+     pour rester dans la même famille au lieu d'inventer trois nouveaux gris. */
+  :root{
+    --noir:#0A0A0A; --or:#C8A44E; --or-clair:#E8D5A0; --emeraude:#2D6B4F; --creme:#FAFAF8;
+    --blanc-pur:#FFFFFF;
+    /* Lueur chaude du fond. OPAQUE et non translucide : le dégradé EST le fond
+       du body, il n'a rien derrière lui — une couleur à opacité partielle y
+       laisse passer le blanc par défaut du navigateur, et le haut de la page
+       vire au projecteur blanc. Valeur = or canonique à 9 % sur le noir
+       canonique, soit l'équivalent charte du #1C1813 d'origine. */
+    --noir-chaud:#1B1810;
+    --nuit:rgba(250,250,248,0.05);
+    --fg2:rgba(250,250,248,0.72); --fg3:rgba(250,250,248,0.45); --line:rgba(250,250,248,0.14);
+    /* Polices de la marque, servies par le meme nginx (dossier /fonts/).
+       Klinsman en display, Gotham en corps — comme l'app et la console.
+       `font-display:swap` : le texte reste lisible pendant le chargement,
+       le trafic ivoirien est mobile et les reseaux sont lents. */
+    --display:'Klinsman','Arial Black',sans-serif;
+    --sans:'Gotham',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  @font-face{font-family:'Klinsman';src:url('/fonts/Klinsman-Regular.otf') format('opentype');font-weight:400;font-display:swap}
+  @font-face{font-family:'Klinsman';src:url('/fonts/Klinsman-Bold.otf') format('opentype');font-weight:700;font-display:swap}
+  @font-face{font-family:'Gotham';src:url('/fonts/Gotham-Book.ttf') format('truetype');font-weight:400;font-display:swap}
+  @font-face{font-family:'Gotham';src:url('/fonts/Gotham-Medium.ttf') format('truetype');font-weight:500;font-display:swap}
+  @font-face{font-family:'Gotham';src:url('/fonts/Gotham-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1200px 800px at 50% -10%, var(--noir-chaud) 0%, var(--noir) 55%);color:var(--creme);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px 20px;gap:26px;max-width:760px;margin:0 auto}
+  .badge{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--or);border:1px solid var(--line);border-radius:999px;padding:7px 16px;background:rgba(232,178,58,.05)}
+  .cat{width:clamp(84px,18vw,120px);height:auto;filter:drop-shadow(0 8px 26px rgba(200,164,78,.28))}
+  h1{font-family:var(--display);font-size:clamp(42px,10vw,84px);font-weight:700;letter-spacing:.02em;line-height:.95;background:linear-gradient(180deg,var(--blanc-pur), var(--or-clair) 130%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .tag{font-size:clamp(16px,3.6vw,21px);color:var(--fg2);max-width:32ch;line-height:1.45}
+  .tag b{color:var(--creme);font-weight:700}
+  /* décompte */
+  .count{display:flex;gap:clamp(10px,3vw,26px);margin-top:6px}
+  .cell{display:flex;flex-direction:column;gap:6px;min-width:66px}
+  .cell .n{font-family:var(--mono);font-size:clamp(34px,8vw,60px);font-weight:700;color:var(--creme);font-variant-numeric:tabular-nums;line-height:1}
+  .cell .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3)}
+  .cell+.cell{position:relative}
+  /* CTA */
+  .cta{margin-top:10px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:700;font-size:16.5px;color:var(--noir);background:linear-gradient(180deg,var(--or-clair),var(--or));padding:15px 26px;border-radius:14px;box-shadow:0 12px 30px rgba(232,178,58,.28);transition:transform .15s, box-shadow .15s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(232,178,58,.4)}
+  .cta .arw{transition:transform .15s}.cta:hover .arw{transform:translateX(4px)}
+  .sub{font-size:13px;color:var(--fg3);font-family:var(--mono)}
+  .foot{padding:18px;text-align:center;color:var(--fg3);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+  .foot a{color:var(--fg2);text-decoration:none}
+  /* bouton admin discret + reveal */
+  .adm{position:fixed;right:14px;bottom:12px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--fg3);cursor:pointer;font-size:12px;opacity:.5;transition:opacity .2s}
+  .adm:hover{opacity:1;color:var(--or)}
+  .behind{position:fixed;inset:0;background:var(--noir);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center}
+  .behind.on{display:flex}
+  .behind h2{font-size:26px;color:var(--or)}
+  .behind .card{max-width:560px;background:var(--noir);border:1px solid var(--line);border-radius:16px;padding:22px;color:var(--fg2);line-height:1.6;text-align:left}
+  .behind .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+  .behind a.b,.behind button.b{text-decoration:none;font-weight:600;font-size:14px;color:var(--creme);background:rgba(200,164,78,0.12);border:1px solid var(--line);border-radius:10px;padding:10px 16px;cursor:pointer}
+  .close{position:fixed;top:16px;right:18px;background:none;border:none;color:var(--fg3);font-size:24px;cursor:pointer}
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="badge">Abidjan · bientôt</span>
+    <img class="cat" src="/moka.png" alt="Moka, le chat de SPAWT" width="1181" height="1500">
+    <h1>SPAWT</h1>
+    <p class="tag"><b>Ta carte de goût arrive.</b> Ne plus jamais regretter un lieu à Abidjan.</p>
+
+    <div class="count" id="count" aria-label="décompte avant lancement">
+      <div class="cell"><span class="n" id="d">--</span><span class="l">jours</span></div>
+      <div class="cell"><span class="n" id="h">--</span><span class="l">heures</span></div>
+      <div class="cell"><span class="n" id="m">--</span><span class="l">min</span></div>
+      <div class="cell"><span class="n" id="s">--</span><span class="l">sec</span></div>
+    </div>
+
+    <a class="cta" href="https://quiz.spawt.online" id="cta">
+      <span>Quel spawter es-tu ? Fais le test</span><span class="arw">→</span>
+    </a>
+    <p class="sub">Le test de la Meute · découvre ton Palais avant tout le monde</p>
+  </main>
+  <footer class="foot">SPAWT · <a href="https://instagram.com/spawt.ci" rel="noopener">@spawt.ci</a> · © 2026</footer>
+
+  <button class="adm" id="admBtn" title="Accès">◆</button>
+  <section class="behind" id="behind" aria-hidden="true">
+    <button class="close" id="close">×</button>
+    <h2>👀 Coulisses SPAWT</h2>
+    <div class="card">
+      <p>Vue admin — derrière le décompte. Ici tu retrouves les accès de pilotage du pré-lancement :</p>
+      <div class="row">
+        <a class="b" href="https://quiz.spawt.online" target="_blank">Le quiz (public)</a>
+        <a class="b" href="https://admin.spawt.online" target="_blank">Panel admin</a>
+        <a class="b" href="https://portail.spawt.online" target="_blank">Le portail (aperçu équipe)</a>
+      </div>
+      <p style="margin-top:14px;font-size:12.5px;color:var(--fg3)">Le portail réel est déjà en ligne sur portail.spawt.online : les visiteurs y voient « Bientôt », l'équipe connectée voit le vrai site. Au lancement, c'est lui qui remplacera cette page.</p>
+    </div>
+  </section>
+
+<script>
+  // Décompte — cible ~1 mois. Ajustable (LAUNCH).
+  var LAUNCH = new Date("2026-08-03T20:00:00+01:00").getTime();
+  var $=function(id){return document.getElementById(id)};
+  function tick(){
+    var t = LAUNCH - Date.now();
+    if(t<0){ t=0; $("cta").querySelector("span").textContent="C'est parti — fais le test"; }
+    var d=Math.floor(t/864e5), h=Math.floor(t%864e5/36e5), m=Math.floor(t%36e5/6e4), s=Math.floor(t%6e4/1e3);
+    $("d").textContent=d; $("h").textContent=String(h).padStart(2,"0"); $("m").textContent=String(m).padStart(2,"0"); $("s").textContent=String(s).padStart(2,"0");
+  }
+  tick(); setInterval(tick,1000);
+
+  // Coulisses — ouverture directe, sans mot de passe.
+  //
+  // La version precedente comparait la saisie a une constante ecrite en clair
+  // dans la page : n'importe qui affichant le source la lisait. Un mot de passe
+  // cote client ne protege rien, et celui-la etait probablement reutilise
+  // ailleurs. Il est retire.
+  //
+  // Le panneau ne contient de toute facon que des liens vers des services qui
+  // portent leur propre authentification : la console admin exige un compte
+  // spawt_staff, et le portail affiche « Bientot » a qui n'est pas de l'equipe.
+  // C'est la que doit se faire le controle — pas ici.
+  $("admBtn").onclick=function(){
+    $("behind").classList.add("on"); $("behind").setAttribute("aria-hidden","false");
+  };
+  $("close").onclick=function(){ $("behind").classList.remove("on"); $("behind").setAttribute("aria-hidden","true"); };
+</script>
+</body>
+</html>
