@@ -1,138 +1,328 @@
-// Landing spawt.online — la vitrine. Héro (promesse), les 3 piliers
-// (Instinct / Identité / Communauté), Le Guet, CTA stores + quiz archétype.
-// Ton : direct, complice, tutoiement — jamais corporate.
+// Vitrine SPAWT — page unique.
+//
+// ── Provenance du contenu (à ne pas improviser) ────────────────────────────
+// Tout ce qui est affiché ici vient de deux documents, et de rien d'autre :
+//   · SPAWT_BIBLE_COMPLETE.md (état consolidé du projet, février 2026)
+//   · brandbook v1.0 (marque, ton, dialecte)
+// Les références §x.y ci-dessous pointent la Bible. Un chiffre qui n'y est
+// pas ne va pas sur cette page.
+//
+// Ce qui a été RETIRÉ de l'ancienne landing, et pourquoi :
+//   · « Le Guet » — mécanisme de vérification de présence sur place. Il
+//     n'existe nulle part dans la Bible : c'était une invention. Les vrais
+//     mécanismes de confiance sont la note pondérée par le stade du spawter
+//     (§4.2) et la Pépite Vérifiée (§4.3) ; ils relèvent du produit, pas
+//     d'une promesse de vitrine, donc ils ne sont pas repris ici non plus.
+//   · « 45 minutes de débat → 3 minutes » — chiffres mélangés. La Bible dit
+//     47 messages et 3 heures côté problème (§0.1), 3 taps (Rapide) et
+//     5 minutes (Crew) côté solution (§8).
+//   · Gold, programme ambassadeur, espace lieux — réels (§10, §14) mais
+//     hors périmètre d'une vitrine sans achat.
 
-import { Link } from "react-router";
 import StoreBadges from "../components/StoreBadges";
+import { IconInstinct, IconIdentite, IconCommunaute } from "../components/BrandIcons";
 import { QUIZ_URL } from "../lib/config";
 import { usePageTitle } from "../lib/use-page-title";
 
-export default function LandingPage() {
-  usePageTitle("La carte du bon goût");
+/** Les 3 modes contextuels — §8, tableau repris tel quel. */
+const MODES = [
+  {
+    glyph: "⚡",
+    name: "Rapide",
+    question: "Où manger maintenant ?",
+    declencheur: "Midi, 11h–14h",
+    cible: "Décision en 3 taps",
+    chat: "Il est midi passé. Tu as faim. Moi aussi.",
+  },
+  {
+    glyph: "◎",
+    name: "Crew",
+    question: "On sort où ce soir ?",
+    declencheur: "Vendredi et samedi soir",
+    cible: "Décision de groupe en 5 min",
+    chat: "Vendredi soir. Ton crew attend. Décidez en 5 minutes, pas en 45.",
+  },
+  {
+    glyph: "◈",
+    name: "Explore",
+    question: "Prends ton temps.",
+    declencheur: "Dimanche, temps libre",
+    cible: "Découverte et inspiration",
+    chat: "Dimanche. Pas de rush. Laisse le Palais te guider.",
+  },
+];
 
+function Hero() {
   return (
-    <>
-      <section className="hero">
-        <div className="container">
+    <section className="hero">
+      <div className="container hero__inner">
+        <div className="hero__copy">
+          <p className="kicker">Abidjan · Côte d&rsquo;Ivoire</p>
           <h1 className="hero__title">La carte du bon goût</h1>
-          <p className="hero__promise">Ne plus jamais regretter un lieu.</p>
+          {/* Promesse maître, §13.2 — mot à mot. */}
+          <p className="hero__promise">Plus jamais le goumin d&rsquo;un mauvais restau.</p>
           <p className="hero__pitch">
-            45 minutes de débat dans le groupe&nbsp;? Avec SPAWT&nbsp;: 3 minutes,
-            trois taps, et ton crew est à table.
+            SPAWT est un compagnon de découverte culinaire communautaire. Pas un
+            catalogue, pas un annuaire&nbsp;: le bon lieu, au bon moment, pour toi.
           </p>
           <div className="hero__actions">
             <StoreBadges />
-            <a className="btn btn--ghost" href={QUIZ_URL} target="_blank" rel="noreferrer">
-              Découvre ton archétype →
+          </div>
+          <p className="hero__note">
+            L&rsquo;app arrive sur iOS et Android. En attendant,{" "}
+            <a href={QUIZ_URL} target="_blank" rel="noreferrer">
+              le quiz du Palais est déjà ouvert
             </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" aria-labelledby="piliers-titre">
-        <div className="container">
-          <p className="section-kicker">Ce que SPAWT change</p>
-          <h2 className="section-title" id="piliers-titre">
-            Trois piliers, zéro blabla
-          </h2>
-          <div className="card-grid card-grid--3">
-            <article className="card">
-              <div className="card__icon" aria-hidden="true">
-                👅
-              </div>
-              <h3>Instinct</h3>
-              <p>
-                Ton <strong>Palais</strong> apprend ce que tu aimes vraiment —
-                pas ce que la moyenne aime. La reco qui sort, c'est «&nbsp;ce
-                lieu-là, maintenant, pour toi&nbsp;».
-              </p>
-            </article>
-            <article className="card">
-              <div className="card__icon" aria-hidden="true">
-                🐾
-              </div>
-              <h3>Identité</h3>
-              <p>
-                Ton <strong>archétype</strong> et ta collection racontent qui tu
-                es à table. Tu ne consommes pas une app&nbsp;: tu te découvres à
-                travers elle.
-              </p>
-            </article>
-            <article className="card">
-              <div className="card__icon" aria-hidden="true">
-                🐺
-              </div>
-              <h3>Communauté</h3>
-              <p>
-                <strong>La Meute</strong> flaire, spawte et partage. Chaque
-                trouvaille nourrit la carte — du maquis de quartier à la table
-                qui brille.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="section section--night" aria-labelledby="guet-titre">
-        <div className="container">
-          <p className="section-kicker">Le Guet</p>
-          <h2 className="section-title" id="guet-titre">
-            Des spawts vérifiés, pas des on-dit
-          </h2>
-          <p style={{ maxWidth: "56ch" }}>
-            Un avis SPAWT n'est pas un avis de passage&nbsp;: le Guet vérifie que
-            le spawter était vraiment sur place. Résultat&nbsp;: une carte où
-            chaque note a été mangée, pas imaginée. C'est ça, la différence entre
-            du bruit et du bon goût.
+            .
           </p>
-          <Link className="btn btn--gold" to="/gold">
-            Débloquer tout Abidjan avec Gold
-          </Link>
         </div>
-      </section>
 
-      <section className="section" aria-labelledby="ambassadeurs-titre">
-        <div className="container container--narrow">
-          <p className="section-kicker">Programme ambassadeur</p>
-          <h2 className="section-title" id="ambassadeurs-titre">
-            Deviens la voix de la Meute
-          </h2>
-          <p>
-            Tu spawtes déjà, tu racontes déjà, ta communauté t'écoute déjà&nbsp;?
-            Le programme ambassadeur te donne un micro — Gold offert, visibilité
-            éditoriale, et une rétribution qui monte avec ton palier.
+        <div className="hero__visual">
+          {/* Moka, pose « salut » — la pose canonique du design system. */}
+          <img
+            className="hero__moka"
+            src="/brand/moka-salut.webp"
+            alt="Moka, le chat calico de SPAWT, salue"
+            width={352}
+            height={500}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Probleme() {
+  return (
+    <section className="section">
+      <div className="container">
+        <p className="kicker">Le problème</p>
+        <h2 className="section-title">
+          Tu n&rsquo;es pas à court d&rsquo;adresses. Tu es à court de filtre.
+        </h2>
+
+        {/* Chiffres §0.1 — les trois sont dans la Bible, aucun n'est arrondi
+            pour l'effet. Ce sont des chiffres de marché, pas de traction :
+            la vitrine n'annonce aucun nombre de spawters ni de lieux, parce
+            qu'on ne les a pas vérifiés. */}
+        <ul className="stats">
+          <li className="stat">
+            <span className="stat__n">15 000+</span>
+            <span className="stat__label">
+              points de restauration à Abidjan, du maquis de quartier à la
+              grande table
+            </span>
+          </li>
+          <li className="stat">
+            <span className="stat__n">847</span>
+            <span className="stat__label">
+              résultats sur Google&nbsp;Maps dans 5&nbsp;km autour de Cocody.
+              Tous notés pareil, pour tout le monde
+            </span>
+          </li>
+          <li className="stat">
+            <span className="stat__n">47</span>
+            <span className="stat__label">
+              messages et 3&nbsp;heures de débat dans le groupe — avant que
+              quelqu&rsquo;un propose «&nbsp;le même endroit que d&rsquo;habitude&nbsp;»
+            </span>
+          </li>
+        </ul>
+
+        <blockquote className="pull">
+          Le problème n&rsquo;est pas l&rsquo;offre. L&rsquo;offre est massive.
+          Le problème est le filtre.
+        </blockquote>
+      </div>
+    </section>
+  );
+}
+
+function Piliers() {
+  return (
+    <section className="section section--warm">
+      <div className="container">
+        <p className="kicker">Ce que SPAWT change</p>
+        <h2 className="section-title">Instinct, identité, communauté</h2>
+        <p className="section-lede">
+          Trois mots qui séparent un compagnon d&rsquo;un annuaire.
+        </p>
+
+        <ul className="cards">
+          <li className="card">
+            <div className="card__icon">
+              <IconInstinct />
+            </div>
+            <h3 className="card__title">Instinct</h3>
+            <p>
+              Aucun formulaire de préférences. Le système observe tes
+              explorations réelles et construit ton <strong>Palais</strong> —
+              un profil de goût multidimensionnel. Ce qui en sort n&rsquo;est
+              pas «&nbsp;les 10 meilleures tables de Cocody&nbsp;», c&rsquo;est
+              «&nbsp;ce lieu-là, maintenant, pour toi, vu ce que tu es&nbsp;».
+            </p>
+          </li>
+          <li className="card">
+            <div className="card__icon">
+              <IconIdentite />
+            </div>
+            <h3 className="card__title">Identité</h3>
+            <p>
+              Tu n&rsquo;es pas un profil anonyme derrière un pseudo. Tu es un{" "}
+              <strong>spawter</strong>, avec un Palais qui a un nom, une
+              trajectoire et une collection de titres gagnés en explorant. Tu
+              ne consommes pas l&rsquo;app&nbsp;: tu te découvres à travers elle.
+            </p>
+          </li>
+          <li className="card">
+            <div className="card__icon">
+              <IconCommunaute />
+            </div>
+            <h3 className="card__title">Communauté</h3>
+            <p>
+              Rien ici ne sort d&rsquo;un algorithme ni d&rsquo;une rédaction.
+              C&rsquo;est <strong>la Meute</strong> qui explore, qui laisse ses
+              traces et qui calibre la réputation d&rsquo;un lieu. SPAWT ne
+              fonctionne pas sans ses spawters&nbsp;: c&rsquo;est le design, pas
+              un accident.
+            </p>
+          </li>
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function Modes() {
+  return (
+    <section className="section section--night">
+      <div className="container">
+        <p className="kicker">Le compagnon, pas le catalogue</p>
+        <h2 className="section-title">Trois modes, selon le moment</h2>
+        <p className="section-lede">
+          L&rsquo;app ne te pose pas la même question à midi un mardi et à 20h
+          un vendredi. Elle détecte le contexte et change de forme.
+        </p>
+
+        <ul className="modes">
+          {MODES.map((m) => (
+            <li className="mode" key={m.name}>
+              <p className="mode__glyph" aria-hidden="true">
+                {m.glyph}
+              </p>
+              <h3 className="mode__name">{m.name}</h3>
+              <p className="mode__question">{m.question}</p>
+              <ul className="mode__meta">
+                <li className="pill">{m.declencheur}</li>
+                <li className="pill">{m.cible}</li>
+              </ul>
+              {/* La voix du chat : première personne, italique, guillemets. */}
+              <p className="chat-voice">«&nbsp;{m.chat}&nbsp;»</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function VoixDuChat() {
+  return (
+    <section className="section section--night">
+      <div className="container container--narrow moka-block">
+        <img
+          className="moka-block__img"
+          src="/brand/moka-curieux.webp"
+          alt="Moka, curieux, la queue dressée"
+          width={352}
+          height={508}
+          loading="lazy"
+        />
+        <div>
+          <p className="kicker">La voix du chat</p>
+          {/* §0.5, mot à mot. */}
+          <blockquote className="moka-quote">
+            Le chat. Pas un chatbot. Un félin. Il flaire les bons spots. Il ne
+            suit pas, il guide. Il ne juge pas, il observe.
+            <cite>Moka, la mascotte de SPAWT</cite>
+          </blockquote>
+          <p className="chat-voice">
+            Sa voix change avec toi&nbsp;: taquine quand tu débutes, plus grave
+            et complice à mesure que ton Palais se précise.
           </p>
-          <Link className="btn btn--accent" to="/ambassadeurs">
-            Découvrir les 3 paliers
-          </Link>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <section className="section section--warm" aria-labelledby="crew-titre">
-        <div className="container">
-          <h2 className="section-title" id="crew-titre">
-            Ton crew mérite mieux que «&nbsp;on va où&nbsp;?&nbsp;»
-          </h2>
-          <div className="card-grid card-grid--2">
-            <div className="card card--warm">
-              <h3>Pour toi</h3>
-              <p>
-                Télécharge l'app, spawte tes premiers lieux, laisse ton Palais se
-                construire. Gratuit dans ton rayon — et quand tu veux tout
-                Abidjan, <Link to="/gold">Gold t'attend ici</Link>.
-              </p>
-            </div>
-            <div className="card card--warm">
-              <h3>Pour ton lieu</h3>
-              <p>
-                Maquis, table, spot de nuit&nbsp;: la Meute parle déjà de toi.
-                <Link to="/pro"> Reprends la main sur ta fiche</Link> et comprends
-                qui pousse ta porte.
-              </p>
-            </div>
+function Quiz() {
+  return (
+    <section className="section section--warm">
+      <div className="container">
+        <div className="quiz-block">
+          <img
+            className="quiz-block__img"
+            src="/brand/moka-carte.webp"
+            alt="Moka penché sur une carte"
+            width={479}
+            height={528}
+            loading="lazy"
+          />
+          <div>
+            <p className="kicker">En attendant l&rsquo;app</p>
+            <h2 className="section-title">Quel spawter es-tu&nbsp;?</h2>
+            <p>
+              Cinq questions, et le chat lit ton Palais. Tu repars avec ton
+              archétype — celui que tu afficheras dans l&rsquo;app le jour où
+              elle sort.
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              <a className="btn btn--gold" href={QUIZ_URL} target="_blank" rel="noreferrer">
+                Faire le quiz du Palais →
+              </a>
+            </p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
+
+function Telechargement() {
+  return (
+    <section className="section download">
+      <div className="container container--narrow">
+        <img
+          className="download__pin"
+          src="/brand/pin.webp"
+          alt=""
+          width={129}
+          height={200}
+          loading="lazy"
+        />
+        <h2 className="section-title">Bientôt dans ta poche</h2>
+        <p className="section-lede">
+          SPAWT arrive sur iOS et Android. Les liens de téléchargement
+          s&rsquo;activeront ici dès la publication.
+        </p>
+        <StoreBadges />
+      </div>
+    </section>
+  );
+}
+
+export default function LandingPage() {
+  usePageTitle("La carte du bon goût");
+  return (
+    <>
+      <Hero />
+      <Probleme />
+      <Piliers />
+      <Modes />
+      <VoixDuChat />
+      <Quiz />
+      <Telechargement />
     </>
   );
 }

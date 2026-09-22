@@ -47,12 +47,13 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(directives.get("default-src")).toBe("'self'");
   });
 
-  it("connect-src autorise le backend Supabase self-hosted de prod", () => {
-    const connect = directives.get("connect-src") ?? "";
-    expect(connect).toContain("'self'");
-    // REST /rest/v1 + Edge /functions/v1 + refresh GoTrue /auth/v1 vivent tous
-    // sous cet hôte. Si VITE_SUPABASE_URL change d'hôte, MAJ ici ET dans le README.
-    expect(connect).toContain("https://api.spawt.online");
+  it("connect-src fermé : la vitrine ne contacte personne", () => {
+    // Verrou de non-régression. La vitrine est statique : plus de client
+    // Supabase, plus d'Edge Function, plus de passerelle de paiement. Si
+    // quelqu'un réintroduit un appel réseau (une API, un tracker), ce test
+    // tombe AVANT le déploiement — et la CSP l'aurait bloqué en production.
+    expect(directives.get("connect-src")).toBe("'none'");
+    expect(csp).not.toContain("api.spawt.online");
   });
 
   it("img-src / font-src : local uniquement (+ data: pour les images)", () => {
@@ -78,7 +79,8 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(directives.get("frame-ancestors")).toBe("'none'");
     expect(directives.get("object-src")).toBe("'none'");
     expect(directives.get("base-uri")).toBe("'self'");
-    expect(directives.get("form-action")).toBe("'self'");
+    // 'none' et pas 'self' : la vitrine n'a aucun <form>. Rien à poster.
+    expect(directives.get("form-action")).toBe("'none'");
   });
 
   it("en-têtes complémentaires présents (avec always)", () => {

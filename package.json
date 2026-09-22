@@ -1,9 +1,9 @@
 {
-  "name": "spawt-portail",
+  "name": "spawt-vitrine",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Portail web SPAWT — spawt.online : vitrine publique + abonnements Spawter Gold + espace lieux (B2B)",
+  "description": "Vitrine web SPAWT — spawt.online : page unique de présentation de l'app, sans achat ni connexion",
   "engines": {
     "node": ">=20"
   },
@@ -16,7 +16,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.15.1"

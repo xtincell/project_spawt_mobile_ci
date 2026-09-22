@@ -1,9 +1,17 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   SPAWT Portail — Tokens CSS (SOURCE UNIQUE côté styles)
-   Palette CANONIQUE (brandbook v1.0, alignée app mobile) :
+   SPAWT Vitrine — Tokens CSS (SOURCE UNIQUE côté styles)
+
+   Palette CANONIQUE (design system CANON / brandbook v1.0) :
    noir #0A0A0A · or #C8A44E · vert chat #2D6B4F · blanc cassé #FAFAF8
    · crème sable #EFE8DC. Règle auditée : AUCUN hex hors de ce fichier
    et de ./tokens.ts — partout ailleurs, var(--...).
+
+   ⚠️ Deux échelles typographiques cohabitent ici, et c'est VOULU :
+   celle du design system est dimensionnée pour l'app mobile (display
+   34px, h1 26px) et paraît minuscule sur une page web large. Les
+   tokens --fd-* ci-dessous sont l'échelle WEB, en clamp(), bâtie sur
+   les MÊMES familles. Ne pas « harmoniser » les deux : un titre de
+   landing et un titre de fiche lieu n'ont pas le même travail.
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 :root {
@@ -11,8 +19,10 @@
   --noir: #0a0a0a;
   --or: #c8a44e;
   --or-clair: #e8d5a0;
+  --or-profond: #8a6f2c;
   --vert-chat: #2d6b4f;
   --vert-chat-profond: #1f4d39;
+  --ambre: #e89a39;
   --blanc-casse: #fafaf8;
   --creme-sable: #efe8dc;
   --blanc-pur: #ffffff;
@@ -34,11 +44,17 @@
   --accent: var(--vert-chat);
   --danger: var(--erreur);
 
-  /* ── Lignes / overlays (rgba dérivées du noir) ─── */
+  /* ── Lignes / overlays (rgba dérivées) ─────────── */
   --line: rgba(10, 10, 10, 0.1);
   --line-strong: rgba(10, 10, 10, 0.18);
   --line-inverse: rgba(250, 250, 248, 0.16);
+  --on-dark: rgba(255, 255, 255, 0.92);
+  --on-dark-mute: rgba(255, 255, 255, 0.55);
   --scrim: rgba(10, 10, 10, 0.55);
+  /* Barre d'en-tête : charbon presque opaque. Le --scrim (55 %) est fait pour
+     poser du texte blanc sur une photo, pas pour une barre — sur le charbon du
+     héro il rendait un bandeau grisâtre. */
+  --header-bg: rgba(10, 10, 10, 0.88);
   --glow-or: rgba(200, 164, 78, 0.3);
   --shadow-sm: 0 2px 4px rgba(10, 10, 10, 0.12);
   --shadow-md: 0 4px 16px rgba(10, 10, 10, 0.1);
@@ -49,11 +65,22 @@
   --gr-gold: linear-gradient(135deg, #c8a44e 0%, #e8d5a0 50%, #c8a44e 100%);
   --gr-sand: linear-gradient(135deg, #efe8dc 0%, #fafaf8 100%);
 
+  /* Texture dot-grid or — reprise du design system (.pattern-dots-gold).
+     Motif CSS pur : les 9 patterns PNG officiels pèsent 436 à 712 Ko
+     chacun, pour un rendu que deux radial-gradient obtiennent à 0 octet. */
+  --dots-or: radial-gradient(rgba(200, 164, 78, 0.35) 1px, transparent 1px);
+  --dots-encre: radial-gradient(rgba(10, 10, 10, 0.07) 1px, transparent 1px);
+  /* Halo chaud du héro — or canonique très dilué sur le charbon. */
+  --halo-or: radial-gradient(circle, rgba(200, 164, 78, 0.16) 0%, rgba(200, 164, 78, 0) 70%);
+
   /* ── Typographie ───────────────────────────────── */
-  /* Klinsman = display (titres, wordmark) ; Gotham = corps.
-     Familles déclarées dans src/styles/fonts.css avec fallbacks système. */
+  /* Klinsman = display (titres, chiffres-héros) ; Gotham = corps.
+     Familles déclarées dans src/styles/fonts.css avec fallbacks système.
+     Règle du brandbook : Klinsman jamais en paragraphe, jamais < 16px. */
   --font-display: "Klinsman", "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
   --font-body: "Gotham", "Futura", "Century Gothic", "Segoe UI", system-ui, sans-serif;
+
+  /* Échelle de corps (rem) */
   --fs-xs: 0.75rem;
   --fs-sm: 0.875rem;
   --fs-base: 1rem;
@@ -62,6 +89,17 @@
   --fs-2xl: 1.75rem;
   --fs-3xl: 2.25rem;
   --fs-4xl: 3rem;
+
+  /* Échelle display WEB — fluide, pour les titres de section d'une
+     landing. Bornes basses calées sur le mobile 375px. */
+  --fd-hero: clamp(2.75rem, 8vw, 5.5rem);
+  --fd-h2: clamp(1.875rem, 4vw, 2.875rem);
+  --fd-h3: clamp(1.25rem, 2.2vw, 1.5rem);
+  --fd-chiffre: clamp(2.25rem, 5vw, 3.25rem);
+
+  /* Interlettrage des sur-titres (kickers) — capitales espacées,
+     convention brandbook « JE SORS POUR… ». */
+  --ls-kicker: 0.12em;
 
   /* ── Espacement / rayons ───────────────────────── */
   --sp-xs: 4px;
@@ -76,5 +114,11 @@
   --r-m: 8px;
   --r-l: 16px;
   --r-card: 20px;
+  --r-pill: 100px;
   --r-full: 9999px;
+
+  /* ── Mouvement ─────────────────────────────────── */
+  --ease: cubic-bezier(0.4, 0.2, 0.2, 1);
+  --dur-fast: 0.1s;
+  --dur-base: 0.2s;
 }

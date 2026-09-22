@@ -1,12 +1,19 @@
-// Rendu des pages clés : landing (héro, piliers, Guet), gold (prix TTC, FAQ),
-// pages légales (marqueurs juriste) et états de la page retour.
+// Rendu des pages de la vitrine : la landing one-page et les 4 pages légales.
+//
+// Les tests de la landing font deux choses distinctes :
+//  1. vérifier que le contenu SOURCÉ est bien là (héro, piliers §0.4,
+//     modes §8, badges stores) ;
+//  2. servir de verrou de non-régression sur ce qui a été RETIRÉ. Un
+//     `expect(...).not.toBeInTheDocument()` paraît bizarre jusqu'au jour où
+//     quelqu'un recolle un bouton « Passer Gold » sur une vitrine censée ne
+//     rien vendre, ou réintroduit « Le Guet » — une fonctionnalité qui n'a
+//     jamais existé ailleurs que sur l'ancienne page.
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import type { ReactElement } from "react";
 import LandingPage from "../LandingPage";
-import GoldPage from "../GoldPage";
-import RetourPage from "../RetourPage";
+import NotFoundPage from "../NotFoundPage";
 import ConfidentialitePage from "../legal/ConfidentialitePage";
 import CguPage from "../legal/CguPage";
 import CgvPage from "../legal/CgvPage";
@@ -16,76 +23,96 @@ function renderAt(ui: ReactElement, path = "/") {
   return render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
 }
 
-describe("LandingPage", () => {
-  it("affiche le héro, les 3 piliers et Le Guet", () => {
+describe("LandingPage — contenu", () => {
+  it("affiche le héro et la promesse maître", () => {
     renderAt(<LandingPage />);
-    expect(screen.getByRole("heading", { name: /la carte du bon goût/i })).toBeInTheDocument();
-    expect(screen.getByText(/ne plus jamais regretter un lieu/i)).toBeInTheDocument();
-    expect(screen.getByText(/trois taps/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: /la carte du bon goût/i }),
+    ).toBeInTheDocument();
+    // §13.2 — la promesse maître, mot à mot.
+    expect(screen.getByText(/plus jamais le goumin d’un mauvais restau/i)).toBeInTheDocument();
+  });
+
+  it("affiche les 3 piliers (§0.4)", () => {
+    renderAt(<LandingPage />);
     expect(screen.getByRole("heading", { name: /^instinct$/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /^identité$/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /^communauté$/i })).toBeInTheDocument();
-    expect(screen.getByText(/des spawts vérifiés/i)).toBeInTheDocument();
   });
 
-  it("affiche les badges stores en « bientôt » sans URL configurée", () => {
+  it("affiche les 3 modes contextuels avec leurs cibles (§8)", () => {
     renderAt(<LandingPage />);
-    expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(2);
-    expect(screen.getByText("App Store")).toBeInTheDocument();
-    expect(screen.getByText("Google Play")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^rapide$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^crew$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^explore$/i })).toBeInTheDocument();
+    expect(screen.getByText(/décision en 3 taps/i)).toBeInTheDocument();
+    expect(screen.getByText(/décision de groupe en 5 min/i)).toBeInTheDocument();
   });
 
-  it("pointe vers le quiz archétype", () => {
+  it("reprend les chiffres du problème tels quels (§0.1)", () => {
     renderAt(<LandingPage />);
-    const lien = screen.getByRole("link", { name: /découvre ton archétype/i });
-    expect(lien).toHaveAttribute("href", "https://quiz.spawt.online");
+    expect(screen.getByText("15 000+")).toBeInTheDocument();
+    expect(screen.getByText("847")).toBeInTheDocument();
+    expect(screen.getByText("47")).toBeInTheDocument();
   });
 
-  it("présente le programme ambassadeur et pointe vers /ambassadeurs", () => {
+  it("nomme la mascotte", () => {
     renderAt(<LandingPage />);
-    expect(
-      screen.getByRole("heading", { name: /deviens la voix de la meute/i }),
-    ).toBeInTheDocument();
-    const lien = screen.getByRole("link", { name: /découvrir les 3 paliers/i });
-    expect(lien).toHaveAttribute("href", "/ambassadeurs");
+    expect(screen.getAllByText(/moka/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("affiche les badges stores en « Bientôt sur », non cliquables", () => {
+    renderAt(<LandingPage />);
+    // Deux jeux de badges : le héro et le rappel de bas de page.
+    expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(4);
+    expect(screen.getAllByText("App Store")).toHaveLength(2);
+    expect(screen.getAllByText("Google Play")).toHaveLength(2);
+    // Sans URL configurée, aucun badge n'est un lien.
+    expect(screen.queryByRole("link", { name: /app store/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /google play/i })).not.toBeInTheDocument();
+  });
+
+  it("pointe vers le quiz du Palais", () => {
+    renderAt(<LandingPage />);
+    const liens = screen
+      .getAllByRole("link")
+      .filter((a) => a.getAttribute("href") === "https://quiz.spawt.online");
+    expect(liens.length).toBeGreaterThanOrEqual(1);
+    liens.forEach((a) => expect(a).toHaveAttribute("rel", "noreferrer"));
   });
 });
 
-describe("GoldPage", () => {
-  it("affiche les prix TTC en évidence et la mention HT discrète", () => {
-    renderAt(<GoldPage />, "/gold");
-    expect(screen.getByText(/2 950 F CFA/)).toBeInTheDocument();
-    expect(screen.getByText(/29 500 F CFA/)).toBeInTheDocument();
-    expect(screen.getAllByText(/TVA 18 %/).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText(/2 mois offerts/i)).toBeInTheDocument();
+describe("LandingPage — verrous de non-régression", () => {
+  it("ne vend rien et ne demande aucune connexion", () => {
+    const { container } = renderAt(<LandingPage />);
+    const internes = Array.from(container.querySelectorAll("a[href^='/']")).map((a) =>
+      a.getAttribute("href"),
+    );
+    const interdits = ["/gold", "/connexion", "/compte", "/pro", "/ambassadeurs"];
+    interdits.forEach((route) => {
+      expect(internes.some((h) => h?.startsWith(route))).toBe(false);
+    });
   });
 
-  it("répond aux deux questions clés de la FAQ", () => {
-    renderAt(<GoldPage />, "/gold");
-    expect(
-      screen.getByText(/pourquoi payer ici et pas dans l'app/i),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/le mobile money ne prélève pas tout seul/i)).toBeInTheDocument();
-    expect(screen.getByText(/7 jours de grâce/i)).toBeInTheDocument();
+  it("ne réintroduit pas « Le Guet » (fonctionnalité inventée, hors Bible)", () => {
+    renderAt(<LandingPage />);
+    expect(screen.queryByText(/le guet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/spawts vérifiés/i)).not.toBeInTheDocument();
   });
 
-  it("le CTA renvoie vers la connexion quand personne n'est connecté", () => {
-    renderAt(<GoldPage />, "/gold");
-    const cta = screen.getByRole("link", { name: /^passer gold$/i });
-    expect(cta).toHaveAttribute("href", "/connexion?next=%2Fgold%2Fpaiement");
+  it("n'affiche aucun prix", () => {
+    const { container } = renderAt(<LandingPage />);
+    expect(container.textContent).not.toMatch(/FCFA|F CFA|€/);
   });
 });
 
-describe("RetourPage", () => {
-  it("sans transaction_id : état « référence manquante »", async () => {
-    renderAt(<RetourPage />, "/gold/retour");
-    expect(await screen.findByText(/il manque un morceau/i)).toBeInTheDocument();
-  });
-
-  it("avec transaction_id mais session absente : propose la reconnexion", async () => {
-    renderAt(<RetourPage />, "/gold/retour?transaction_id=txn-42");
-    const lien = await screen.findByRole("link", { name: /me reconnecter/i });
-    expect(lien.getAttribute("href")).toContain("transaction_id%3Dtxn-42");
+describe("NotFoundPage", () => {
+  it("renvoie vers l'accueil", () => {
+    renderAt(<NotFoundPage />, "/nawak");
+    expect(screen.getByRole("link", { name: /revenir à l’accueil/i })).toHaveAttribute(
+      "href",
+      "/",
+    );
   });
 });
 
