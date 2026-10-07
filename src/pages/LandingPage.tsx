@@ -1,11 +1,12 @@
 // Vitrine SPAWT — page unique.
 //
 // ── Provenance du contenu (à ne pas improviser) ────────────────────────────
-// Tout ce qui est affiché ici vient de deux documents, et de rien d'autre :
+// Le socle éditorial vient de deux documents :
 //   · SPAWT_BIBLE_COMPLETE.md (état consolidé du projet, février 2026)
 //   · brandbook v1.0 (marque, ton, dialecte)
 // Les références §x.y ci-dessous pointent la Bible. Un chiffre qui n'y est
 // pas ne va pas sur cette page.
+// Le nombre de questions suit le Quiz Palais servi : six, dont « Ton radar ».
 //
 // Ce qui a été RETIRÉ de l'ancienne landing, et pourquoi :
 //   · « Le Guet » — mécanisme de vérification de présence sur place. Il
@@ -273,7 +274,7 @@ function Quiz() {
             <p className="kicker">En attendant l&rsquo;app</p>
             <h2 className="section-title">Quel spawter es-tu&nbsp;?</h2>
             <p>
-              Cinq questions, et le chat lit ton Palais. Tu repars avec ton
+              Six questions, et le chat lit ton Palais. Tu repars avec ton
               archétype — celui que tu afficheras dans l&rsquo;app le jour où
               elle sort.
             </p>
