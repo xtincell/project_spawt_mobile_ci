@@ -1,0 +1,11 @@
+# Hors contexte Docker : dépendances locales, build, env, outillage.
+node_modules
+dist
+.env
+.env.*
+!.env.example
+.git
+.github
+*.log
+coverage
+README.md

@@ -1,0 +1,80 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SPAWT Portail — Tokens CSS (SOURCE UNIQUE côté styles)
+   Palette CANONIQUE (brandbook v1.0, alignée app mobile) :
+   noir #0A0A0A · or #C8A44E · vert chat #2D6B4F · blanc cassé #FAFAF8
+   · crème sable #EFE8DC. Règle auditée : AUCUN hex hors de ce fichier
+   et de ./tokens.ts — partout ailleurs, var(--...).
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+:root {
+  /* ── Palette brute ─────────────────────────────── */
+  --noir: #0a0a0a;
+  --or: #c8a44e;
+  --or-clair: #e8d5a0;
+  --vert-chat: #2d6b4f;
+  --vert-chat-profond: #1f4d39;
+  --blanc-casse: #fafaf8;
+  --creme-sable: #efe8dc;
+  --blanc-pur: #ffffff;
+  --graphite: #333333;
+  --gris-moyen: #8a8a8a;
+  --erreur: #b3261e;
+
+  /* ── Sémantique surfaces / texte ───────────────── */
+  --bg: var(--blanc-casse);
+  --bg-card: var(--blanc-pur);
+  --bg-warm: var(--creme-sable);
+  --bg-night: var(--noir);
+  --ink: var(--noir);
+  --ink-soft: var(--graphite);
+  --ink-mute: var(--gris-moyen);
+  --ink-inverse: var(--blanc-casse);
+  --ink-inverse-soft: var(--or-clair);
+  --brand: var(--or);
+  --accent: var(--vert-chat);
+  --danger: var(--erreur);
+
+  /* ── Lignes / overlays (rgba dérivées du noir) ─── */
+  --line: rgba(10, 10, 10, 0.1);
+  --line-strong: rgba(10, 10, 10, 0.18);
+  --line-inverse: rgba(250, 250, 248, 0.16);
+  --scrim: rgba(10, 10, 10, 0.55);
+  --glow-or: rgba(200, 164, 78, 0.3);
+  --shadow-sm: 0 2px 4px rgba(10, 10, 10, 0.12);
+  --shadow-md: 0 4px 16px rgba(10, 10, 10, 0.1);
+  --shadow-lg: 0 12px 40px rgba(10, 10, 10, 0.18);
+
+  /* ── Gradients signature ───────────────────────── */
+  --gr-night: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+  --gr-gold: linear-gradient(135deg, #c8a44e 0%, #e8d5a0 50%, #c8a44e 100%);
+  --gr-sand: linear-gradient(135deg, #efe8dc 0%, #fafaf8 100%);
+
+  /* ── Typographie ───────────────────────────────── */
+  /* Klinsman = display (titres, wordmark) ; Gotham = corps.
+     Familles déclarées dans src/styles/fonts.css avec fallbacks système. */
+  --font-display: "Klinsman", "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body: "Gotham", "Futura", "Century Gothic", "Segoe UI", system-ui, sans-serif;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+  --fs-3xl: 2.25rem;
+  --fs-4xl: 3rem;
+
+  /* ── Espacement / rayons ───────────────────────── */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 12px;
+  --sp-base: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+  --sp-2xl: 48px;
+  --sp-3xl: 64px;
+  --r-s: 4px;
+  --r-m: 8px;
+  --r-l: 16px;
+  --r-card: 20px;
+  --r-full: 9999px;
+}

@@ -1,0 +1,39 @@
+# CI du portail SPAWT — mêmes gates qu'en local :
+# install → lint vocabulaire → typecheck → tests → build.
+name: CI portail
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  qualite:
+    name: Lint vocab · typecheck · tests · build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Vocabulaire SPAWT + palette verrouillée
+        run: npm run lint:vocab
+
+      - name: Typecheck (tsc --noEmit)
+        run: npm run typecheck
+
+      - name: Tests (vitest)
+        run: npm test
+
+      - name: Build de production
+        run: npm run build
+        env:
+          # Build de CI sans backend : le portail doit builder sans secrets.
+          VITE_PAYMENT_MOCK: "0"

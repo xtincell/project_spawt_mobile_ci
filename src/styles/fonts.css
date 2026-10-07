@@ -1,0 +1,55 @@
+/* Polices SPAWT — Klinsman (display) + Gotham (corps).
+   Fichiers copiés depuis l'app mobile (app/src/theme/fonts/) vers
+   public/fonts/. NB : les .otf Klinsman embarquent les noms PostScript
+   `KlinsmanTypeface{Light,Regular,Bold}` — côté web on déclare nos propres
+   familles (« Klinsman » / « Gotham »), le nom PostScript ne compte que
+   pour le natif iOS. `font-display: swap` : le texte reste lisible pendant
+   le chargement (trafic mobile CI, réseaux lents). */
+
+@font-face {
+  font-family: "Klinsman";
+  src: url("/fonts/Klinsman-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Klinsman";
+  src: url("/fonts/Klinsman-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Klinsman";
+  src: url("/fonts/Klinsman-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url("/fonts/Gotham-Book.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url("/fonts/Gotham-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: url("/fonts/Gotham-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
