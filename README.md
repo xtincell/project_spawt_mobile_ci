@@ -148,8 +148,8 @@ src/styles/                global.css + fonts.css
 src/components/            Layout, StoreBadges, BrandIcons
 src/pages/                 LandingPage, NotFound, legal/ (×4)
 scripts/lint-vocab.mjs     lint dialecte + palette
-bientot/                   ancienne page de décompte (servie sur
-                           bientot.spawt.online — filet de rollback)
+bientot/                   page historique autonome, sans décompte de lancement
+                           (déploiement distinct sur bientot.spawt.online)
 ```
 
 ## Les pages légales ne sont pas décoratives
@@ -165,7 +165,17 @@ bloquerait la publication de l'app que cette page annonce.
 Coolify, application `spawt-portail-apercu` (`dz5jc8dg8gw5tk1viopxg8q2`), qui
 sert `spawt.online`, `www.spawt.online` (redirigé vers l'apex) et
 `portail.spawt.online`. Build pack Dockerfile, branche
-`claude/app-finale-ios-android-f8ewrp`.
+`claude/vitrine-one-page`. La page historique autonome reste portée par
+`claude/app-finale-ios-android-f8ewrp` et son Dockerfile `bientot/Dockerfile`.
 
-Rollback : la page de décompte tourne toujours sur `bientot.spawt.online`, et
-les versions précédentes restent dans l'historique Coolify.
+Le site et le quiz sont en ligne. La page historique `bientot.spawt.online`
+reste accessible sans décompte ; elle renvoie vers le quiz à six questions et
+la vitrine. La correction du lancement expiré est présente dans les deux branches
+qui portent ces déploiements : elle ne doit pas être réintroduite lors d’un retour
+à une version antérieure.
+
+Réception du 9 octobre 2026 : vitrine principale et page historique ouvertes dans
+un navigateur, aucun compteur expiré visible ; l’entrée du quiz annonce six
+questions. Ce contrôle ne reçoit pas le parcours complet du quiz ni tout l’univers
+de marque. Les versions précédentes restent dans l’historique Coolify, avec cette
+correction à préserver.
