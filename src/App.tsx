@@ -17,10 +17,11 @@ import CguPage from "./pages/legal/CguPage";
 import CgvPage from "./pages/legal/CgvPage";
 import SuppressionComptePage from "./pages/legal/SuppressionComptePage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { PublicBrandProvider } from "./lib/public-brand";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <PublicBrandProvider><BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<LandingPage />} />
@@ -31,6 +32,6 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </BrowserRouter></PublicBrandProvider>
   );
 }

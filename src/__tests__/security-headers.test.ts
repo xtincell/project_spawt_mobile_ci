@@ -47,12 +47,9 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(directives.get("default-src")).toBe("'self'");
   });
 
-  it("connect-src fermé : la vitrine ne contacte personne", () => {
-    // Verrou de non-régression. La vitrine est statique : plus de client
-    // Supabase, plus d'Edge Function, plus de passerelle de paiement. Si
-    // quelqu'un réintroduit un appel réseau (une API, un tracker), ce test
-    // tombe AVANT le déploiement — et la CSP l'aurait bloqué en production.
-    expect(directives.get("connect-src")).toBe("'none'");
+  it("connect-src limité à la publication de marque", () => {
+    // Une seule origine de lecture publique, aucun wildcard ou paiement.
+    expect(directives.get("connect-src")).toBe("https://powerupgraders.com");
     expect(csp).not.toContain("api.spawt.online");
   });
 
