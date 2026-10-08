@@ -1,8 +1,8 @@
 # SPAWT — Vitrine web (`spawt.online`)
 
 Page unique de présentation de l'app SPAWT. **Purement vitrine** : aucun achat,
-aucune connexion, aucun backend. Les seuls liens sortants sont le quiz du Palais
-et Instagram.
+aucune connexion et aucun backend propre. Le texte de marque et les liens publics
+consomment une édition publiée dans La Fusée ; le quiz reste un site séparé.
 
 > Ce dépôt a d'abord hébergé un *portail* marchand (abonnement Spawter Gold,
 > espace lieux B2B, connexion OTP). Tout cela a été retiré. Si tu cherches ce
@@ -65,8 +65,23 @@ bundle) : chaque changement exige un redéploiement. Voir `.env.example`.
 | `VITE_PLAYSTORE_URL` | Idem pour Google Play |
 | `VITE_QUIZ_URL` | Défaut `https://quiz.spawt.online` |
 
-Il n'y a volontairement **aucune clé d'API ni aucun secret** : la vitrine ne
-contacte aucun service.
+Il n'y a **aucune clé d'API ni aucun secret**. Le seul service lu est
+`https://powerupgraders.com/api/export/LFA-spawt?format=public-brand` : un export
+anonyme limité aux champs publics choisis, jamais l'export privé de stratégie.
+
+La carte **Connexions → Page publique** de La Fusée permet de relire le nom,
+le titre, la promesse, la présentation et les liens, puis de publier une édition.
+SPAWT vérifie son identité, sa forme et son empreinte avant de remplacer ces textes.
+Un brouillon ou une capture historique sans choix explicite ne modifie pas la vitrine.
+Lecture au chargement, au retour dans l'onglet, puis toutes les cinq minutes visibles.
+En cas de panne ou de réponse refusée, le dernier texte reçu dans l'onglet reste
+visible ; un nouveau chargement commence par la copie embarquée ci-dessous.
+
+Le raccord porte sur les textes du premier écran, le titre et les liens publics.
+Les logos, la palette, les polices, Moka, les règles des six questions, les scores
+et les liens des stores gardent leurs sources propres. Leur harmonisation complète
+n'est pas reçue par ce lot. Une édition publique ne vaut pas validation de toute
+la stratégie. Le retour à une édition antérieure crée une nouvelle version du coffre.
 
 ---
 
@@ -83,12 +98,12 @@ Conséquence pratique : pas de `fill="#..."` dans un SVG inline, pas de couleur
 en dur dans un composant. On utilise `var(--...)` ou `currentColor`.
 
 ### 2. La CSP est verrouillée par un test
-`security-headers.conf` pose `connect-src 'none'` et `form-action 'none'` —
-c'est un constat, pas une précaution : la vitrine ne fait aucun appel réseau et
-n'a aucun formulaire. `src/__tests__/security-headers.test.ts` l'assert par
+`security-headers.conf` limite `connect-src` à `https://powerupgraders.com`
+et garde `form-action 'none'`. Seule la publication publique est lue, sans
+cookie ni référent ; la vitrine n'a aucun formulaire. `src/__tests__/security-headers.test.ts` l'assert par
 égalité stricte, tout comme `font-src 'self'` et `script-src 'self'`.
 
-Donc **tout est same-origin** : pas de Google Fonts, pas de CDN d'images, pas
+Les images, polices et scripts restent **same-origin** : pas de Google Fonts, pas de CDN d'images, pas
 d'analytics tiers. Si une origine externe devient vraiment nécessaire, l'ouvrir
 dans `security-headers.conf` **et** mettre le test à jour dans le même commit,
 sinon la CI casse.

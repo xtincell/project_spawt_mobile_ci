@@ -2,9 +2,8 @@
 // Décision : aucun accès direct à import.meta.env ailleurs dans src/ (testable,
 // et un seul endroit à auditer quand une variable change de nom).
 //
-// La vitrine ne parle à AUCUN backend : ni Supabase, ni Edge Function, ni
-// passerelle de paiement. C'est ce qui permet à la CSP de poser
-// connect-src 'self' — rien à autoriser, donc rien à oublier de fermer.
+// Seule l'édition publique de marque est lue à distance, sans secret ni cookie.
+// Les autres contrats (quiz, stores, légal) restent propres à leur surface.
 
 const env = import.meta.env;
 
@@ -20,3 +19,6 @@ export const INSTAGRAM_URL = "https://instagram.com/spawt.ci";
 
 /** Contact éditeur (légal, support). */
 export const CONTACT_EMAIL = "spawt.ci@gmail.com";
+
+/** Public brand edition only; never the private strategy export. */
+export const PUBLIC_BRAND_URL = "https://powerupgraders.com/api/export/LFA-spawt?format=public-brand";

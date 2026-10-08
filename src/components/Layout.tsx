@@ -10,16 +10,18 @@
 // rendu.
 
 import { Link, Outlet } from "react-router";
-import { CONTACT_EMAIL, INSTAGRAM_URL, QUIZ_URL } from "../lib/config";
+import { CONTACT_EMAIL, QUIZ_URL } from "../lib/config";
+import { usePublicBrand } from "../lib/public-brand";
 
 function Header() {
+  const brand = usePublicBrand();
   return (
     <header className="site-header">
       <div className="container site-header__inner">
-        <Link className="brand" to="/" aria-label="SPAWT — accueil">
+        <Link className="brand" to="/" aria-label={`${brand.name} — accueil`}>
           <img
             src="/brand/logo-horizontal-dark.webp"
-            alt="SPAWT — La carte du bon goût"
+            alt={`${brand.name} — ${brand.title}`}
             width={340}
             height={141}
           />
@@ -33,6 +35,7 @@ function Header() {
 }
 
 function Footer() {
+  const brand = usePublicBrand();
   return (
     <footer className="site-footer">
       <div className="container">
@@ -44,7 +47,7 @@ function Footer() {
               width={340}
               height={141}
             />
-            <p>La carte du bon goût — Abidjan, Côte d&rsquo;Ivoire.</p>
+            <p>{brand.title} — Abidjan, Côte d&rsquo;Ivoire.</p>
           </div>
 
           <nav aria-labelledby="footer-legal">
@@ -71,18 +74,16 @@ function Footer() {
               <li>
                 <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
               </li>
-              <li>
-                <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">
-                  @spawt.ci
-                </a>
-              </li>
+              {brand.links.map((link) => <li key={link.url}>
+                <a href={link.url} target="_blank" rel="noreferrer">{link.label}</a>
+              </li>)}
               <li>Abidjan, Côte d&rsquo;Ivoire</li>
             </ul>
           </div>
         </div>
 
         <p className="site-footer__legal">
-          © {new Date().getFullYear()} SPAWT / UPGRADERS. Tous droits réservés.
+          © {new Date().getFullYear()} {brand.name} / UPGRADERS. Tous droits réservés.
         </p>
       </div>
     </footer>

@@ -24,6 +24,7 @@ import StoreBadges from "../components/StoreBadges";
 import { IconInstinct, IconIdentite, IconCommunaute } from "../components/BrandIcons";
 import { QUIZ_URL } from "../lib/config";
 import { usePageTitle } from "../lib/use-page-title";
+import { usePublicBrand } from "../lib/public-brand";
 
 /** Les 3 modes contextuels — §8, tableau repris tel quel. */
 const MODES = [
@@ -54,17 +55,17 @@ const MODES = [
 ];
 
 function Hero() {
+  const brand = usePublicBrand();
   return (
     <section className="hero">
       <div className="container hero__inner">
         <div className="hero__copy">
           <p className="kicker">Abidjan · Côte d&rsquo;Ivoire</p>
-          <h1 className="hero__title">La carte du bon goût</h1>
+          <h1 className="hero__title">{brand.title}</h1>
           {/* Promesse maître, §13.2 — mot à mot. */}
-          <p className="hero__promise">Plus jamais le goumin d&rsquo;un mauvais restau.</p>
+          <p className="hero__promise">{brand.tagline}</p>
           <p className="hero__pitch">
-            SPAWT est un compagnon de découverte culinaire communautaire. Pas un
-            catalogue, pas un annuaire&nbsp;: le bon lieu, au bon moment, pour toi.
+            {brand.description}
           </p>
           <div className="hero__actions">
             <StoreBadges />
@@ -314,7 +315,8 @@ function Telechargement() {
 }
 
 export default function LandingPage() {
-  usePageTitle("La carte du bon goût");
+  const brand = usePublicBrand();
+  usePageTitle(brand.title);
   return (
     <>
       <Hero />
