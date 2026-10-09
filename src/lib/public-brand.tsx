@@ -1,9 +1,10 @@
 /** Versioned public copy from the existing brand vault. No visitor data sent. */
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { PUBLIC_BRAND_URL } from "./config";
+import { validPublicIdentity, loadPublicIdentity, type PublicIdentity } from "./public-identity";
 
 export type BrandCopy = { name: string; title: string; tagline: string; description: string;
-  logoUrl: string | null; links: Array<{ label: string; url: string }> };
+  logoUrl: string | null; links: Array<{ label: string; url: string }>; identity?: PublicIdentity | null };
 export const PUBLISHED_COPY: BrandCopy = {
   name: "SPAWT", title: "La carte du bon goût",
   tagline: "Plus jamais le goumin d’un mauvais restau.",
@@ -29,12 +30,13 @@ function canonical(value: unknown): unknown {
 /** Match the publisher's canonical digest, scope and allowlist before rendering. */
 export async function receivePublicBrand(value: unknown): Promise<BrandCopy | null> {
   if (!record(value) || !exact(value, ["schema", "slug", "edition", "version", "publishedAt", "selection", "digest", "content"])
-    || value.schema !== "public-brand-v1" || value.slug !== "LFA-spawt" || value.selection !== "chosen"
+    || !["public-brand-v1", "public-brand-v2"].includes(String(value.schema)) || value.slug !== "LFA-spawt" || value.selection !== "chosen"
     || typeof value.edition !== "string" || !Number.isInteger(value.version) || Number(value.version) < 1
     || typeof value.publishedAt !== "string" || !Number.isFinite(Date.parse(value.publishedAt))
     || typeof value.digest !== "string" || !/^[a-f0-9]{64}$/.test(value.digest)) return null;
   const c = value.content;
-  if (!record(c) || !exact(c, ["name", "title", "tagline", "description", "logoUrl", "links"])) return null;
+  if (!record(c) || !exact(c, ["name", "title", "tagline", "description", "logoUrl", "links", ...(value.schema === "public-brand-v2" ? ["identity"] : [])])) return null;
+  if (value.schema === "public-brand-v2" && !validPublicIdentity(c.identity, value.edition)) return null;
   for (const [key, max, required] of [["name", 160, true], ["title", 240, true], ["tagline", 600, false], ["description", 2400, false]] as const) {
     if (typeof c[key] !== "string" || c[key].length > max || (required && !c[key].trim())) return null;
   }
@@ -55,9 +57,25 @@ export async function fetchPublicBrand(signal: AbortSignal): Promise<BrandCopy |
   return receivePublicBrand(JSON.parse(text) as unknown);
 }
 const PublicBrandContext = createContext(PUBLISHED_COPY);
+const MascotContext = createContext<Record<string, string>>({});
 export const usePublicBrand = () => useContext(PublicBrandContext);
+export function usePublicMascot(role: "greeting" | "curious" | "guide", fallback: string, alt: string) {
+  const brand = usePublicBrand(), files = useContext(MascotContext);
+  const selected = brand.identity?.mascots.find(mascot => mascot.role === role);
+  return { src: files[role] ?? fallback, alt: selected?.alt ?? alt };
+}
 export function PublicBrandProvider({ children }: { children: ReactNode }) {
-  const [content, setContent] = useState(PUBLISHED_COPY);
+  const [accepted, setAccepted] = useState<{ content: BrandCopy; resources: Awaited<ReturnType<typeof loadPublicIdentity>> }>({ content: PUBLISHED_COPY, resources: { fonts: [], css: {}, images: {} } });
+  const received = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    const root = document.documentElement, previous = new Map<string, string>();
+    for (const [key, value] of Object.entries(accepted.resources.css)) { previous.set(key, root.style.getPropertyValue(key)); root.style.setProperty(key, value); }
+    for (const font of accepted.resources.fonts) document.fonts.add(font);
+    return () => {
+      for (const [key, value] of previous) { if (value) root.style.setProperty(key, value); else root.style.removeProperty(key); }
+      for (const font of accepted.resources.fonts) document.fonts.delete(font);
+    };
+  }, [accepted.resources]);
   useEffect(() => {
     let closed = false;
     let controller: AbortController | null = null;
@@ -65,7 +83,9 @@ export function PublicBrandProvider({ children }: { children: ReactNode }) {
       controller?.abort(); controller = new AbortController();
       const own = controller;
       const timeout = setTimeout(() => own.abort(), 12000);
-      try { const next = await fetchPublicBrand(own.signal); if (next && !closed && !own.signal.aborted) setContent(next); }
+      try { const next = await fetchPublicBrand(own.signal);
+        if (next && JSON.stringify(next) !== received.current) { const resources = await loadPublicIdentity(next.identity, own.signal);
+          if (!closed && !own.signal.aborted) { received.current = JSON.stringify(next); setAccepted({ content: next, resources }); } } }
       catch { /* Keep the last edition; the page and quiz remain usable. */ }
       finally { clearTimeout(timeout); }
     };
@@ -74,5 +94,5 @@ export function PublicBrandProvider({ children }: { children: ReactNode }) {
     window.addEventListener("focus", refresh);
     return () => { closed = true; clearInterval(timer); controller?.abort(); window.removeEventListener("focus", refresh); };
   }, []);
-  return <PublicBrandContext.Provider value={content}>{children}</PublicBrandContext.Provider>;
+  return <PublicBrandContext.Provider value={accepted.content}><MascotContext.Provider value={accepted.resources.images}>{children}</MascotContext.Provider></PublicBrandContext.Provider>;
 }

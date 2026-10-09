@@ -19,6 +19,7 @@ export const palette = {
   vertChatProfond: "#1F4D39",
   blancCasse: "#FAFAF8",
   // Accents
+  ambre: "#E89A39",
   cremeSable: "#EFE8DC",
   // Neutres
   blancPur: "#FFFFFF",
