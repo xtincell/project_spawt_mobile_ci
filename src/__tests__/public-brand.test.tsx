@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { webcrypto, createHash } from "node:crypto";
-import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router";
 import { PUBLISHED_COPY, PublicBrandProvider, receivePublicBrand } from "../lib/public-brand";
+import Layout from "../components/Layout";
 import LandingPage from "../pages/LandingPage";
 
 function canonical(v: unknown): unknown {
@@ -18,6 +19,11 @@ function edition(patch = {}) {
     selection: "chosen", publishedAt: "2026-10-08T00:00:00.000Z", digest, content };
 }
 afterEach(() => { vi.unstubAllGlobals(); });
+function renderSite() {
+  return render(<MemoryRouter><PublicBrandProvider><Routes><Route element={<Layout />}>
+    <Route path="/" element={<LandingPage />} /></Route></Routes></PublicBrandProvider></MemoryRouter>);
+}
+const selectedLogo = "https://powerupgraders.com/brand/spawt/logos/logo-contour-horizontal.png";
 describe("Public brand reception", () => {
   it("receives the exact published copy and digest", async () => {
     vi.stubGlobal("crypto", webcrypto);
@@ -46,4 +52,39 @@ describe("Public brand reception", () => {
     expect(screen.getAllByRole("link").some((link) => link.getAttribute("href") === "https://quiz.spawt.online")).toBe(true);
     expect(screen.queryByText(/00:00|0 jours/i)).not.toBeInTheDocument();
   });
+  it("renders the chosen logo in both brand positions and falls back on a failed image", async () => {
+    vi.stubGlobal("crypto", webcrypto);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(edition({ logoUrl: selectedLogo })))));
+    renderSite();
+    await waitFor(() => expect(document.querySelectorAll(`img[src="${selectedLogo}"]`)).toHaveLength(2));
+    for (const img of document.querySelectorAll(`img[src="${selectedLogo}"]`)) fireEvent.error(img);
+    expect(document.querySelectorAll('img[src="/brand/logo-horizontal-dark.webp"]')).toHaveLength(2);
+    expect(screen.getByText(/six questions/i)).toBeInTheDocument();
+  });
+  it("changes and restores the rendered logo with editions while ignoring a late old response", async () => {
+    vi.stubGlobal("crypto", webcrypto);
+    let finishOld!: (response: Response) => void;
+    const newer = "https://powerupgraders.com/brand/spawt/logos/logo-contour-wordmark.png";
+    const fetcher = vi.fn().mockImplementationOnce(() => new Promise<Response>((resolve) => { finishOld = resolve; }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ...edition({ logoUrl: newer }), edition: "edition-two", version: 2 })))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ...edition({ logoUrl: selectedLogo }), edition: "restored-three", version: 3 })));
+    vi.stubGlobal("fetch", fetcher); renderSite();
+    fireEvent(window, new Event("focus"));
+    await waitFor(() => expect(document.querySelectorAll(`img[src="${newer}"]`)).toHaveLength(2));
+    finishOld(new Response(JSON.stringify(edition({ logoUrl: selectedLogo }))));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    expect(document.querySelectorAll(`img[src="${newer}"]`)).toHaveLength(2);
+    fireEvent(window, new Event("focus"));
+    await waitFor(() => expect(document.querySelectorAll(`img[src="${selectedLogo}"]`)).toHaveLength(2));
+    expect(screen.getAllByRole("link").some((l) => l.getAttribute("href") === "https://quiz.spawt.online")).toBe(true);
+  });
+  it("keeps the published text but never embeds foreign or private media addresses", async () => {
+    vi.stubGlobal("crypto", webcrypto);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(edition({ logoUrl: "https://evil.invalid/logo.png" })))));
+    renderSite();
+    await screen.findByRole("heading", { level: 1, name: "La table choisie ensemble" });
+    expect(document.querySelectorAll('img[src="https://evil.invalid/logo.png"]')).toHaveLength(0);
+    expect(document.querySelectorAll('img[src="/brand/logo-horizontal-dark.webp"]')).toHaveLength(2);
+  });
+
 });

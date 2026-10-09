@@ -9,9 +9,28 @@
 // compte, donc plus de provider, donc plus rien à charger avant le premier
 // rendu.
 
+import { useState } from "react";
 import { Link, Outlet } from "react-router";
-import { CONTACT_EMAIL, QUIZ_URL } from "../lib/config";
+import { CONTACT_EMAIL, QUIZ_URL, PUBLIC_BRAND_URL } from "../lib/config";
 import { usePublicBrand } from "../lib/public-brand";
+
+const FALLBACK_LOGO = "/brand/logo-horizontal-dark.webp";
+/** Match the public publisher's asset directory and the CSP, without remote
+ * tracking/referrers. A broken edition image never removes the live identity. */
+function logoForSite(value: string | null) {
+  if (!value) return FALLBACK_LOGO;
+  try {
+    const url = new URL(value);
+    return url.origin === new URL(PUBLIC_BRAND_URL).origin && !url.username && !url.password && !url.search && !url.hash
+      && /^\/brand\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:png|webp|jpe?g|svg)$/.test(url.pathname)
+      ? url.href : FALLBACK_LOGO;
+  } catch { return FALLBACK_LOGO; }
+}
+function BrandLogo({ url, alt }: { url: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  return <img src={failed ? FALLBACK_LOGO : url} alt={alt} width={340} height={141}
+    referrerPolicy="no-referrer" onError={() => { if (!failed) setFailed(true); }} />;
+}
 
 function Header() {
   const brand = usePublicBrand();
@@ -19,12 +38,7 @@ function Header() {
     <header className="site-header">
       <div className="container site-header__inner">
         <Link className="brand" to="/" aria-label={`${brand.name} — accueil`}>
-          <img
-            src="/brand/logo-horizontal-dark.webp"
-            alt={`${brand.name} — ${brand.title}`}
-            width={340}
-            height={141}
-          />
+          <BrandLogo key={brand.logoUrl} url={logoForSite(brand.logoUrl)} alt={`${brand.name} — ${brand.title}`} />
         </Link>
         <a className="header-link" href={QUIZ_URL} target="_blank" rel="noreferrer">
           Faire le quiz
@@ -41,12 +55,7 @@ function Footer() {
       <div className="container">
         <div className="site-footer__cols">
           <div className="site-footer__brand">
-            <img
-              src="/brand/logo-horizontal-dark.webp"
-              alt=""
-              width={340}
-              height={141}
-            />
+            <BrandLogo key={brand.logoUrl} url={logoForSite(brand.logoUrl)} alt="" />
             <p>{brand.title} — Abidjan, Côte d&rsquo;Ivoire.</p>
           </div>
 
