@@ -335,7 +335,7 @@ a:hover {
 .hero__note {
   font-size: var(--fs-sm);
   color: var(--on-dark-mute);
-  margin: 0;
+  margin: var(--sp-base) 0 0;
 }
 
 .hero__visual {
