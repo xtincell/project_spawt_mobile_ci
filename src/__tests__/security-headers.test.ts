@@ -53,9 +53,9 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(csp).not.toContain("api.spawt.online");
   });
 
-  it("img-src / font-src : local uniquement (+ data: pour les images)", () => {
+  it("img-src : local et coffre public borné ; font-src local", () => {
     expect(directives.get("img-src")).toContain("'self'");
-    expect(directives.get("img-src")).toContain("data:");
+    expect(directives.get("img-src")).toBe("'self' data: https://powerupgraders.com/brand/");
     expect(directives.get("font-src")).toBe("'self'");
   });
 

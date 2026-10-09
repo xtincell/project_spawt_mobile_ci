@@ -179,3 +179,18 @@ un navigateur, aucun compteur expiré visible ; l’entrée du quiz annonce six
 questions. Ce contrôle ne reçoit pas le parcours complet du quiz ni tout l’univers
 de marque. Les versions précédentes restent dans l’historique Coolify, avec cette
 correction à préserver.
+
+### Logo de l’édition publique
+
+Le logo choisi dans Connexions est désormais lu aux deux emplacements de la
+vitrine. La publication reste une décision explicite de la marque : le site ne
+choisit pas la première variante du coffre. Les images distantes sont limitées
+aux fichiers de `https://powerupgraders.com/brand/`, sans paramètres ni accès
+privé ; la CSP porte la même limite et les polices restent locales. Si l’image
+ne charge pas, le logo canon embarqué prend le relais. Une nouvelle URL réessaie
+le chargement ; une réponse ancienne annulée n’écrase pas la nouvelle édition.
+
+Ce raccord de logo conserve palette, Klinsman/Gotham, Moka et quiz à six
+questions. Il ne reçoit pas encore leur irrigation complète depuis le coffre.
+Le reçu privé de choix/version protège l’enregistrement choisi ; l’immutabilité
+des octets derrière une URL publique reste à recevoir séparément.
