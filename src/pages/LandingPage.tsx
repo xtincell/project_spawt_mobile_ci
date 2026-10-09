@@ -24,7 +24,7 @@ import StoreBadges from "../components/StoreBadges";
 import { IconInstinct, IconIdentite, IconCommunaute } from "../components/BrandIcons";
 import { QUIZ_URL } from "../lib/config";
 import { usePageTitle } from "../lib/use-page-title";
-import { usePublicBrand } from "../lib/public-brand";
+import { usePublicBrand, usePublicMascot } from "../lib/public-brand";
 
 /** Les 3 modes contextuels — §8, tableau repris tel quel. */
 const MODES = [
@@ -56,6 +56,7 @@ const MODES = [
 
 function Hero() {
   const brand = usePublicBrand();
+  const mascot = usePublicMascot("greeting", "/brand/moka-salut.webp", "Moka, le chat calico de SPAWT, salue");
   return (
     <section className="hero">
       <div className="container hero__inner">
@@ -83,8 +84,7 @@ function Hero() {
           {/* Moka, pose « salut » — la pose canonique du design system. */}
           <img
             className="hero__moka"
-            src="/brand/moka-salut.webp"
-            alt="Moka, le chat calico de SPAWT, salue"
+            {...mascot}
             width={352}
             height={500}
           />
@@ -229,13 +229,14 @@ function Modes() {
 }
 
 function VoixDuChat() {
+  const brand = usePublicBrand();
+  const mascot = usePublicMascot("curious", "/brand/moka-curieux.webp", "Moka, curieux, la queue dressée");
   return (
     <section className="section section--night">
       <div className="container container--narrow moka-block">
         <img
           className="moka-block__img"
-          src="/brand/moka-curieux.webp"
-          alt="Moka, curieux, la queue dressée"
+          {...mascot}
           width={352}
           height={508}
           loading="lazy"
@@ -244,9 +245,8 @@ function VoixDuChat() {
           <p className="kicker">La voix du chat</p>
           {/* §0.5, mot à mot. */}
           <blockquote className="moka-quote">
-            Le chat. Pas un chatbot. Un félin. Il flaire les bons spots. Il ne
-            suit pas, il guide. Il ne juge pas, il observe.
-            <cite>Moka, la mascotte de SPAWT</cite>
+            {brand.identity?.voice?.quote ?? "Le chat. Pas un chatbot. Un félin. Il flaire les bons spots. Il ne suit pas, il guide. Il ne juge pas, il observe."}
+            <cite>{brand.identity?.voice?.attribution ?? "Moka, la mascotte de SPAWT"}</cite>
           </blockquote>
           <p className="chat-voice">
             Sa voix change avec toi&nbsp;: taquine quand tu débutes, plus grave
@@ -259,14 +259,14 @@ function VoixDuChat() {
 }
 
 function Quiz() {
+  const mascot = usePublicMascot("guide", "/brand/moka-carte.webp", "Moka penché sur une carte");
   return (
     <section className="section section--warm">
       <div className="container">
         <div className="quiz-block">
           <img
             className="quiz-block__img"
-            src="/brand/moka-carte.webp"
-            alt="Moka penché sur une carte"
+            {...mascot}
             width={479}
             height={528}
             loading="lazy"

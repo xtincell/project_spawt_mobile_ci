@@ -21,4 +21,4 @@ export const INSTAGRAM_URL = "https://instagram.com/spawt.ci";
 export const CONTACT_EMAIL = "spawt.ci@gmail.com";
 
 /** Public brand edition only; never the private strategy export. */
-export const PUBLIC_BRAND_URL = "https://powerupgraders.com/api/export/LFA-spawt?format=public-brand";
+export const PUBLIC_BRAND_URL = "https://powerupgraders.com/api/export/LFA-spawt?format=public-brand-v2";

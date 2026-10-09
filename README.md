@@ -186,11 +186,39 @@ Le logo choisi dans Connexions est désormais lu aux deux emplacements de la
 vitrine. La publication reste une décision explicite de la marque : le site ne
 choisit pas la première variante du coffre. Les images distantes sont limitées
 aux fichiers de `https://powerupgraders.com/brand/`, sans paramètres ni accès
-privé ; la CSP porte la même limite et les polices restent locales. Si l’image
+privé ; la CSP porte la même limite. Les polices embarquées servent de repli local. Si l’image
 ne charge pas, le logo canon embarqué prend le relais. Une nouvelle URL réessaie
 le chargement ; une réponse ancienne annulée n’écrase pas la nouvelle édition.
 
-Ce raccord de logo conserve palette, Klinsman/Gotham, Moka et quiz à six
-questions. Il ne reçoit pas encore leur irrigation complète depuis le coffre.
-Le reçu privé de choix/version protège l’enregistrement choisi ; l’immutabilité
-des octets derrière une URL publique reste à recevoir séparément.
+Le transport borné de La Fusée conserve les octets du logo par édition ; ce
+lecteur reste compatible avec les éditions v1. Le quiz à six questions conserve
+son contrat propre.
+
+### Identité publiée par usage
+
+La lecture `public-brand-v2` ajoute les six couleurs choisies, deux familles de
+polices (titres/corps) et leurs fichiers OTF/TTF, trois usages de Moka
+(accueil/découverte/guidage), ainsi qu’une citation et son attribution. Les choix
+et références privés restent dans La Fusée ; aucune charte brouillon n’est
+publiée implicitement. Les familles non choisies gardent leur présentation locale.
+
+Le site valide le contrat, le digest et les URL exactes de l’édition. Il reçoit
+et vérifie longueur/type/SHA-256 de chaque fichier, puis décode les polices avec
+FontFace et les images avant d’appliquer l’identité entière. Les polices sont
+chargées depuis les octets vérifiés ; les poses utilisent ces mêmes octets en
+image data. La CSP reste inchangée. Une édition inchangée ne recharge pas ces
+fichiers à chaque contrôle ; chargement, retour au premier plan et contrôle
+visible toutes les cinq minutes suivent les publications nouvelles.
+
+Un fichier refusé conserve la dernière édition reçue dans la page ouverte ; un
+nouveau chargement indisponible garde la copie canon embarquée. Ce reçu n’est
+pas persisté après fermeture de page. Les tailles, la composition, les tons
+adaptés, les pages légales, les stores et le contrat du quiz restent propres à
+la vitrine. Les cinq fichiers de polices utilisés sont choisis pour cette
+surface : une graisse inutilisée n’est pas chargée seulement parce qu’elle
+existe dans le coffre. La filiation et la projection WOFF2 restent à recevoir.
+
+Réception locale du candidat : 38 tests, typecheck/build et décodage natif de
+cinq polices et trois poses. Le harness transporte seulement les deux lectures
+via un proxy vers une base isolée ; il ne prouve pas la CSP du domaine public.
+Déploiement, choix SPAWT réel et réception du site public restent à constater.
