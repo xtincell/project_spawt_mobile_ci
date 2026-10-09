@@ -221,4 +221,20 @@ existe dans le coffre. La filiation et la projection WOFF2 restent à recevoir.
 Réception locale du candidat : 38 tests, typecheck/build et décodage natif de
 cinq polices et trois poses. Le harness transporte seulement les deux lectures
 via un proxy vers une base isolée ; il ne prouve pas la CSP du domaine public.
-Déploiement, choix SPAWT réel et réception du site public restent à constater.
+Cette limite décrit le harness local initial. La réception en production du
+9 octobre 2026 est désormais distinctement reçue : La Fusée 6.27.432 publie le
+choix SPAWT v4, le republie sans resélection v5, puis le retour à v4 crée v6.
+Les huit copies et le choix sont conservés. Cinq FontFace chargées, trois PNG
+Moka décodés, six couleurs et citation sont reçus dans la vitrine ; l’export v1
+reste compatible. CSP et trois origines CORS inchangées, sans exception/500/log
+observé dans la fenêtre finale bornée. Aucun résultat métier ou cycle entier
+de marque n’est déduit de cette lecture.
+
+Le canon `adc4738` est livré sur les trois domaines. Les octets du build reçu
+correspondent aux fichiers servis et au conteneur. Les build args vides et
+`VITE_QUIZ_URL=https://quiz.spawt.online` sont pris en compte dans cette comparaison.
+Les 38 tests/5 fichiers et les CI des PR #7 et #8 sont verts. La note sous les
+badges est espacée de 16 px ; viewport 390 px sans débordement horizontal reçu.
+Six questions et aucun décompte expiré conservés. Autres destinations, quiz/app,
+filiation HD, équivalence WOFF2, reprise complète du stockage/clé et retour de
+valeur restent ouverts ; le dernier reçu n’est pas persistant après fermeture.
