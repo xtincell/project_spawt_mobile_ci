@@ -1,9 +1,9 @@
 {
-  "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-35/spawt-1.1.1-build35.apk",
-  "fileName": "spawt-1.1.1-build35.apk",
-  "sha256": "53b7dcb40f0718484b10541a078c24382951536d5ab8c26a846cc4078f8c4086",
-  "bytes": 162454527,
+  "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-19-36/spawt-1.1.1-build36.apk",
+  "fileName": "spawt-1.1.1-build36.apk",
+  "sha256": "9cbe231ff9eb646586b00980fb6918a78f020d3aae48de5caef50951713e307c",
+  "bytes": 162454415,
   "version": "1.1.1",
-  "build": 35,
-  "sourceCommit": "f265ae2a14ca01ee3b919a52aee6aac8c960ab9b"
+  "build": 36,
+  "sourceCommit": "76fb9bec3250803924ccecdc143b0f74ce1b25e0"
 }
