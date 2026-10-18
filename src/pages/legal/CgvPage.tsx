@@ -6,7 +6,7 @@ import { Link } from "react-router";
 import { CONTACT_EMAIL } from "../../lib/config";
 import { usePageTitle } from "../../lib/use-page-title";
 
-const MAJ = "26 juillet 2026";
+const MAJ = "18 octobre 2026";
 
 export default function CgvPage() {
   usePageTitle("Conditions générales de vente");
@@ -26,26 +26,21 @@ export default function CgvPage() {
         <h2>1. Les offres</h2>
         <h3 style={{ marginTop: "var(--sp-lg)" }}>Spawter Gold (particuliers)</h3>
         <ul>
-          <li>
-            Mensuel&nbsp;: <strong>2&nbsp;950&nbsp;F&nbsp;CFA TTC / mois</strong>{" "}
-            (2&nbsp;500&nbsp;F CFA HT + TVA 18&nbsp;%).
-          </li>
-          <li>
-            Annuel&nbsp;: <strong>29&nbsp;500&nbsp;F&nbsp;CFA TTC / an</strong>{" "}
-            (25&nbsp;000&nbsp;F CFA HT + TVA 18&nbsp;%) — soit 12 mois au prix
-            de 10.
-          </li>
+          <li>Mensuel&nbsp;: abonnement d'un mois.</li>
+          <li>Annuel&nbsp;: 12 mois au prix de 10.</li>
         </ul>
         <h3 style={{ marginTop: "var(--sp-lg)" }}>Offres lieux (professionnels)</h3>
         <ul>
-          <li>Spawt Libre&nbsp;: 0&nbsp;F.</li>
-          <li>Spawt Pro&nbsp;: 15&nbsp;000&nbsp;F CFA HT / mois + TVA 18&nbsp;%.</li>
-          <li>Spawt Gold (lieux)&nbsp;: 65&nbsp;000&nbsp;F CFA HT / mois + TVA 18&nbsp;%.</li>
+          <li>Spawt Libre&nbsp;: gratuite.</li>
+          <li>Spawt Pro&nbsp;: abonnement mensuel.</li>
+          <li>Spawt Gold (lieux)&nbsp;: abonnement mensuel.</li>
         </ul>
         <p>
-          Les prix B2C sont affichés TTC, les prix professionnels HT. Toute
-          évolution tarifaire est annoncée au moins 30 jours avant et ne
-          s'applique jamais à une période déjà payée.
+          Le prix de chaque offre est le prix TTC affiché au moment de la
+          souscription, TVA 18&nbsp;% incluse&nbsp;: c'est le montant payé, et la
+          facture en détaille le HT et la TVA. Toute évolution tarifaire est
+          annoncée au moins 30 jours avant et ne s'applique jamais à une
+          période déjà payée.
         </p>
 
         <h2>2. Souscription et paiement</h2>
