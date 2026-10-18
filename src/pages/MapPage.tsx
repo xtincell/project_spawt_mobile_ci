@@ -13,6 +13,7 @@ export default function MapPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [mapUnavailable, setMapUnavailable] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const filtered = useMemo(() => places.filter(p => `${p.name} ${p.neighborhood} ${p.cuisine.join(' ')}`.toLocaleLowerCase('fr').includes(query.toLocaleLowerCase('fr'))), [places, query]);
   const active = places.find(p => p.id === selected);
@@ -27,7 +28,8 @@ export default function MapPage() {
       map.current = new maplibregl.Map({container: container.current, style: 'https://tiles.openfreemap.org/styles/dark', center: [-4.0267,5.3364], zoom: 11, attributionControl: {compact: true}});
       map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
       map.current.on('error', () => setMapError(true));
-    } catch { setMapError(true); }
+      map.current.on('load', () => setMapError(false));
+    } catch { setMapUnavailable(true); setMapError(true); }
     return () => {map.current?.remove(); map.current = null;};
   }, []);
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function MapPage() {
     <label className="spot-search">Chercher une adresse ou un quartier<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Kaiten, Zone 4…" type="search" /></label>
     {loading && <p role="status">Chargement des adresses…</p>}
     {error && <p role="alert">Les adresses sont indisponibles. <button onClick={()=>setAttempt(a=>a+1)}>Réessayer</button></p>}
-    <div className="spot-explorer__grid"><section aria-label="Carte des spots" className="spot-map"><div ref={container} className="spot-map__canvas"/>{mapError && <p className="spot-map__notice">Le fond de carte est indisponible. Les fiches restent accessibles.</p>}</section>
+    <div className={`spot-explorer__grid${mapUnavailable ? " spot-explorer__grid--list" : ""}`}><section aria-label="Carte des spots" className={`spot-map${mapUnavailable ? " spot-map--unavailable" : ""}`}><div ref={container} className="spot-map__canvas"/>{mapError && <p className="spot-map__notice">{mapUnavailable ? "Ce navigateur ne permet pas d’afficher la carte interactive. Retrouvez toutes les adresses dans les fiches ci-dessous." : "Le fond de carte est momentanément indisponible. Les fiches restent accessibles."}</p>}</section>
     <section className="spot-list" aria-label="Liste des spots"><p aria-live="polite">{filtered.length} adresse{filtered.length !== 1 ? 's' : ''}</p>{!loading && !error && filtered.length === 0 && <p>Aucune adresse pour cette recherche.</p>}{filtered.map(p=><button key={p.id} className={`spot-card${selected===p.id?' spot-card--active':''}`} aria-pressed={selected===p.id} onClick={()=>select(p)}><strong>{p.name}</strong><span>{p.neighborhood || p.city}</span>{p.cuisine.length>0 && <small>{p.cuisine.join(' · ')}</small>}</button>)}</section></div>
     {active && <section className="spot-detail" aria-label={`Fiche ${active.name}`}><button className="spot-detail__close" onClick={()=>setSelected(null)} aria-label="Fermer la fiche">×</button><p className="eyebrow">LA FICHE</p><h2>{active.name}</h2><p>{active.descriptive_address || active.neighborhood || active.city}</p>{active.cuisine.length>0 && <p>{active.cuisine.join(' · ')}</p>}<p className="muted">Les horaires, tarifs et disponibilités sont à confirmer auprès du lieu.</p></section>}
   </main>;
