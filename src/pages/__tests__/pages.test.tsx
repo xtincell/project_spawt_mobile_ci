@@ -133,6 +133,24 @@ describe("Pages légales", () => {
     expect(screen.getAllByText(/droit ivoirien/i).length).toBeGreaterThanOrEqual(1);
   });
 
+  // Les prix vivent dans la table `plans`, administrée depuis la console
+  // (décision du 18/10/2026) : un montant écrit ici finirait faux au premier
+  // changement de tarif.
+  it("CGU et CGV : aucun montant ni « prix HT », le prix TTC affiché à la souscription fait foi", () => {
+    const pages = [
+      [CguPage, "/legal/cgu"],
+      [CgvPage, "/legal/cgv"],
+    ] as const;
+    pages.forEach(([Page, path]) => {
+      const { container, unmount } = renderAt(<Page />, path);
+      const texte = container.textContent ?? "";
+      expect(texte).not.toMatch(/\d\s?F(\s?CFA)?\b|FCFA|XOF|€/);
+      expect(texte).not.toMatch(/prix HT|prix professionnels HT/i);
+      expect(texte).toMatch(/prix TTC affiché au moment\s+de la souscription/);
+      unmount();
+    });
+  });
+
   it("CGV : TVA 18 %, rétractation 7 jours, pas de prélèvement automatique", () => {
     renderAt(<CgvPage />, "/legal/cgv");
     expect(screen.getAllByText(/TVA 18 %/).length).toBeGreaterThanOrEqual(2);
