@@ -18,6 +18,7 @@ import ConfidentialitePage from "../legal/ConfidentialitePage";
 import CguPage from "../legal/CguPage";
 import CgvPage from "../legal/CgvPage";
 import SuppressionComptePage from "../legal/SuppressionComptePage";
+import androidRelease from "../../../scripts/android-release.json";
 
 function renderAt(ui: ReactElement, path = "/") {
   return render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
@@ -66,8 +67,8 @@ describe("LandingPage — contenu", () => {
     const downloads = screen.getAllByRole("link", { name: /Télécharger SPAWT pour Android/i });
     expect(downloads).toHaveLength(2);
     downloads.forEach((link) => {
-      expect(link).toHaveAttribute("href", "/downloads/spawt-1.1.1-build34.apk");
-      expect(link).toHaveAttribute("download", "spawt-1.1.1-build34.apk");
+      expect(link).toHaveAttribute("href", `/downloads/${androidRelease.fileName}`);
+      expect(link).toHaveAttribute("download", androidRelease.fileName);
     });
     expect(screen.getAllByText("iOS")).toHaveLength(2);
     expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(2);
