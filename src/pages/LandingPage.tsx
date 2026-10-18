@@ -305,7 +305,7 @@ function Telechargement() {
         />
         <h2 className="section-title">SPAWT dans ta poche</h2>
         <p className="section-lede">
-          Télécharge la version Android : APK v1.1.1, build 32 (155 Mo).
+          Télécharge la dernière version Android au format APK.
           L&rsquo;installation se fait directement depuis le fichier téléchargé.
           La version iOS arrive bientôt.
         </p>
