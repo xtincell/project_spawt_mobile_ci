@@ -6,6 +6,13 @@ import { PUBLISHED_COPY, PublicBrandProvider, receivePublicBrand } from "../lib/
 import Layout from "../components/Layout";
 import LandingPage from "../pages/LandingPage";
 
+// Brand reception has its own network contract; download reception is exercised
+// separately with both rendered buttons in android-download.test.tsx.
+vi.mock("../lib/android-release", async () => {
+  const { default: release } = await import("../../scripts/android-release.json");
+  return { useAndroidRelease: () => ({ ...release, url: `/downloads/${release.fileName}` }) };
+});
+
 function canonical(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(canonical);
   if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)).map(([k, value]) => [k, canonical(value)]));

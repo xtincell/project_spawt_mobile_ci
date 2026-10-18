@@ -65,9 +65,25 @@ bundle) : chaque changement exige un redéploiement. Voir `.env.example`.
 | `VITE_PLAYSTORE_URL` | Idem pour Google Play |
 | `VITE_QUIZ_URL` | Défaut `https://quiz.spawt.online` |
 
-Il n'y a **aucune clé d'API ni aucun secret**. Le seul service lu est
+Il n'y a **aucune clé d'API ni aucun secret**. La marque vient de
 `https://powerupgraders.com/api/export/LFA-spawt?format=public-brand` : un export
 anonyme limité aux champs publics choisis, jamais l'export privé de stratégie.
+Le téléchargement Android lit aussi le manifeste public décrit ci-dessous.
+
+### Téléchargement Android automatique
+
+Les deux boutons lisent `latest.json` dans la branche `android-releases` du dépôt
+`xtincell/spawt-ci-mobile-v1-mvp`. Le workflow `android-release.yml` met à jour ce
+manifeste après publication de l'APK, contrôle de son empreinte GitHub, vérification
+de la signature et réussite de la recette native. Un commit ou une compilation
+non publiée ne modifie pas le bouton. La version et le lien avancent ensemble.
+
+Lecture au chargement, au retour dans l'onglet et toutes les cinq minutes visibles ;
+le cache du CDN peut ajouter quelques minutes. Aucun redéploiement du site n'est
+requis pour les publications suivantes. Les réponses invalides ou plus anciennes
+sont refusées. En cas d'indisponibilité, la page garde le dernier lien reçu et un
+nouveau chargement dispose de l'APK embarqué par `scripts/android-release.json`.
+Ce repli local est renouvelé lors des déploiements du site.
 
 La carte **Connexions → Page publique** de La Fusée permet de relire le nom,
 le titre, la promesse, la présentation et les liens, puis de publier une édition.

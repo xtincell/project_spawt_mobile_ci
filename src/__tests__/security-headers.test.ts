@@ -47,9 +47,9 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(directives.get("default-src")).toBe("'self'");
   });
 
-  it("connect-src limité à la publication de marque", () => {
-    // Une seule origine de lecture publique, aucun wildcard ou paiement.
-    expect(directives.get("connect-src")).toBe("'self' https://powerupgraders.com https://tiles.openfreemap.org");
+  it("connect-src limité aux publications publiques et à la carte", () => {
+    // Origines nommées : marque, carte et manifeste Android, aucun wildcard.
+    expect(directives.get("connect-src")).toBe("'self' https://powerupgraders.com https://tiles.openfreemap.org https://raw.githubusercontent.com");
     expect(csp).not.toContain("api.spawt.online");
   });
 
