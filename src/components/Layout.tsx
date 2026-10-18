@@ -40,6 +40,7 @@ function Header() {
         <Link className="brand" to="/" aria-label={`${brand.name} — accueil`}>
           <BrandLogo key={brand.logoUrl} url={logoForSite(brand.logoUrl)} alt={`${brand.name} — ${brand.title}`} />
         </Link>
+        <Link className="header-link" to="/carte">Voir les spots</Link>
         <a className="header-link" href={QUIZ_URL} target="_blank" rel="noreferrer">
           Faire le quiz
         </a>

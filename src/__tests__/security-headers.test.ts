@@ -49,15 +49,17 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
 
   it("connect-src limité à la publication de marque", () => {
     // Une seule origine de lecture publique, aucun wildcard ou paiement.
-    expect(directives.get("connect-src")).toBe("https://powerupgraders.com");
+    expect(directives.get("connect-src")).toBe("'self' https://powerupgraders.com https://tiles.openfreemap.org");
     expect(csp).not.toContain("api.spawt.online");
   });
 
   it("img-src : local et coffre public borné ; font-src local", () => {
     expect(directives.get("img-src")).toContain("'self'");
-    expect(directives.get("img-src")).toBe("'self' data: https://powerupgraders.com/brand/");
+    expect(directives.get("img-src")).toBe("'self' data: https://powerupgraders.com/brand/ https://tiles.openfreemap.org/");
     expect(directives.get("font-src")).toBe("'self'");
   });
+
+  it("worker local uniquement", () => { expect(directives.get("worker-src")).toBe("'self'"); });
 
   it("style-src autorise le inline (styles React) mais reste same-origin sinon", () => {
     const style = directives.get("style-src") ?? "";

@@ -10,6 +10,8 @@
 // <AuthProvider> ni de <RequireAuth> (il n'y a plus rien à protéger).
 
 import { BrowserRouter, Routes, Route } from "react-router";
+import { lazy, Suspense } from "react";
+const MapPage = lazy(() => import("./pages/MapPage"));
 import Layout from "./components/Layout";
 import LandingPage from "./pages/LandingPage";
 import ConfidentialitePage from "./pages/legal/ConfidentialitePage";
@@ -25,6 +27,7 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/carte" element={<Suspense fallback={<p>Chargement de la carte…</p>}><MapPage /></Suspense>} />
           <Route path="/legal/confidentialite" element={<ConfidentialitePage />} />
           <Route path="/legal/cgu" element={<CguPage />} />
           <Route path="/legal/cgv" element={<CgvPage />} />
