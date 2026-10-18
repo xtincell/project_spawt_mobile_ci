@@ -6,7 +6,7 @@ import { Link } from "react-router";
 import { CONTACT_EMAIL } from "../../lib/config";
 import { usePageTitle } from "../../lib/use-page-title";
 
-const MAJ = "18 octobre 2026";
+const MAJ = "19 octobre 2026";
 
 export default function CgvPage() {
   usePageTitle("Conditions générales de vente");
@@ -16,7 +16,7 @@ export default function CgvPage() {
         <h1>Conditions générales de vente</h1>
         <p>
           Dernière mise à jour&nbsp;: {MAJ}. Les présentes CGV régissent les
-          abonnements payants souscrits sur spawt.online auprès de{" "}
+          abonnements payants proposés par{" "}
           <strong>SPAWT / UPGRADERS</strong>{" "}
           <mark>[À VALIDER PAR JURISTE&nbsp;: dénomination sociale, RCCM,
           n°&nbsp;de compte contribuable]</mark>, contact&nbsp;:{" "}
@@ -27,7 +27,7 @@ export default function CgvPage() {
         <h3 style={{ marginTop: "var(--sp-lg)" }}>Spawter Gold (particuliers)</h3>
         <ul>
           <li>Mensuel&nbsp;: abonnement d'un mois.</li>
-          <li>Annuel&nbsp;: 12 mois au prix de 10.</li>
+          <li>Annuel&nbsp;: abonnement de 12 mois.</li>
         </ul>
         <h3 style={{ marginTop: "var(--sp-lg)" }}>Offres lieux (professionnels)</h3>
         <ul>
@@ -45,11 +45,11 @@ export default function CgvPage() {
 
         <h2>2. Souscription et paiement</h2>
         <p>
-          L'abonnement se souscrit exclusivement sur spawt.online (jamais dans
-          l'application mobile), après connexion avec le numéro de téléphone du
-          compte. Le paiement s'effectue par Mobile Money (Orange Money, Wave,
-          MTN MoMo) via notre prestataire CinetPay. L'abonnement est actif dès
-          confirmation du paiement.
+          La souscription en ligne n'est pas encore ouverte sur cette vitrine.
+          Pour connaître les offres disponibles et leurs modalités de paiement,
+          contacte <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          Le prix TTC et les conditions applicables sont communiqués avant tout
+          paiement. Un abonnement devient actif après confirmation du paiement.
         </p>
         <p>
           <strong>Pas de prélèvement automatique&nbsp;:</strong> le Mobile
@@ -77,8 +77,8 @@ export default function CgvPage() {
         <h2>4. Facturation</h2>
         <p>
           Chaque paiement donne lieu à une facture (numéro, montant TTC, TVA
-          18&nbsp;% détaillée) disponible dans{" "}
-          <Link to="/compte">l'espace compte</Link>. Pour les offres
+          18&nbsp;% détaillée), accessible sur demande à{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Pour les offres
           professionnelles, la facture mentionne les références fiscales de
           l'établissement <mark>[À VALIDER PAR JURISTE&nbsp;: mentions
           obligatoires DGI]</mark>.

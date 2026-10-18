@@ -6,7 +6,7 @@ import { Link } from "react-router";
 import { CONTACT_EMAIL } from "../../lib/config";
 import { usePageTitle } from "../../lib/use-page-title";
 
-const MAJ = "18 octobre 2026";
+const MAJ = "19 octobre 2026";
 
 export default function CguPage() {
   usePageTitle("Conditions générales d'utilisation");
@@ -107,9 +107,9 @@ export default function CguPage() {
         <p>
           Les gérants d'établissements peuvent revendiquer leur fiche et
           souscrire aux offres Spawt Libre, Pro ou Gold (prix TTC affiché au moment
-          de la souscription, cf.{" "}
-          <Link to="/pro">Espace lieux</Link> et{" "}
-          <Link to="/legal/cgv">CGV</Link>). Répondre aux avis engage
+          de la souscription, cf. les{" "}
+          <Link to="/legal/cgv">CGV</Link>). Pour les démarches, contacte{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Répondre aux avis engage
           l'établissement, qui s'interdit toute pression sur les spawters.
         </p>
 
