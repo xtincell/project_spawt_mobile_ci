@@ -61,15 +61,17 @@ describe("LandingPage — contenu", () => {
     expect(screen.getAllByText(/moka/i).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("affiche les badges stores en « Bientôt sur », non cliquables", () => {
+  it("propose l’APK direct et garde iOS honnêtement indisponible", () => {
     renderAt(<LandingPage />);
-    // Deux jeux de badges : le héro et le rappel de bas de page.
-    expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(4);
-    expect(screen.getAllByText("App Store")).toHaveLength(2);
-    expect(screen.getAllByText("Google Play")).toHaveLength(2);
-    // Sans URL configurée, aucun badge n'est un lien.
-    expect(screen.queryByRole("link", { name: /app store/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /google play/i })).not.toBeInTheDocument();
+    const downloads = screen.getAllByRole("link", { name: /Télécharger SPAWT pour Android/i });
+    expect(downloads).toHaveLength(2);
+    downloads.forEach((link) => {
+      expect(link).toHaveAttribute("href", "/downloads/spawt-1.1.1-build32.apk");
+      expect(link).toHaveAttribute("download", "spawt-1.1.1-build32.apk");
+    });
+    expect(screen.getAllByText("iOS")).toHaveLength(2);
+    expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: /app store|google play/i })).not.toBeInTheDocument();
   });
 
   it("pointe vers le quiz du Palais", () => {

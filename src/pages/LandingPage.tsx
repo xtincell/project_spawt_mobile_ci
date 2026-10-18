@@ -72,9 +72,9 @@ function Hero() {
             <StoreBadges />
           </div>
           <p className="hero__note">
-            L&rsquo;app arrive sur iOS et Android. En attendant,{" "}
+            La version Android est disponible en téléchargement direct. iOS arrive bientôt. Découvre aussi{" "}
             <a href={QUIZ_URL} target="_blank" rel="noreferrer">
-              le quiz du Palais est déjà ouvert
+              le quiz du Palais
             </a>
             .
           </p>
@@ -303,10 +303,11 @@ function Telechargement() {
           height={200}
           loading="lazy"
         />
-        <h2 className="section-title">Bientôt dans ta poche</h2>
+        <h2 className="section-title">SPAWT dans ta poche</h2>
         <p className="section-lede">
-          SPAWT arrive sur iOS et Android. Les liens de téléchargement
-          s&rsquo;activeront ici dès la publication.
+          Télécharge la version Android : APK v1.1.1, build 32 (155 Mo).
+          L&rsquo;installation se fait directement depuis le fichier téléchargé.
+          La version iOS arrive bientôt.
         </p>
         <StoreBadges />
       </div>

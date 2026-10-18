@@ -7,6 +7,11 @@
 # soient transmises comme build args au docker build.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+# Immutable Android binary, independently cached from the site source.
+FROM node:20-alpine AS android-release
+COPY scripts/fetch-android.mjs /fetch-android.mjs
+RUN node /fetch-android.mjs
+
 # ── Étape 1 : build ────────────────────────────────────────────────
 FROM node:20-alpine AS build
 WORKDIR /app
@@ -44,6 +49,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # — il n'est monté que via l'`include` explicite de default.conf.
 COPY security-headers.conf /etc/nginx/security-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=android-release /android /usr/share/nginx/html/downloads
 
 EXPOSE 80
 # 127.0.0.1 explicitement, pas `localhost` : sous Alpine, localhost résout

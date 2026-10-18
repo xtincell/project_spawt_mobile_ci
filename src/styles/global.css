@@ -775,3 +775,9 @@ a:hover {
     grid-template-columns: 1.4fr 1fr 1fr;
   }
 }
+
+/* Platform download badges: one clear action, icons aligned with the copy. */
+.store-badge--platform { flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; }
+.store-badge--platform > svg { flex: 0 0 30px; color: var(--blanc-casse); }
+.store-badge--platform > span { display: flex; flex-direction: column; gap: 2px; }
+.store-badge__detail { font-size: var(--fs-xs); color: var(--on-dark-mute); }
