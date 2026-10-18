@@ -146,6 +146,8 @@ describe("Pages légales", () => {
       const texte = container.textContent ?? "";
       expect(texte).not.toMatch(/\d\s?F(\s?CFA)?\b|FCFA|XOF|€/);
       expect(texte).not.toMatch(/prix HT|prix professionnels HT/i);
+      expect(texte).not.toMatch(/12 mois au prix de 10/);
+      expect(container.querySelector('a[href="/pro"], a[href="/compte"], a[href="/gold"]')).toBeNull();
       expect(texte).toMatch(/prix TTC affiché au moment\s+de la souscription/);
       unmount();
     });
