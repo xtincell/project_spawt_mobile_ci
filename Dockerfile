@@ -10,6 +10,7 @@
 # Immutable Android binary, independently cached from the site source.
 FROM node:20-alpine AS android-release
 COPY scripts/fetch-android.mjs /fetch-android.mjs
+COPY scripts/android-release.json /android-release.json
 RUN node /fetch-android.mjs
 
 # ── Étape 1 : build ────────────────────────────────────────────────

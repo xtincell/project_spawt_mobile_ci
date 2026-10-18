@@ -1,19 +1,15 @@
-// Immutable Android release transport. Only the APK is published in nginx.
+// Immutable Android release transport. Verify the binary before nginx serves it.
 import { createHash } from 'node:crypto';
-import { gunzipSync } from 'node:zlib';
-import { mkdirSync, writeFileSync } from 'node:fs';
-const url = 'https://drive.usercontent.google.com/download?id=1csbvW-QFCbMf096d1NDdlVUhlTjBZRAi&export=download&confirm=t';
-const compressedSha = '18f647b021c1850db6d1b653c7be8d34e3a68a45f218e5a256c0dc9a89621936';
-const apkSha = 'ed1693324b285237276116396102bd76447ea08ed8caf1810eda1a82927267e1';
-const hash = bytes => createHash('sha256').update(bytes).digest('hex');
-const response = await fetch(url, { signal: AbortSignal.timeout(180000) });
-if (!response.ok) throw new Error(`Android archive HTTP ${response.status}`);
-const compressed = Buffer.from(await response.arrayBuffer());
-if (hash(compressed) !== compressedSha) throw new Error('Android transport checksum mismatch');
-const apk = gunzipSync(compressed);
-if (apk.length !== 162441167 || hash(apk) !== apkSha) throw new Error('Android APK checksum mismatch');
-if (apk.subarray(0, 2).toString() !== 'PK') throw new Error('Invalid APK header');
-mkdirSync('/android', { recursive: true });
-writeFileSync('/android/spawt-1.1.1-build32.apk', apk);
-writeFileSync('/android/spawt-1.1.1-build32.apk.sha256', `${apkSha}  spawt-1.1.1-build32.apk\n`);
-console.log('SPAWT Android 1.1.1 build 32 verified: 162441167 bytes');
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+const config = JSON.parse(readFileSync(new URL('./android-release.json', import.meta.url), 'utf8'));
+if (!/^spawt-\d+\.\d+\.\d+-build\d+\.apk$/.test(config.fileName) || !/^[a-f0-9]{64}$/.test(config.sha256)) throw new Error('Invalid release manifest');
+const response = await fetch(config.url, { signal: AbortSignal.timeout(180000) });
+if (!response.ok) throw new Error(`Android release HTTP ${response.status}`);
+const apk = Buffer.from(await response.arrayBuffer());
+const hash = createHash('sha256').update(apk).digest('hex');
+if (apk.length !== config.bytes || hash !== config.sha256 || apk.subarray(0,2).toString() !== 'PK') throw new Error('Android APK verification failed');
+const output = process.env.ANDROID_OUTPUT_DIR || '/android';
+mkdirSync(output, { recursive: true });
+writeFileSync(`${output}/${config.fileName}`, apk);
+writeFileSync(`${output}/${config.fileName}.sha256`, `${hash}  ${config.fileName}\n`);
+console.log(`Verified ${config.fileName}: ${apk.length} bytes`);

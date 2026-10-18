@@ -66,8 +66,8 @@ describe("LandingPage — contenu", () => {
     const downloads = screen.getAllByRole("link", { name: /Télécharger SPAWT pour Android/i });
     expect(downloads).toHaveLength(2);
     downloads.forEach((link) => {
-      expect(link).toHaveAttribute("href", "/downloads/spawt-1.1.1-build32.apk");
-      expect(link).toHaveAttribute("download", "spawt-1.1.1-build32.apk");
+      expect(link).toHaveAttribute("href", "/downloads/spawt-1.1.1-build34.apk");
+      expect(link).toHaveAttribute("download", "spawt-1.1.1-build34.apk");
     });
     expect(screen.getAllByText("iOS")).toHaveLength(2);
     expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(2);
