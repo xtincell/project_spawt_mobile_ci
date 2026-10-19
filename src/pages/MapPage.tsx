@@ -42,7 +42,7 @@ export default function MapPage() {
   }, [filtered, selected]);
   function select(p: PublicPlace) {setSelected(p.id); if(p.lng !== null && p.lat !== null) map.current?.flyTo({center:[p.lng,p.lat],zoom:14,essential:false});}
   return <main className="spot-explorer container">
-    <header className="spot-explorer__heading"><p className="eyebrow">ABIDJAN · LES SPOTS</p><h1>Une adresse, un point sur la carte.</h1><p>Explorez les adresses publiées dans SPAWT (relevé du 18 octobre 2026). Sélectionnez une carte ou un repère pour voir la fiche. Les positions sont celles renseignées par SPAWT ; confirmez votre destination auprès du lieu.</p></header>
+    <header className="spot-explorer__heading"><p className="eyebrow">ABIDJAN · LES SPOTS</p><h1>Une adresse, un point sur la carte.</h1><p>Explorez les adresses actuellement publiées dans SPAWT. Sélectionnez une carte ou un repère pour voir la fiche. Les positions sont celles renseignées par SPAWT ; confirmez votre destination auprès du lieu.</p></header>
     <label className="spot-search">Chercher une adresse ou un quartier<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Kaiten, Zone 4…" type="search" /></label>
     {loading && <p role="status">Chargement des adresses…</p>}
     {error && <p role="alert">Les adresses sont indisponibles. <button onClick={()=>setAttempt(a=>a+1)}>Réessayer</button></p>}
