@@ -37,8 +37,10 @@ export async function refreshAndroidRelease(): Promise<void> {
   if (Date.now() - lastAttempt < 30_000) return;
   lastAttempt = Date.now();
   pending = (async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5_000);
     try {
-      const response = await fetch(ANDROID_CHANNEL_URL, { cache: 'no-store', credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(5_000) });
+      const response = await fetch(ANDROID_CHANNEL_URL, { cache: 'no-store', credentials: 'omit', redirect: 'error', signal: controller.signal });
       if (!response.ok) return;
       const next = parseAndroidRelease(await response.json());
       // A delayed response or a reverted channel must never downgrade a page.
@@ -48,6 +50,7 @@ export async function refreshAndroidRelease(): Promise<void> {
     } catch {
       // Preserve the last verified link, including the bundled APK on first load.
     } finally {
+      clearTimeout(timer);
       pending = null;
     }
   })();
