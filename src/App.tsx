@@ -19,6 +19,7 @@ import CguPage from "./pages/legal/CguPage";
 import CgvPage from "./pages/legal/CgvPage";
 import SuppressionComptePage from "./pages/legal/SuppressionComptePage";
 import NotFoundPage from "./pages/NotFoundPage";
+import StatusPage from "./pages/StatusPage";
 import { PublicBrandProvider } from "./lib/public-brand";
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/carte" element={<Suspense fallback={<p>Chargement de la carte…</p>}><MapPage /></Suspense>} />
+          <Route path="/statut" element={<StatusPage />} />
           <Route path="/legal/confidentialite" element={<ConfidentialitePage />} />
           <Route path="/legal/cgu" element={<CguPage />} />
           <Route path="/legal/cgv" element={<CgvPage />} />
