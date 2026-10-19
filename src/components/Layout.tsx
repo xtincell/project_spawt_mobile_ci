@@ -88,6 +88,7 @@ function Footer() {
                 <a href={link.url} target="_blank" rel="noreferrer">{link.label}</a>
               </li>)}
               <li>Abidjan, Côte d&rsquo;Ivoire</li>
+              <li><Link to="/statut">Vérifier les contenus SPAWT</Link></li>
             </ul>
           </div>
         </div>
