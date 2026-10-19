@@ -254,3 +254,11 @@ badges est espacée de 16 px ; viewport 390 px sans débordement horizontal reç
 Six questions et aucun décompte expiré conservés. Autres destinations, quiz/app,
 filiation HD, équivalence WOFF2, reprise complète du stockage/clé et retour de
 valeur restent ouverts ; le dernier reçu n’est pas persistant après fermeture.
+
+## Contrôles publics et catalogue — 2026-10-19
+
+`/statut` relit à la demande cinq ressources publiques de `api.spawt.online` avec l'identité anonyme du client. Aucun compte ni clé serveur n'est utilisé. Un échec n'est jamais remplacé par un zéro ou un inventaire figé. La CSP autorise cette origine précise.
+
+`/carte` lit désormais les fiches publiques depuis cette même base. Les lieux collectés peuvent être publiés sans note ni prix. Ceux sans coordonnées restent dans la liste avec « Localisation à préciser » ; aucun point n'est inventé. La source statique historique reste une archive et n'alimente plus la carte.
+
+Les boutons Android continuent de suivre exclusivement le manifeste des publications validées. Le contrôle du site et la recette de l'APK sont deux vérifications distinctes.
