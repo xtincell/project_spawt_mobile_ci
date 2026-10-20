@@ -26,6 +26,15 @@ describe('Android publication channel', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(fetcher.mock.calls[0][1]).toMatchObject({ credentials: 'omit', redirect: 'error' });
   });
+  it('reads new publications in browsers without the static AbortSignal timeout helper', async () => {
+    vi.stubGlobal('AbortSignal', class LegacyAbortSignal {});
+    const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => nextRelease() });
+    vi.stubGlobal('fetch', fetcher);
+    const { refreshAndroidRelease } = await import('../android-release');
+    await refreshAndroidRelease();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0][1].signal.aborted).toBe(false);
+  });
   it('keeps a usable local fallback if GitHub is unavailable', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     const { refreshAndroidRelease, FALLBACK_ANDROID_RELEASE } = await import('../android-release');
