@@ -7,6 +7,12 @@
 # soient transmises comme build args au docker build.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+# Immutable Android binary, independently cached from the site source.
+FROM node:20-alpine AS android-release
+COPY scripts/fetch-android.mjs /fetch-android.mjs
+COPY scripts/android-release.json /android-release.json
+RUN node /fetch-android.mjs
+
 # ── Étape 1 : build ────────────────────────────────────────────────
 FROM node:20-alpine AS build
 WORKDIR /app
@@ -35,6 +41,7 @@ RUN npm ci --no-audit --no-fund
 
 COPY . .
 RUN npm run build
+RUN node scripts/public-share-nginx.mjs
 
 # ── Étape 2 : runtime nginx ────────────────────────────────────────
 FROM nginx:alpine
@@ -43,7 +50,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # de conf.d/ pour ne pas être auto-chargé par le wildcard `include conf.d/*.conf`
 # — il n'est monté que via l'`include` explicite de default.conf.
 COPY security-headers.conf /etc/nginx/security-headers.conf
+COPY --from=build /tmp/public-share-headers.conf /etc/nginx/public-share-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=android-release /android /usr/share/nginx/html/downloads
 
 EXPOSE 80
 # 127.0.0.1 explicitement, pas `localhost` : sous Alpine, localhost résout

@@ -1,46 +1,51 @@
-# SPAWT Portail — spawt.online
+# SPAWT — Vitrine web (`spawt.online`)
 
-Le portail web public de **SPAWT**, la carte du bon goût à Abidjan. C'est à la
-fois la vitrine de l'app mobile **et le seul endroit où se paient les
-abonnements** (modèle Spotify/Netflix : aucun achat dans l'app — elle renvoie
-ici).
+Page unique de présentation de l'app SPAWT. **Purement vitrine** : aucun achat,
+aucune connexion. Les pages publiques de lieux et listes lisent le backend SPAWT. Le texte de marque et les liens publics
+consomment une édition publiée dans La Fusée ; le quiz reste un site séparé.
 
-## Ce que le portail couvre
+> Ce dépôt a d'abord hébergé un *portail* marchand (abonnement Spawter Gold,
+> espace lieux B2B, connexion OTP). Tout cela a été retiré. Si tu cherches ce
+> code, il est dans l'historique git avant `claude/vitrine-one-page`.
 
-| Route | Rôle |
+---
+
+## D'où vient le contenu
+
+Rien sur cette page n'est inventé. Deux documents font foi, et **un chiffre qui
+n'y figure pas ne va pas sur la page** :
+
+| Domaine | Source |
 |---|---|
-| `/` | Landing : promesse, les 3 piliers (Instinct / Identité / Communauté), Le Guet, badges stores, lien quiz archétype |
-| `/gold` | Abonnement **Spawter Gold** : pitch, prix TTC (2 950 F CFA/mois · 29 500 F CFA/an, 2 mois offerts), FAQ |
-| `/connexion` | Login OTP par SMS (+225), identique au flux de l'app mobile |
-| `/gold/paiement` | Checkout Gold (auth requis) → page CinetPay (Orange Money, Wave, MTN MoMo) |
-| `/gold/retour` | Retour paiement : poll de l'entitlement (3 s / 2 min), succès, attente ou échec |
-| `/compte` | Mon abonnement : statut, renouvellement, factures, déconnexion |
-| `/ambassadeurs` | Programme ambassadeur (3 paliers : Allié Content / Ambassadeur Actif / Guide Ambassadeur), « Ton palier » si connecté (table `ambassadors`, migration 0044, RLS own, fallback table absente), candidature par mailto |
-| `/pro` | Espace lieux (B2B) : Spawt Libre 0 F · Pro 15 000 F HT/mois · Gold 65 000 F HT/mois |
-| `/pro/dashboard` | Tableau de bord lieux (Aperçu / Réservations / Avis / Audience) branché sur les vues B2B (0042/0043) + rapport mensuel imprimable |
-| `/legal/confidentialite` · `/legal/cgu` · `/legal/cgv` | Squelettes juridiques (loi 2013-450, ARTCI, TVA 18 %, rétractation 7 jours) — marqueurs `[À VALIDER PAR JURISTE]` |
-| `/legal/suppression-compte` | Demande de suppression de compte, accessible sans connexion (exigence Google Play Data Safety) |
+| Produit, chiffres, vocabulaire | `SPAWT_BIBLE_COMPLETE.md` — état consolidé, février 2026 |
+| Marque, ton, dialecte, palette | Brandbook v1.0 |
+| Visuel (tokens, logos, Moka, règles) | Design system CANON (`spawt-design-system/project/`) |
 
-## Stack
+⚠️ **Deux pièges de documentation périmée**, déjà tranchés dans le code :
+- La Bible §13.3 cite encore *Instrument Serif / Manrope / JetBrains Mono* et
+  « mascotte à nommer ». C'est faux aujourd'hui : les polices sont **Klinsman**
+  (display) et **Gotham** (corps), et la mascotte s'appelle **Moka**.
+- Le template `SpawtWeb.dc.html` du design system annonce **8 archétypes** et
+  « 1 800 spots cartographiés ». La Bible en compte **13**, et le chiffre de
+  spots n'est corroboré nulle part. On a repris la *forme* de ce template, pas
+  sa *copy*.
 
-Vite 5 · React 18 · TypeScript · react-router 7 · @supabase/supabase-js 2 ·
-vitest 1 (mêmes majeures que `spawt-admin` du repo mobile). Pas de SSR : SPA
-servie par nginx. Node ≥ 20.
+Et une correction de fond : l'ancienne landing présentait « **Le Guet** », un
+mécanisme censé vérifier qu'un spawter était vraiment sur place. **Il n'existe
+dans aucun document** — c'était une invention. Les vrais mécanismes de confiance
+sont la note pondérée par le stade du spawter (§4.2) et la Pépite Vérifiée
+(§4.3). Ne pas le réintroduire ; un test le vérifie.
 
-## Dev local
+---
+
+## Développer
 
 ```bash
 npm ci
-cp .env.example .env       # remplir au moins VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
-npm run dev                # http://localhost:5174
+npm run dev        # http://localhost:5174
 ```
 
-Sans backend configuré, le portail démarre en mode démo (bandeau explicite sur
-les écrans concernés). Pour développer le tunnel de paiement sans backend :
-`VITE_PAYMENT_MOCK=1` dans `.env` — le checkout simule la réponse de
-`payment-checkout` et `/gold/retour` joue un succès.
-
-### Gates qualité (les mêmes qu'en CI)
+Gates qualité — les mêmes qu'en CI :
 
 ```bash
 npm run lint:vocab   # dialecte SPAWT + « aucun hex hors src/theme/tokens.* »
@@ -49,166 +54,220 @@ npm test             # vitest
 npm run build        # tsc + vite build
 ```
 
-## Direction artistique (verrouillée)
+## Variables d'environnement
 
-- Palette canonique **uniquement** dans `src/theme/tokens.ts` et
-  `src/theme/tokens.css` : noir `#0A0A0A`, or `#C8A44E`, vert chat `#2D6B4F`,
-  blanc cassé `#FAFAF8`, crème sable `#EFE8DC` (+ rouge d'erreur `#B3261E`).
-  Le lint échoue si un hex apparaît ailleurs dans `src/`.
-- Polices : **Klinsman** (display) + **Gotham** (corps), copiées depuis l'app
-  mobile dans `public/fonts/`, déclarées dans `src/styles/fonts.css` avec
-  fallbacks système.
-- Vocabulaire (lint `scripts/lint-vocab.mjs`, périmètre `src/`) : jamais
-  « restaurant » (dire lieu/spot/maquis/table), ni le mot anglais isolé
-  « user » (dire spawter), ni « check-in » (dire spawt), ni « gastronomie »,
-  ni « leaderboard ».
+Toutes optionnelles, toutes **figées au build** (Vite les inline dans le
+bundle) : chaque changement exige un redéploiement. Voir `.env.example`.
 
-## Auth : flux OTP partagé avec l'app
+| Variable | Effet |
+|---|---|
+| `VITE_APPSTORE_URL` | Vide → badge « Bientôt sur App Store » non cliquable |
+| `VITE_PLAYSTORE_URL` | Idem pour Google Play |
+| `VITE_QUIZ_URL` | Défaut `https://quiz.spawt.online` |
 
-1. `POST {VITE_SUPABASE_URL}/functions/v1/otp-send` — body `{"phone_e164":"+225..."}`,
-   headers `apikey` + `Authorization: Bearer <clé anon>`.
-2. `POST .../functions/v1/otp-verify` — body `{"phone_e164":"...","otp_code":"123456"}`
-   → `{"access_token":"...","refresh_token":"...","user_id":"..."}`.
-3. `supabase.auth.setSession({access_token, refresh_token})` — session GoTrue
-   réelle, refresh natif, persistée en localStorage.
+Il n'y a **aucune clé d'API ni aucun secret**. La marque vient de
+`https://powerupgraders.com/api/export/LFA-spawt?format=public-brand` : un export
+anonyme limité aux champs publics choisis, jamais l'export privé de stratégie.
+Le téléchargement Android lit aussi le manifeste public décrit ci-dessous.
 
-Erreurs gérées : `invalid_otp`, rate limit `429` (5/heure/numéro), cooldown de
-renvoi 30 s, `ACCOUNT_BANNED`. En phase actuelle le backend est en mode mock
-SMS : code universel `123456`.
+### Téléchargement Android automatique
 
-⚠️ Côté Supabase, ajouter l'origine du portail à `ALLOWED_ORIGINS` des Edge
-Functions (CORS fail-closed) : `supabase secrets set ALLOWED_ORIGINS=https://spawt.online,http://localhost:5174`.
+Les deux boutons lisent `latest.json` dans la branche `android-releases` du dépôt
+`xtincell/spawt-ci-mobile-v1-mvp`. Le workflow `android-release.yml` met à jour ce
+manifeste après publication de l'APK, contrôle de son empreinte GitHub, vérification
+de la signature et réussite de la recette native. Un commit ou une compilation
+non publiée ne modifie pas le bouton. La version et le lien avancent ensemble.
 
-## Contrat `payment-checkout` (Edge Function À CRÉER — chantier parallèle)
+Lecture au chargement, au retour dans l'onglet et toutes les cinq minutes visibles ;
+le cache du CDN peut ajouter quelques minutes. Aucun redéploiement du site n'est
+requis pour les publications suivantes. Les réponses invalides ou plus anciennes
+sont refusées. En cas d'indisponibilité, la page garde le dernier lien reçu et un
+nouveau chargement dispose de l'APK embarqué par `scripts/android-release.json`.
+Ce repli local est renouvelé lors des déploiements du site.
 
-Le portail est codé contre ce contrat exact (`src/lib/api.ts`, tests dans
-`src/lib/__tests__/api.test.ts` qui font office de spec exécutable) :
+La carte **Connexions → Page publique** de La Fusée permet de relire le nom,
+le titre, la promesse, la présentation et les liens, puis de publier une édition.
+SPAWT vérifie son identité, sa forme et son empreinte avant de remplacer ces textes.
+Un brouillon ou une capture historique sans choix explicite ne modifie pas la vitrine.
+Lecture au chargement, au retour dans l'onglet, puis toutes les cinq minutes visibles.
+En cas de panne ou de réponse refusée, le dernier texte reçu dans l'onglet reste
+visible ; un nouveau chargement commence par la copie embarquée ci-dessous.
 
-```
-POST {SUPABASE_URL}/functions/v1/payment-checkout
-Headers : Authorization: Bearer <access_token du spawter> · apikey: <clé anon>
-Body    : {"plan": "gold_monthly" | "gold_annual", "return_url": "<origin>/gold/retour"}
+Le raccord porte sur les textes du premier écran, le titre et les liens publics.
+Les logos, la palette, les polices, Moka, les règles des six questions, les scores
+et les liens des stores gardent leurs sources propres. Leur harmonisation complète
+n'est pas reçue par ce lot. Une édition publique ne vaut pas validation de toute
+la stratégie. Le retour à une édition antérieure crée une nouvelle version du coffre.
 
-200 → {"payment_url": "https://checkout.cinetpay...", "transaction_id": "..."}
-401 → session expirée (le portail déconnecte et renvoie vers /connexion)
-409 → {"error": "already_active"} : déjà Gold (le portail renvoie vers /compte)
-502 → {"error": "provider_error"} : CinetPay indisponible (bouton réessayer)
-```
+---
 
-Après paiement, CinetPay redirige vers `{return_url}?transaction_id=...` et le
-portail poll `GET /rest/v1/active_entitlements?select=*` (RLS own, token du
-spawter) toutes les 3 s pendant 2 min max (`src/lib/entitlement.ts`, parsing
-défensif du schéma). Le compte lit aussi
-`GET /rest/v1/invoices?select=invoice_number,price_ttc,currency,status,issued_at&order=issued_at.desc`.
+## Contraintes du dépôt (à lire avant de coder)
 
-Le dashboard B2B (`src/lib/b2b-data.ts`) est branché sur les vraies vues des
-migrations 0042/0043 du repo mobile : `b2b_place_stats_monthly` (agrégats
-mensuels, valeurs NULL sous 3 événements → « — » + infobulle),
-`b2b_place_funnel` (réservée au role `gold` — un compte `pro` voit l'upsell
-Spawt Gold, souscription par contact en V1), `reservation_requests` (lecture
-seule : la policy UPDATE de 0042 est réservée au spawter) et les avis publiés
-(RLS 0021 — mêmes avis publics que dans l'app, sans réponse possible). Tant
-qu'une vue n'existe pas (404 / `42P01`), l'UI affiche « stats en
-construction » sans casser — le portail peut être déployé avant la base
-migrée. Bouton « Télécharger le rapport (PDF) » : vue `@media print` dédiée
-+ `window.print()`, zéro dépendance.
+### 1. Le lint de vocabulaire n'est pas négociable
+`scripts/lint-vocab.mjs` tourne en CI **et** dans la suite vitest. Il refuse,
+dans `src/` : le mot `restaurant` (dire lieu / spot / maquis / table), le mot
+anglais isolé `user` (dire spawter), `check-in` (dire spawt), `gastronom*`,
+`leaderboard` / `ranking` / `classement`, `gamif*`, et **tout hex hors de
+`src/theme/tokens.ts` et `src/theme/tokens.css`**.
 
-## Déploiement Coolify (runbook pas-à-pas)
+Conséquence pratique : pas de `fill="#..."` dans un SVG inline, pas de couleur
+en dur dans un composant. On utilise `var(--...)` ou `currentColor`.
 
-Prérequis : un serveur Coolify opérationnel et le DNS de `spawt.online`
-pointant vers lui (enregistrement A).
+### 2. La CSP est verrouillée par un test
+`security-headers.conf` limite `connect-src` à `https://powerupgraders.com`
+et garde `form-action 'none'`. Seule la publication publique est lue, sans
+cookie ni référent ; la vitrine n'a aucun formulaire. `src/__tests__/security-headers.test.ts` l'assert par
+égalité stricte, tout comme `font-src 'self'` et `script-src 'self'`.
 
-1. **Créer l'application** — Coolify → ton projet → *+ New* → *Application*
-   → source *Git Repository* → renseigner ce repo et la branche à déployer.
-2. **Build pack** — choisir **Dockerfile** (le `Dockerfile` à la racine fait
-   build Vite puis sert `dist/` via nginx avec fallback SPA `try_files`).
-3. **Domaine** — dans *Configuration → Domains*, saisir
-   `https://spawt.online`. Coolify provisionne le certificat Let's Encrypt.
-4. **Variables d'environnement** — onglet *Environment Variables*, cocher
-   **Build Variable** pour chacune (Vite les fige au build) :
-   - `VITE_SUPABASE_URL` = URL du projet Supabase (cloud ou self-hosted)
-   - `VITE_SUPABASE_ANON_KEY` = clé anon
-   - `VITE_APPSTORE_URL` / `VITE_PLAYSTORE_URL` = liens stores (laisser vides
-     tant que l'app n'est pas publiée → badges « bientôt »)
-   - `VITE_PAYMENT_MOCK` : ne pas définir (ou `0`) en production
-5. **Déployer** — bouton *Deploy*. Vérifier ensuite :
-   `https://spawt.online/` (landing), `https://spawt.online/gold` (tarifs),
-   `https://spawt.online/legal/cgu` en accès direct (le fallback SPA doit
-   répondre 200, pas 404).
-6. **Après coup** — ajouter l'origine `https://spawt.online` à
-   `ALLOWED_ORIGINS` des Edge Functions (cf. section Auth), puis tester le
-   login OTP de bout en bout.
-7. **Redéploiement** — chaque changement de variable `VITE_*` nécessite un
-   redeploy (elles sont compilées dans le bundle).
+Les images, polices et scripts restent **same-origin** : pas de Google Fonts, pas de CDN d'images, pas
+d'analytics tiers. Si une origine externe devient vraiment nécessaire, l'ouvrir
+dans `security-headers.conf` **et** mettre le test à jour dans le même commit,
+sinon la CI casse.
 
-### En-têtes de sécurité HTTP (CSP, anti-clickjacking, nosniff)
+### 3. Les polices sont le poste de poids principal
+Klinsman pèse 406 Ko en `.otf` (Bold) contre 132 Ko en `.woff2`. Les deux
+formats sont dans `public/fonts/` : le WOFF2 en premier dans `@font-face`, le
+`.otf`/`.ttf` en repli pour les navigateurs Android anciens. `index.html` ne
+précharge **que** les deux graisses du premier écran. Ne pas précharger plus :
+le trafic est mobile, sur réseau ivoirien.
 
-Le portail gère l'auth OTP et le paiement : nginx pose une batterie d'en-têtes
-de sécurité (défense en profondeur). Ils vivent dans **`security-headers.conf`**
-(source unique), `include`é par `nginx.conf` au niveau `server` **et dans chaque
-bloc `location`** — nécessaire car nginx n'hérite pas les `add_header` d'un bloc
-parent dès qu'un enfant pose les siens (Cache-Control). Le `Dockerfile` copie ce
-fichier dans l'image. En-têtes posés : `Content-Security-Policy`,
-`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
-`Referrer-Policy: strict-origin-when-cross-origin`,
-`Permissions-Policy: geolocation=(), camera=(), microphone=()`.
+### 4. Les images de marque vivent dans `public/brand/`
+Et pas dans `src/` — parce que le linter ne scanne que `src/` et `bientot/`, et
+que les SVG de logo embarquent des couleurs. Elles sont servies en **WebP**
+(108 Ko au total contre 652 Ko en PNG).
 
-- ⚠️ **`connect-src` et l'hôte Supabase.** La CSP autorise les appels REST/Edge
-  vers **`https://api.spawt.online`** (l'hôte de prod). Cette valeur est **codée
-  en dur dans `security-headers.conf`** : contrairement au bundle, nginx ne
-  connaît pas `VITE_SUPABASE_URL`. **Si tu déploies contre un AUTRE hôte
-  Supabase** (projet cloud `*.supabase.co`, préprod, autre VPS…), **ajoute cet
-  hôte à la directive `connect-src`** de `security-headers.conf`, sinon le
-  navigateur bloquera connexion et paiement. Le test
-  `src/__tests__/security-headers.test.ts` verrouille cette directive.
-- **CinetPay** ne nécessite aucune entrée CSP : le checkout est une redirection
-  pleine page (`window.location`), pas un `fetch` ni une iframe — la navigation
-  top-level échappe à la CSP. Idem pour les liens sortants (quiz, stores).
-- **HSTS n'est volontairement PAS posé ici** : le TLS est terminé en amont
-  (proxy Coolify / Cloudflare), qui gère HSTS. Un HSTS applicatif mal réglé peut
-  rendre le domaine inaccessible. Ligne commentée dans `security-headers.conf`
-  si besoin de l'y déplacer un jour.
+Les logos sont les fichiers **officiels**, seulement redimensionnés. Règle du
+brandbook : **jamais inverser les couleurs du logo** — sur fond sombre, on
+utilise la variante « contour » (`logo-horizontal-dark.webp`), pas un filtre CSS.
 
-## Rideau d'avant-lancement (`VITE_PREVIEW_GATE`)
+### 5. Pourquoi les pictos sont dessinés à la main
+Le design system fournit 151 pictos, mais ce ne sont **pas des vecteurs** : les
+fichiers `assets/icons/<nom>.svg` sont des découpes (`<image href="…png">`) d'un
+sprite raster de 924×540, soit ~39×40 px par picto. Net dans l'app, visiblement
+flou dès qu'on l'agrandit en retina sur le web. `src/components/BrandIcons.tsx`
+redessine donc les 3 pictos nécessaires **dans la grammaire du jeu officiel**
+(trait 1,6 px, bouts arrondis, grille 24 px, `currentColor`).
 
-`spawt.online` sert une page « Bientôt » aux visiteurs. Le portail réel est
-prêt, mais le montrer au public avant que CinetPay encaisse coûterait plus cher
-que d'attendre : un bouton d'achat qui ne mène nulle part. L'équipe, elle, doit
-pouvoir le regarder en vrai, sur le vrai backend.
-
-Quand `VITE_PREVIEW_GATE=true` est posé **au build** (comme toute variable Vite),
-le portail affiche l'écran « Bientôt » à tout le monde, sauf à un membre de
-l'équipe connecté avec ses identifiants de la console admin. C'est la table
-`spawt_staff` qui tranche, via la policy `spawt_staff_select_own` : un compte
-ordinaire n'obtient pas une erreur, il obtient zéro ligne. Désactiver un compte
-(`is_active = false`) referme la porte au même endroit que le reste.
-
-Le rideau enveloppe le routeur entier, pas seulement la page d'accueil — sinon
-`/gold` resterait atteignable en tapant l'URL.
-
-**C'est un rideau, pas un coffre.** Le bundle JavaScript reste public (comme
-celui de tout site statique) : les routes sont lisibles dans le code. Ce qui est
-protégé, ce sont les DONNÉES — elles restent derrière la RLS et les Edge
-Functions. Le jour du lancement, on retire la variable et on rebuild ; il n'y a
-rien d'autre à défaire.
-
-Déploiement type : une app Coolify sur un sous-domaine (`portail.spawt.online`)
-avec `VITE_PREVIEW_GATE=true`, pendant que `spawt.online` garde sa page statique.
+---
 
 ## Structure
 
 ```
-nginx.conf               config nginx de prod (SPA fallback + include sécurité)
-security-headers.conf    en-têtes de sécurité HTTP (CSP…), include unique
-Dockerfile               build Vite (node) → runtime nginx:alpine
-public/fonts/            Klinsman + Gotham (copiées depuis l'app mobile)
-scripts/lint-vocab.mjs   lint dialecte + hex hors tokens
-src/theme/               tokens.ts + tokens.css (SEULES sources de hex)
-src/styles/              fonts.css + global.css (mobile-first, var(--...) only)
-src/lib/                 config, supabase, phone, api, entitlement, invoices, b2b-data, ambassadors
-src/providers/           AuthProvider (session + RequireAuth)
-src/components/          Layout, StoreBadges, Confetti
-src/pages/               Landing, Gold, Connexion, Checkout, Retour, Compte,
-                         Ambassadeurs, Pro, ProDashboard, legal/ (x4), NotFound
-src/test/                setup vitest + stub fetch contractuel (façon MSW)
+index.html                 preload des 2 polices du premier écran
+nginx.conf                 config de prod (fallback SPA + include sécurité)
+security-headers.conf      CSP et en-têtes, source unique
+Dockerfile                 build Vite (node) → runtime nginx:alpine
+public/fonts/              Klinsman + Gotham (WOFF2 + repli otf/ttf)
+public/brand/              logos, Moka, pin — en WebP
+src/theme/                 tokens.ts + tokens.css (SEULES sources de hex)
+src/styles/                global.css + fonts.css
+src/components/            Layout, StoreBadges, BrandIcons
+src/pages/                 LandingPage, NotFound, legal/ (×4)
+scripts/lint-vocab.mjs     lint dialecte + palette
+bientot/                   page historique autonome, sans décompte de lancement
+                           (déploiement distinct sur bientot.spawt.online)
 ```
+
+## Les pages légales ne sont pas décoratives
+
+`/legal/confidentialite`, `/legal/cgu`, `/legal/cgv` et
+`/legal/suppression-compte` restent en ligne bien que la vitrine ne vende rien :
+**Apple et Google exigent une URL de politique de confidentialité et un chemin
+de suppression de compte** pour accepter la fiche de l'app. Les retirer
+bloquerait la publication de l'app que cette page annonce.
+
+## Déploiement
+
+Coolify, application `spawt-portail-apercu` (`dz5jc8dg8gw5tk1viopxg8q2`), qui
+sert `spawt.online`, `www.spawt.online` (redirigé vers l'apex) et
+`portail.spawt.online`. Build pack Dockerfile, branche
+`claude/vitrine-one-page`. La page historique autonome reste portée par
+`claude/app-finale-ios-android-f8ewrp` et son Dockerfile `bientot/Dockerfile`.
+
+Le site et le quiz sont en ligne. La page historique `bientot.spawt.online`
+reste accessible sans décompte ; elle renvoie vers le quiz à six questions et
+la vitrine. La correction du lancement expiré est présente dans les deux branches
+qui portent ces déploiements : elle ne doit pas être réintroduite lors d’un retour
+à une version antérieure.
+
+Réception du 9 octobre 2026 : vitrine principale et page historique ouvertes dans
+un navigateur, aucun compteur expiré visible ; l’entrée du quiz annonce six
+questions. Ce contrôle ne reçoit pas le parcours complet du quiz ni tout l’univers
+de marque. Les versions précédentes restent dans l’historique Coolify, avec cette
+correction à préserver.
+
+### Logo de l’édition publique
+
+Le logo choisi dans Connexions est désormais lu aux deux emplacements de la
+vitrine. La publication reste une décision explicite de la marque : le site ne
+choisit pas la première variante du coffre. Les images distantes sont limitées
+aux fichiers de `https://powerupgraders.com/brand/`, sans paramètres ni accès
+privé ; la CSP porte la même limite. Les polices embarquées servent de repli local. Si l’image
+ne charge pas, le logo canon embarqué prend le relais. Une nouvelle URL réessaie
+le chargement ; une réponse ancienne annulée n’écrase pas la nouvelle édition.
+
+Le transport borné de La Fusée conserve les octets du logo par édition ; ce
+lecteur reste compatible avec les éditions v1. Le quiz à six questions conserve
+son contrat propre.
+
+### Identité publiée par usage
+
+La lecture `public-brand-v2` ajoute les six couleurs choisies, deux familles de
+polices (titres/corps) et leurs fichiers OTF/TTF, trois usages de Moka
+(accueil/découverte/guidage), ainsi qu’une citation et son attribution. Les choix
+et références privés restent dans La Fusée ; aucune charte brouillon n’est
+publiée implicitement. Les familles non choisies gardent leur présentation locale.
+
+Le site valide le contrat, le digest et les URL exactes de l’édition. Il reçoit
+et vérifie longueur/type/SHA-256 de chaque fichier, puis décode les polices avec
+FontFace et les images avant d’appliquer l’identité entière. Les polices sont
+chargées depuis les octets vérifiés ; les poses utilisent ces mêmes octets en
+image data. La CSP reste inchangée. Une édition inchangée ne recharge pas ces
+fichiers à chaque contrôle ; chargement, retour au premier plan et contrôle
+visible toutes les cinq minutes suivent les publications nouvelles.
+
+Un fichier refusé conserve la dernière édition reçue dans la page ouverte ; un
+nouveau chargement indisponible garde la copie canon embarquée. Ce reçu n’est
+pas persisté après fermeture de page. Les tailles, la composition, les tons
+adaptés, les pages légales, les stores et le contrat du quiz restent propres à
+la vitrine. Les cinq fichiers de polices utilisés sont choisis pour cette
+surface : une graisse inutilisée n’est pas chargée seulement parce qu’elle
+existe dans le coffre. La filiation et la projection WOFF2 restent à recevoir.
+
+Réception locale du candidat : 38 tests, typecheck/build et décodage natif de
+cinq polices et trois poses. Le harness transporte seulement les deux lectures
+via un proxy vers une base isolée ; il ne prouve pas la CSP du domaine public.
+Cette limite décrit le harness local initial. La réception en production du
+9 octobre 2026 est désormais distinctement reçue : La Fusée 6.27.432 publie le
+choix SPAWT v4, le republie sans resélection v5, puis le retour à v4 crée v6.
+Les huit copies et le choix sont conservés. Cinq FontFace chargées, trois PNG
+Moka décodés, six couleurs et citation sont reçus dans la vitrine ; l’export v1
+reste compatible. CSP et trois origines CORS inchangées, sans exception/500/log
+observé dans la fenêtre finale bornée. Aucun résultat métier ou cycle entier
+de marque n’est déduit de cette lecture.
+
+Le canon `adc4738` est livré sur les trois domaines. Les octets du build reçu
+correspondent aux fichiers servis et au conteneur. Les build args vides et
+`VITE_QUIZ_URL=https://quiz.spawt.online` sont pris en compte dans cette comparaison.
+Les 38 tests/5 fichiers et les CI des PR #7 et #8 sont verts. La note sous les
+badges est espacée de 16 px ; viewport 390 px sans débordement horizontal reçu.
+Six questions et aucun décompte expiré conservés. Autres destinations, quiz/app,
+filiation HD, équivalence WOFF2, reprise complète du stockage/clé et retour de
+valeur restent ouverts ; le dernier reçu n’est pas persistant après fermeture.
+
+## Contrôles publics et catalogue — 2026-10-19
+
+`/statut` relit à la demande cinq ressources publiques de `api.spawt.online` avec l'identité anonyme du client. Aucun compte ni clé serveur n'est utilisé. Un échec n'est jamais remplacé par un zéro ou un inventaire figé. La CSP autorise cette origine précise.
+
+`/carte` lit désormais les fiches publiques depuis cette même base. Les lieux collectés peuvent être publiés sans note ni prix. Ceux sans coordonnées restent dans la liste avec « Localisation à préciser » ; aucun point n'est inventé. La source statique historique reste une archive et n'alimente plus la carte.
+
+Les boutons Android continuent de suivre exclusivement le manifeste des publications validées. Le contrôle du site et la recette de l'APK sont deux vérifications distinctes.
+
+
+## Mise à jour Envies — préparée le 22 octobre 2026
+
+`/lieu/:id` et `/liste/:token` passent par la fonction Edge `public-share` du dépôt mobile. Déployer cette fonction et les migrations 0086–0089 **avant** cette version du site. L’identité transmise est exclusivement la clé anonyme publique de `src/lib/public-backend.json`, jamais celle d’un visiteur. Une liste révoquée rend 404, une panne 503 ; aucun cache intermédiaire ne doit prolonger l’accès au partage.
+
+`/.well-known/assetlinks.json` lie le domaine au certificat de signature Android déjà livré. Contrôler ce certificat sur chaque candidat. `/statut` relit aussi les menus et les coordonnées validées ; un zéro n’est pas une erreur, un 404 de nouvelle table signifie que la migration manque.
+
+Les deux boutons conservent le circuit `android-releases/latest.json`. Cette préparation ne change ni ce manifeste ni l’APK actuellement distribué (build 40). Les nouveaux liens app/web doivent être reçus avant de publier le build 41.

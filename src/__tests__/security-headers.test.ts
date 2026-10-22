@@ -47,19 +47,19 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(directives.get("default-src")).toBe("'self'");
   });
 
-  it("connect-src autorise le backend Supabase self-hosted de prod", () => {
-    const connect = directives.get("connect-src") ?? "";
-    expect(connect).toContain("'self'");
-    // REST /rest/v1 + Edge /functions/v1 + refresh GoTrue /auth/v1 vivent tous
-    // sous cet hôte. Si VITE_SUPABASE_URL change d'hôte, MAJ ici ET dans le README.
-    expect(connect).toContain("https://api.spawt.online");
+  it("connect-src limité aux publications publiques et à la carte", () => {
+    // Origines nommées : marque, carte et manifeste Android, aucun wildcard.
+    expect(directives.get("connect-src")).toBe("'self' https://powerupgraders.com https://tiles.openfreemap.org https://raw.githubusercontent.com https://api.spawt.online");
+    expect(directives.get("connect-src")).not.toContain("*");
   });
 
-  it("img-src / font-src : local uniquement (+ data: pour les images)", () => {
+  it("img-src : local et coffre public borné ; font-src local", () => {
     expect(directives.get("img-src")).toContain("'self'");
-    expect(directives.get("img-src")).toContain("data:");
+    expect(directives.get("img-src")).toBe("'self' data: https://powerupgraders.com/brand/ https://tiles.openfreemap.org/");
     expect(directives.get("font-src")).toBe("'self'");
   });
+
+  it("worker local uniquement", () => { expect(directives.get("worker-src")).toBe("'self'"); });
 
   it("style-src autorise le inline (styles React) mais reste same-origin sinon", () => {
     const style = directives.get("style-src") ?? "";
@@ -78,7 +78,8 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
     expect(directives.get("frame-ancestors")).toBe("'none'");
     expect(directives.get("object-src")).toBe("'none'");
     expect(directives.get("base-uri")).toBe("'self'");
-    expect(directives.get("form-action")).toBe("'self'");
+    // 'none' et pas 'self' : la vitrine n'a aucun <form>. Rien à poster.
+    expect(directives.get("form-action")).toBe("'none'");
   });
 
   it("en-têtes complémentaires présents (avec always)", () => {

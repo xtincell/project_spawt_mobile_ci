@@ -44,7 +44,7 @@ export default function SuppressionComptePage() {
           numéro avant d'agir).
         </p>
         <p>
-          <a className="btn btn--accent" href={MAILTO}>
+          <a className="btn" href={MAILTO}>
             Demander la suppression par email
           </a>
         </p>
