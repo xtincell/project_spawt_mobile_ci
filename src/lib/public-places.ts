@@ -1,3 +1,4 @@
+import backend from './public-backend.json';
 export type PublicPlace = { id: string; name: string; cuisine: string[]; lat: number | null; lng: number | null; neighborhood: string; descriptive_address: string; city: string };
 export function parsePublicPlaces(rows: unknown): PublicPlace[] {
   if (!Array.isArray(rows)) throw new Error('Réponse invalide');
@@ -9,7 +10,7 @@ export function parsePublicPlaces(rows: unknown): PublicPlace[] {
   }));
 }
 export async function loadPublicPlaces(signal: AbortSignal): Promise<PublicPlace[]> {
-  const response = await fetch('/data/places-public.json', {signal});
+  const response = await fetch(`${backend.url}/rest/v1/places?select=id,name,cuisine,lat,lng,neighborhood,descriptive_address,city,city_code,is_published&is_published=eq.true&city_code=eq.abidjan&order=name&limit=1000`, { signal, credentials: 'omit', cache: 'no-store', headers: { apikey: backend.anonKey, Authorization: `Bearer ${backend.anonKey}` } });
   if (!response.ok) throw new Error('Les adresses ne sont pas disponibles.');
   return parsePublicPlaces(await response.json());
 }

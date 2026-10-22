@@ -18,6 +18,7 @@ import ConfidentialitePage from "../legal/ConfidentialitePage";
 import CguPage from "../legal/CguPage";
 import CgvPage from "../legal/CgvPage";
 import SuppressionComptePage from "../legal/SuppressionComptePage";
+import androidRelease from "../../../scripts/android-release.json";
 
 function renderAt(ui: ReactElement, path = "/") {
   return render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
@@ -66,8 +67,8 @@ describe("LandingPage — contenu", () => {
     const downloads = screen.getAllByRole("link", { name: /Télécharger SPAWT pour Android/i });
     expect(downloads).toHaveLength(2);
     downloads.forEach((link) => {
-      expect(link).toHaveAttribute("href", "/downloads/spawt-1.1.1-build34.apk");
-      expect(link).toHaveAttribute("download", "spawt-1.1.1-build34.apk");
+      expect(link).toHaveAttribute("href", `/downloads/${androidRelease.fileName}`);
+      expect(link).toHaveAttribute("download", androidRelease.fileName);
     });
     expect(screen.getAllByText("iOS")).toHaveLength(2);
     expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(2);
@@ -130,6 +131,26 @@ describe("Pages légales", () => {
     renderAt(<CguPage />, "/legal/cgu");
     expect(screen.getAllByText(/UPGRADERS/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/droit ivoirien/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  // Les prix vivent dans la table `plans`, administrée depuis la console
+  // (décision du 18/10/2026) : un montant écrit ici finirait faux au premier
+  // changement de tarif.
+  it("CGU et CGV : aucun montant ni « prix HT », le prix TTC affiché à la souscription fait foi", () => {
+    const pages = [
+      [CguPage, "/legal/cgu"],
+      [CgvPage, "/legal/cgv"],
+    ] as const;
+    pages.forEach(([Page, path]) => {
+      const { container, unmount } = renderAt(<Page />, path);
+      const texte = container.textContent ?? "";
+      expect(texte).not.toMatch(/\d\s?F(\s?CFA)?\b|FCFA|XOF|€/);
+      expect(texte).not.toMatch(/prix HT|prix professionnels HT/i);
+      expect(texte).not.toMatch(/12 mois au prix de 10/);
+      expect(container.querySelector('a[href="/pro"], a[href="/compte"], a[href="/gold"]')).toBeNull();
+      expect(texte).toMatch(/prix TTC affiché au moment\s+de la souscription/);
+      unmount();
+    });
   });
 
   it("CGV : TVA 18 %, rétractation 7 jours, pas de prélèvement automatique", () => {

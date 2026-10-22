@@ -1,7 +1,7 @@
 # SPAWT — Vitrine web (`spawt.online`)
 
 Page unique de présentation de l'app SPAWT. **Purement vitrine** : aucun achat,
-aucune connexion et aucun backend propre. Le texte de marque et les liens publics
+aucune connexion. Les pages publiques de lieux et listes lisent le backend SPAWT. Le texte de marque et les liens publics
 consomment une édition publiée dans La Fusée ; le quiz reste un site séparé.
 
 > Ce dépôt a d'abord hébergé un *portail* marchand (abonnement Spawter Gold,
@@ -65,9 +65,25 @@ bundle) : chaque changement exige un redéploiement. Voir `.env.example`.
 | `VITE_PLAYSTORE_URL` | Idem pour Google Play |
 | `VITE_QUIZ_URL` | Défaut `https://quiz.spawt.online` |
 
-Il n'y a **aucune clé d'API ni aucun secret**. Le seul service lu est
+Il n'y a **aucune clé d'API ni aucun secret**. La marque vient de
 `https://powerupgraders.com/api/export/LFA-spawt?format=public-brand` : un export
 anonyme limité aux champs publics choisis, jamais l'export privé de stratégie.
+Le téléchargement Android lit aussi le manifeste public décrit ci-dessous.
+
+### Téléchargement Android automatique
+
+Les deux boutons lisent `latest.json` dans la branche `android-releases` du dépôt
+`xtincell/spawt-ci-mobile-v1-mvp`. Le workflow `android-release.yml` met à jour ce
+manifeste après publication de l'APK, contrôle de son empreinte GitHub, vérification
+de la signature et réussite de la recette native. Un commit ou une compilation
+non publiée ne modifie pas le bouton. La version et le lien avancent ensemble.
+
+Lecture au chargement, au retour dans l'onglet et toutes les cinq minutes visibles ;
+le cache du CDN peut ajouter quelques minutes. Aucun redéploiement du site n'est
+requis pour les publications suivantes. Les réponses invalides ou plus anciennes
+sont refusées. En cas d'indisponibilité, la page garde le dernier lien reçu et un
+nouveau chargement dispose de l'APK embarqué par `scripts/android-release.json`.
+Ce repli local est renouvelé lors des déploiements du site.
 
 La carte **Connexions → Page publique** de La Fusée permet de relire le nom,
 le titre, la promesse, la présentation et les liens, puis de publier une édition.
@@ -238,3 +254,20 @@ badges est espacée de 16 px ; viewport 390 px sans débordement horizontal reç
 Six questions et aucun décompte expiré conservés. Autres destinations, quiz/app,
 filiation HD, équivalence WOFF2, reprise complète du stockage/clé et retour de
 valeur restent ouverts ; le dernier reçu n’est pas persistant après fermeture.
+
+## Contrôles publics et catalogue — 2026-10-19
+
+`/statut` relit à la demande cinq ressources publiques de `api.spawt.online` avec l'identité anonyme du client. Aucun compte ni clé serveur n'est utilisé. Un échec n'est jamais remplacé par un zéro ou un inventaire figé. La CSP autorise cette origine précise.
+
+`/carte` lit désormais les fiches publiques depuis cette même base. Les lieux collectés peuvent être publiés sans note ni prix. Ceux sans coordonnées restent dans la liste avec « Localisation à préciser » ; aucun point n'est inventé. La source statique historique reste une archive et n'alimente plus la carte.
+
+Les boutons Android continuent de suivre exclusivement le manifeste des publications validées. Le contrôle du site et la recette de l'APK sont deux vérifications distinctes.
+
+
+## Mise à jour Envies — préparée le 22 octobre 2026
+
+`/lieu/:id` et `/liste/:token` passent par la fonction Edge `public-share` du dépôt mobile. Déployer cette fonction et les migrations 0086–0089 **avant** cette version du site. L’identité transmise est exclusivement la clé anonyme publique de `src/lib/public-backend.json`, jamais celle d’un visiteur. Une liste révoquée rend 404, une panne 503 ; aucun cache intermédiaire ne doit prolonger l’accès au partage.
+
+`/.well-known/assetlinks.json` lie le domaine au certificat de signature Android déjà livré. Contrôler ce certificat sur chaque candidat. `/statut` relit aussi les menus et les coordonnées validées ; un zéro n’est pas une erreur, un 404 de nouvelle table signifie que la migration manque.
+
+Les deux boutons conservent le circuit `android-releases/latest.json`. Cette préparation ne change ni ce manifeste ni l’APK actuellement distribué (build 40). Les nouveaux liens app/web doivent être reçus avant de publier le build 41.
