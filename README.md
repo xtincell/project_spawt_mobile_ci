@@ -1,7 +1,7 @@
 # SPAWT — Vitrine web (`spawt.online`)
 
 Page unique de présentation de l'app SPAWT. **Purement vitrine** : aucun achat,
-aucune connexion et aucun backend propre. Le texte de marque et les liens publics
+aucune connexion. Les pages publiques de lieux et listes lisent le backend SPAWT. Le texte de marque et les liens publics
 consomment une édition publiée dans La Fusée ; le quiz reste un site séparé.
 
 > Ce dépôt a d'abord hébergé un *portail* marchand (abonnement Spawter Gold,
@@ -262,3 +262,12 @@ valeur restent ouverts ; le dernier reçu n’est pas persistant après fermetur
 `/carte` lit désormais les fiches publiques depuis cette même base. Les lieux collectés peuvent être publiés sans note ni prix. Ceux sans coordonnées restent dans la liste avec « Localisation à préciser » ; aucun point n'est inventé. La source statique historique reste une archive et n'alimente plus la carte.
 
 Les boutons Android continuent de suivre exclusivement le manifeste des publications validées. Le contrôle du site et la recette de l'APK sont deux vérifications distinctes.
+
+
+## Mise à jour Envies — préparée le 22 octobre 2026
+
+`/lieu/:id` et `/liste/:token` passent par la fonction Edge `public-share` du dépôt mobile. Déployer cette fonction et les migrations 0086–0089 **avant** cette version du site. L’identité transmise est exclusivement la clé anonyme publique de `src/lib/public-backend.json`, jamais celle d’un visiteur. Une liste révoquée rend 404, une panne 503 ; aucun cache intermédiaire ne doit prolonger l’accès au partage.
+
+`/.well-known/assetlinks.json` lie le domaine au certificat de signature Android déjà livré. Contrôler ce certificat sur chaque candidat. `/statut` relit aussi les menus et les coordonnées validées ; un zéro n’est pas une erreur, un 404 de nouvelle table signifie que la migration manque.
+
+Les deux boutons conservent le circuit `android-releases/latest.json`. Cette préparation ne change ni ce manifeste ni l’APK actuellement distribué (build 40). Les nouveaux liens app/web doivent être reçus avant de publier le build 41.

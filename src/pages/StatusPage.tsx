@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { usePageTitle } from '../lib/use-page-title';
 import { readPublicStatus, type PublicCheck } from '../lib/public-status';
 import { useAndroidRelease } from '../lib/android-release';
-const labels = { places: 'Lieux publiés', editorials: 'Avis éditoriaux', collections: 'Carnets', announcements: 'Fil du Chat', sync: 'Actualisation des contenus' };
+const labels = { places: 'Lieux publiés', editorials: 'Avis éditoriaux', collections: 'Carnets', announcements: 'Fil du Chat', menus: 'Menus et plats', guet: 'Coordonnées validées pour Le Guet', sync: 'Actualisation des contenus' };
 export default function StatusPage() {
   usePageTitle('Vérifier les contenus SPAWT');
   const [rows, setRows] = useState<PublicCheck[]>([]); const [busy, setBusy] = useState(false); const [checkedAt, setCheckedAt] = useState('');

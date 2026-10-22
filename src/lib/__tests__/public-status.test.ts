@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { readPublicStatus } from '../public-status';
 import backend from '../public-backend.json';
 afterEach(() => { vi.unstubAllGlobals(); });
-it('reads five live public endpoints with an anonymous identity and distinguishes zero from failure', async () => {
+it('reads seven live public endpoints with an anonymous identity and distinguishes zero from failure', async () => {
   const claims = JSON.parse(atob(backend.anonKey.split('.')[1])); expect(claims.role).toBe('anon');
   const fetcher = vi.fn(async (url: string) => {
     if (url.includes('public_editorial_reviews')) return new Response(null, { status: 503 });
@@ -14,5 +14,5 @@ it('reads five live public endpoints with an anonymous identity and distinguishe
   expect(rows.find(row => row.key === 'places')).toEqual({ key: 'places', ok: true, count: 0 });
   expect(rows.find(row => row.key === 'editorials')).toEqual({ key: 'editorials', ok: false });
   expect(rows.find(row => row.key === 'sync')?.ok).toBe(true);
-  expect(fetcher).toHaveBeenCalledTimes(5);
+  expect(fetcher).toHaveBeenCalledTimes(7);
 });
