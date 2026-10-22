@@ -1,0 +1,173 @@
+// Rendu des pages de la vitrine : la landing one-page et les 4 pages légales.
+//
+// Les tests de la landing font deux choses distinctes :
+//  1. vérifier que le contenu SOURCÉ est bien là (héro, piliers §0.4,
+//     modes §8, badges stores) ;
+//  2. servir de verrou de non-régression sur ce qui a été RETIRÉ. Un
+//     `expect(...).not.toBeInTheDocument()` paraît bizarre jusqu'au jour où
+//     quelqu'un recolle un bouton « Passer Gold » sur une vitrine censée ne
+//     rien vendre, ou réintroduit « Le Guet » — une fonctionnalité qui n'a
+//     jamais existé ailleurs que sur l'ancienne page.
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
+import type { ReactElement } from "react";
+import LandingPage from "../LandingPage";
+import NotFoundPage from "../NotFoundPage";
+import ConfidentialitePage from "../legal/ConfidentialitePage";
+import CguPage from "../legal/CguPage";
+import CgvPage from "../legal/CgvPage";
+import SuppressionComptePage from "../legal/SuppressionComptePage";
+import androidRelease from "../../../scripts/android-release.json";
+
+function renderAt(ui: ReactElement, path = "/") {
+  return render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
+}
+
+describe("LandingPage — contenu", () => {
+  it("affiche le héro et la promesse maître", () => {
+    renderAt(<LandingPage />);
+    expect(
+      screen.getByRole("heading", { level: 1, name: /la carte du bon goût/i }),
+    ).toBeInTheDocument();
+    // §13.2 — la promesse maître, mot à mot.
+    expect(screen.getByText(/plus jamais le goumin d’un mauvais restau/i)).toBeInTheDocument();
+  });
+
+  it("affiche les 3 piliers (§0.4)", () => {
+    renderAt(<LandingPage />);
+    expect(screen.getByRole("heading", { name: /^instinct$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^identité$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^communauté$/i })).toBeInTheDocument();
+  });
+
+  it("affiche les 3 modes contextuels avec leurs cibles (§8)", () => {
+    renderAt(<LandingPage />);
+    expect(screen.getByRole("heading", { name: /^rapide$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^crew$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^explore$/i })).toBeInTheDocument();
+    expect(screen.getByText(/décision en 3 taps/i)).toBeInTheDocument();
+    expect(screen.getByText(/décision de groupe en 5 min/i)).toBeInTheDocument();
+  });
+
+  it("reprend les chiffres du problème tels quels (§0.1)", () => {
+    renderAt(<LandingPage />);
+    expect(screen.getByText("15 000+")).toBeInTheDocument();
+    expect(screen.getByText("847")).toBeInTheDocument();
+    expect(screen.getByText("47")).toBeInTheDocument();
+  });
+
+  it("nomme la mascotte", () => {
+    renderAt(<LandingPage />);
+    expect(screen.getAllByText(/moka/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("propose l’APK direct et garde iOS honnêtement indisponible", () => {
+    renderAt(<LandingPage />);
+    const downloads = screen.getAllByRole("link", { name: /Télécharger SPAWT pour Android/i });
+    expect(downloads).toHaveLength(2);
+    downloads.forEach((link) => {
+      expect(link).toHaveAttribute("href", `/downloads/${androidRelease.fileName}`);
+      expect(link).toHaveAttribute("download", androidRelease.fileName);
+    });
+    expect(screen.getAllByText("iOS")).toHaveLength(2);
+    expect(screen.getAllByText(/bientôt sur/i)).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: /app store|google play/i })).not.toBeInTheDocument();
+  });
+
+  it("pointe vers le quiz du Palais", () => {
+    renderAt(<LandingPage />);
+    const liens = screen
+      .getAllByRole("link")
+      .filter((a) => a.getAttribute("href") === "https://quiz.spawt.online");
+    expect(liens.length).toBeGreaterThanOrEqual(1);
+    liens.forEach((a) => expect(a).toHaveAttribute("rel", "noreferrer"));
+  });
+});
+
+describe("LandingPage — verrous de non-régression", () => {
+  it("ne vend rien et ne demande aucune connexion", () => {
+    const { container } = renderAt(<LandingPage />);
+    const internes = Array.from(container.querySelectorAll("a[href^='/']")).map((a) =>
+      a.getAttribute("href"),
+    );
+    const interdits = ["/gold", "/connexion", "/compte", "/pro", "/ambassadeurs"];
+    interdits.forEach((route) => {
+      expect(internes.some((h) => h?.startsWith(route))).toBe(false);
+    });
+  });
+
+  it("ne réintroduit pas « Le Guet » (fonctionnalité inventée, hors Bible)", () => {
+    renderAt(<LandingPage />);
+    expect(screen.queryByText(/le guet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/spawts vérifiés/i)).not.toBeInTheDocument();
+  });
+
+  it("n'affiche aucun prix", () => {
+    const { container } = renderAt(<LandingPage />);
+    expect(container.textContent).not.toMatch(/FCFA|F CFA|€/);
+  });
+});
+
+describe("NotFoundPage", () => {
+  it("renvoie vers l'accueil", () => {
+    renderAt(<NotFoundPage />, "/nawak");
+    expect(screen.getByRole("link", { name: /revenir à l’accueil/i })).toHaveAttribute(
+      "href",
+      "/",
+    );
+  });
+});
+
+describe("Pages légales", () => {
+  it("confidentialité : loi 2013-450, ARTCI et marqueurs juriste", () => {
+    renderAt(<ConfidentialitePage />, "/legal/confidentialite");
+    expect(screen.getAllByText(/2013-450/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/ARTCI/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/À VALIDER PAR JURISTE/).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("CGU : éditeur et droit applicable", () => {
+    renderAt(<CguPage />, "/legal/cgu");
+    expect(screen.getAllByText(/UPGRADERS/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/droit ivoirien/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  // Les prix vivent dans la table `plans`, administrée depuis la console
+  // (décision du 18/10/2026) : un montant écrit ici finirait faux au premier
+  // changement de tarif.
+  it("CGU et CGV : aucun montant ni « prix HT », le prix TTC affiché à la souscription fait foi", () => {
+    const pages = [
+      [CguPage, "/legal/cgu"],
+      [CgvPage, "/legal/cgv"],
+    ] as const;
+    pages.forEach(([Page, path]) => {
+      const { container, unmount } = renderAt(<Page />, path);
+      const texte = container.textContent ?? "";
+      expect(texte).not.toMatch(/\d\s?F(\s?CFA)?\b|FCFA|XOF|€/);
+      expect(texte).not.toMatch(/prix HT|prix professionnels HT/i);
+      expect(texte).not.toMatch(/12 mois au prix de 10/);
+      expect(container.querySelector('a[href="/pro"], a[href="/compte"], a[href="/gold"]')).toBeNull();
+      expect(texte).toMatch(/prix TTC affiché au moment\s+de la souscription/);
+      unmount();
+    });
+  });
+
+  it("CGV : TVA 18 %, rétractation 7 jours, pas de prélèvement automatique", () => {
+    renderAt(<CgvPage />, "/legal/cgv");
+    expect(screen.getAllByText(/TVA 18 %/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/7 jours/, { selector: "strong" }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/pas de prélèvement automatique/i)).toBeInTheDocument();
+  });
+
+  it("suppression de compte : accessible publiquement, email et délai 30 jours", () => {
+    renderAt(<SuppressionComptePage />, "/legal/suppression-compte");
+    expect(screen.getByRole("heading", { name: /supprimer ton compte/i })).toBeInTheDocument();
+    expect(screen.getByText(/30 jours/, { selector: "strong" })).toBeInTheDocument();
+    const mailto = screen.getByRole("link", { name: /demander la suppression par email/i });
+    expect(mailto.getAttribute("href")).toContain("mailto:spawt.ci@gmail.com");
+    expect(mailto.getAttribute("href")).toContain(
+      encodeURIComponent("Suppression de compte SPAWT"),
+    );
+  });
+});

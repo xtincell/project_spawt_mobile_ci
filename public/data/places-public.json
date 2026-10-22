@@ -1,0 +1,150 @@
+[
+  {
+    "id": "a1000000-0000-4000-8000-000000000005",
+    "name": "Bushman Café",
+    "cuisine": [
+      "fusion",
+      "ouest_africaine"
+    ],
+    "lat": 5.3689,
+    "lng": -3.9641,
+    "neighborhood": "Riviera 4",
+    "descriptive_address": "CIAD, Riviera 4 M'pouto",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000001",
+    "name": "Kaiten",
+    "cuisine": [
+      "asiatique"
+    ],
+    "lat": 5.2962,
+    "lng": -3.9948,
+    "neighborhood": "Zone 4",
+    "descriptive_address": "Rue du Docteur Blanchard, Zone 4",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000008",
+    "name": "Kajazoma",
+    "cuisine": [
+      "fusion",
+      "asiatique",
+      "ouest_africaine"
+    ],
+    "lat": 5.3762,
+    "lng": -4.0093,
+    "neighborhood": "II Plateaux",
+    "descriptive_address": "Boulevard Latrille, II Plateaux — Liehn & Co",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000004",
+    "name": "La Grande République",
+    "cuisine": [
+      "ivoirienne"
+    ],
+    "lat": 5.3731,
+    "lng": -3.9558,
+    "neighborhood": "Riviera Bonoumin",
+    "descriptive_address": "Riviera Bonoumin — O'porco & O'sogo",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000010",
+    "name": "Le Paon",
+    "cuisine": [
+      "francaise",
+      "ivoirienne"
+    ],
+    "lat": 5.3624,
+    "lng": -3.9783,
+    "neighborhood": "Riviera 3",
+    "descriptive_address": "Riviera 3",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000009",
+    "name": "L'Impasse",
+    "cuisine": [
+      "ivoirienne"
+    ],
+    "lat": 5.2955,
+    "lng": -3.9981,
+    "neighborhood": "Zone 4",
+    "descriptive_address": "Zone 4, Marcory — ex-Ô Feu de Bois",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000007",
+    "name": "Madame Antika",
+    "cuisine": [
+      "ivoirienne",
+      "fusion"
+    ],
+    "lat": 5.3477,
+    "lng": -4.0012,
+    "neighborhood": "Danga",
+    "descriptive_address": "Danga, Cocody",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000003",
+    "name": "Sam's",
+    "cuisine": [
+      "burger_pizza",
+      "fusion"
+    ],
+    "lat": 5.2988,
+    "lng": -3.9992,
+    "neighborhood": "Zone 4",
+    "descriptive_address": "Zone 4",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000002",
+    "name": "Texas Grillz",
+    "cuisine": [
+      "grillades",
+      "burger_pizza"
+    ],
+    "lat": 5.3558,
+    "lng": -3.9876,
+    "neighborhood": "Riviera 2",
+    "descriptive_address": "Riviera 2",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  },
+  {
+    "id": "a1000000-0000-4000-8000-000000000006",
+    "name": "The Rooph",
+    "cuisine": [
+      "francaise",
+      "fusion"
+    ],
+    "lat": 5.3736,
+    "lng": -3.9571,
+    "neighborhood": "Riviera Bonoumin",
+    "descriptive_address": "Immeuble Le Phare, Bonoumin — carrefour",
+    "city": "Abidjan",
+    "city_code": "abidjan",
+    "is_published": true
+  }
+]

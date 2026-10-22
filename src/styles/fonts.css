@@ -1,0 +1,62 @@
+/* Polices de marque SPAWT — servies depuis /fonts/ (same-origin obligatoire :
+   la CSP pose font-src 'self', donc aucun Google Fonts, aucun CDN).
+
+   ⚠️ WOFF2 en PREMIER, original en repli. Les fichiers d'origine du handoff
+   sont lourds — Klinsman-Bold pèse 406 Ko en .otf contre 132 Ko en .woff2,
+   Klinsman-Regular 334 Ko contre 91 Ko. Sur le réseau mobile ivoirien, la
+   police était le premier poste de poids de la page ; la conversion rend
+   ~620 Ko. Le .otf/.ttf reste déclaré en second pour les navigateurs
+   Android anciens qui ignorent WOFF2 : eux seuls le téléchargeront.
+
+   Klinsman-Light (300) n'est PAS déclaré : aucune règle ne l'utilise, et une
+   famille déclarée mais jamais appelée est un fichier mort dans l'image. */
+
+@font-face {
+  font-family: "Klinsman";
+  src:
+    url("/fonts/Klinsman-Regular.woff2") format("woff2"),
+    url("/fonts/Klinsman-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Klinsman";
+  src:
+    url("/fonts/Klinsman-Bold.woff2") format("woff2"),
+    url("/fonts/Klinsman-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src:
+    url("/fonts/Gotham-Book.woff2") format("woff2"),
+    url("/fonts/Gotham-Book.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src:
+    url("/fonts/Gotham-Medium.woff2") format("woff2"),
+    url("/fonts/Gotham-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src:
+    url("/fonts/Gotham-Bold.woff2") format("woff2"),
+    url("/fonts/Gotham-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

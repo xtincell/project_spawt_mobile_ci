@@ -9,23 +9,31 @@
     <meta name="theme-color" content="#0A0A0A" />
     <meta
       name="description"
-      content="SPAWT — La carte du bon goût. Ne plus jamais regretter un lieu à Abidjan : ton Palais, ton archétype, ta Meute."
+      content="SPAWT — La carte du bon goût. Le compagnon de découverte culinaire d'Abidjan : ton Palais, ton archétype, ta Meute. Bientôt sur iOS et Android."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Préchargement : UNIQUEMENT les deux graisses du premier écran
+         (titre Klinsman Bold + corps Gotham Book), et en WOFF2 — c'est le
+         format que téléchargera tout navigateur moderne. Précharger les six
+         fichiers, ou la version .otf de 406 Ko, revenait à mettre la police
+         devant le contenu sur un réseau mobile ivoirien. -->
     <link
       rel="preload"
-      href="/fonts/Klinsman-Bold.otf"
+      href="/fonts/Klinsman-Bold.woff2"
       as="font"
-      type="font/otf"
+      type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/Gotham-Book.ttf"
+      href="/fonts/Gotham-Book.woff2"
       as="font"
-      type="font/ttf"
+      type="font/woff2"
       crossorigin
     />
+
     <title>SPAWT — La carte du bon goût</title>
   </head>
   <body>
