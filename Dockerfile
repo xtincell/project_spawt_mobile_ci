@@ -41,6 +41,7 @@ RUN npm ci --no-audit --no-fund
 
 COPY . .
 RUN npm run build
+RUN node scripts/public-share-nginx.mjs
 
 # ── Étape 2 : runtime nginx ────────────────────────────────────────
 FROM nginx:alpine
@@ -49,6 +50,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # de conf.d/ pour ne pas être auto-chargé par le wildcard `include conf.d/*.conf`
 # — il n'est monté que via l'`include` explicite de default.conf.
 COPY security-headers.conf /etc/nginx/security-headers.conf
+COPY --from=build /tmp/public-share-headers.conf /etc/nginx/public-share-headers.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY --from=android-release /android /usr/share/nginx/html/downloads
 

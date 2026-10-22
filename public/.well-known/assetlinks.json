@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.upgraders.spawt",
+      "sha256_cert_fingerprints": [
+        "6C:90:9B:F0:ED:DC:02:B8:B5:0A:0B:BD:C1:49:F5:DE:DA:87:10:3A:D1:8B:C9:FE:CC:66:3D:7E:F6:B5:2E:74"
+      ]
+    }
+  }
+]

@@ -37,3 +37,12 @@ jobs:
         env:
           # Build de CI sans backend : le portail doit builder sans secrets.
           VITE_PAYMENT_MOCK: "0"
+
+      - name: Valider la configuration nginx réelle
+        run: |
+          node scripts/public-share-nginx.mjs
+          docker run --rm --network none --entrypoint nginx \
+            -v "$PWD/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+            -v "$PWD/security-headers.conf:/etc/nginx/security-headers.conf:ro" \
+            -v /tmp/public-share-headers.conf:/etc/nginx/public-share-headers.conf:ro \
+            nginx:alpine -t

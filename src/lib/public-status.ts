@@ -1,6 +1,6 @@
 import backend from './public-backend.json';
 
-export type ContentKey = 'places' | 'editorials' | 'collections' | 'announcements' | 'sync';
+export type ContentKey = 'places' | 'editorials' | 'collections' | 'announcements' | 'menus' | 'guet' | 'sync';
 export interface PublicCheck { key: ContentKey; ok: boolean; count?: number }
 export const PUBLIC_API_ORIGIN = backend.url;
 const paths: Record<ContentKey, string> = {
@@ -9,6 +9,8 @@ const paths: Record<ContentKey, string> = {
   collections: 'explore_collections?select=id&is_published=eq.true&limit=1',
   announcements: 'public_announcements?select=id&or=(city_code.is.null,city_code.eq.abidjan)&limit=1',
   sync: 'rpc/public_content_status',
+  menus: 'public_menu_items?select=id&limit=1',
+  guet: 'public_guet_places?select=id&limit=1',
 };
 /** Independent live reads, with the same public identity embedded in the APK.
  * No login, cookies, service credential, cached inventory or fallback counts. */

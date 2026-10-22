@@ -293,7 +293,7 @@ function Quiz() {
 
 function Telechargement() {
   return (
-    <section className="section download">
+    <section id="telecharger" className="section download">
       <div className="container container--narrow">
         <img
           className="download__pin"
