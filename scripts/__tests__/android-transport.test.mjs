@@ -15,8 +15,8 @@ const fixture = { ...current, bytes: bytes.length, sha256: createHash('sha256').
 afterEach(() => folders.splice(0).forEach(folder => rmSync(folder, { recursive: true, force: true })));
 
 describe('Android artifact transport', () => {
-  it('retains the previous version and preserves exact public archive targets', () => {
-    expect(validateDownloadConfig(current, history).map(release => release.build)).toEqual([42, 41]);
+  it('mirrors the published version and preserves exact public archive targets', () => {
+    expect(validateDownloadConfig(current, history).map(release => release.build)).toEqual([41]);
     const routes = renderDownloadRoutes(current, history);
     expect(routes).toContain('location = /downloads/spawt-latest.apk {');
     expect(routes).toContain(`return 307 "/downloads/${current.fileName}";`);
