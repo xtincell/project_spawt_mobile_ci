@@ -25,6 +25,22 @@ export function parseAndroidRelease(value: unknown): AndroidRelease | null {
   return { version: item.version, build: item.build, sha256: item.sha256, sourceCommit: item.sourceCommit, bytes: item.bytes, fileName, url };
 }
 
+export async function verifyLocalAndroidRelease(release: AndroidRelease, signal: AbortSignal): Promise<AndroidRelease | null> {
+  const url = `/downloads/${release.fileName}`;
+  const options = { cache: 'no-store', credentials: 'omit', redirect: 'error', signal } as const;
+  const [binary, checksum] = await Promise.all([
+    fetch(url, { ...options, method: 'HEAD' }),
+    fetch(`${url}.sha256`, options),
+  ]);
+  if (binary.status !== 200 || checksum.status !== 200
+    || binary.headers.get('content-type')?.split(';')[0] !== 'application/vnd.android.package-archive'
+    || Number(binary.headers.get('content-length')) !== release.bytes
+    || binary.headers.get('accept-ranges') !== 'bytes'
+    || Number(checksum.headers.get('content-length') ?? 0) > 256
+    || (await checksum.text()).trim() !== `${release.sha256}  ${release.fileName}`) return null;
+  return { ...release, url };
+}
+
 let current = FALLBACK_ANDROID_RELEASE;
 let pending: Promise<void> | null = null;
 let lastAttempt = 0;
@@ -45,7 +61,10 @@ export async function refreshAndroidRelease(): Promise<void> {
       const next = parseAndroidRelease(await response.json());
       // A delayed response or a reverted channel must never downgrade a page.
       if (!next || next.build <= current.build) return;
-      current = next;
+      // Publication alone must not switch the main button away from our mirror.
+      const local = await verifyLocalAndroidRelease(next, controller.signal);
+      if (!local) return;
+      current = local;
       listeners.forEach(listener => listener());
     } catch {
       // Preserve the last verified link, including the bundled APK on first load.

@@ -11,6 +11,7 @@
 FROM node:20-alpine AS android-release
 COPY scripts/fetch-android.mjs /fetch-android.mjs
 COPY scripts/android-release.json /android-release.json
+COPY scripts/android-history.json /android-history.json
 RUN node /fetch-android.mjs
 
 # ── Étape 1 : build ────────────────────────────────────────────────
@@ -46,6 +47,7 @@ RUN node scripts/public-share-nginx.mjs
 # ── Étape 2 : runtime nginx ────────────────────────────────────────
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=android-release /android-downloads.conf /etc/nginx/android-downloads.conf
 # En-têtes de sécurité (CSP…) : fichier `include`é par nginx.conf. Copié HORS
 # de conf.d/ pour ne pas être auto-chargé par le wildcard `include conf.d/*.conf`
 # — il n'est monté que via l'`include` explicite de default.conf.

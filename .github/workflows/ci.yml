@@ -41,8 +41,11 @@ jobs:
       - name: Valider la configuration nginx réelle
         run: |
           node scripts/public-share-nginx.mjs
+          ANDROID_ROUTES_PATH=/tmp/android-downloads.conf node scripts/fetch-android.mjs --routes-only
           docker run --rm --network none --entrypoint nginx \
             -v "$PWD/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
             -v "$PWD/security-headers.conf:/etc/nginx/security-headers.conf:ro" \
             -v /tmp/public-share-headers.conf:/etc/nginx/public-share-headers.conf:ro \
+            -v /tmp/android-downloads.conf:/etc/nginx/android-downloads.conf:ro \
             nginx:alpine -t
+          node scripts/test-android-delivery.mjs

@@ -1,0 +1,75 @@
+{
+  "source": "https://api.github.com/repos/xtincell/spawt-ci-mobile-v1-mvp/releases",
+  "checkedAt": "2026-10-31T16:14:36.011Z",
+  "releases": [
+    {
+      "version": "1.1.1",
+      "build": 27,
+      "fileName": "spawt-1.1.1-build27.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-10-27/spawt-1.1.1-build27.apk",
+      "sha256": "587217be5efae3664d698b913db6a1b19745a254836fb434ea530592294e39c8",
+      "bytes": 162284323,
+      "retainedLocally": false,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-10-27/spawt-1.1.1-build27.apk.sha256"
+    },
+    {
+      "version": "1.1.1",
+      "build": 29,
+      "fileName": "spawt-1.1.1-build29.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-13-29/spawt-1.1.1-build29.apk",
+      "sha256": "4dbdc7cb94ecabf2691399dabe06d66093c503ea186988ebd5f36a363b62738a",
+      "bytes": 162425603,
+      "retainedLocally": false
+    },
+    {
+      "version": "1.1.1",
+      "build": 34,
+      "fileName": "spawt-1.1.1-build34.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-34/spawt-1.1.1-build34.apk",
+      "sha256": "39875c39314c5da714e6179a5c412c80bfcf7f4061ea5a91dabbe4ee7a71628f",
+      "bytes": 162451883,
+      "retainedLocally": false,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-34/spawt-1.1.1-build34.apk.sha256"
+    },
+    {
+      "version": "1.1.1",
+      "build": 35,
+      "fileName": "spawt-1.1.1-build35.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-35/spawt-1.1.1-build35.apk",
+      "sha256": "53b7dcb40f0718484b10541a078c24382951536d5ab8c26a846cc4078f8c4086",
+      "bytes": 162454527,
+      "retainedLocally": false,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-35/spawt-1.1.1-build35.apk.sha256"
+    },
+    {
+      "version": "1.1.1",
+      "build": 36,
+      "fileName": "spawt-1.1.1-build36.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-19-36/spawt-1.1.1-build36.apk",
+      "sha256": "9cbe231ff9eb646586b00980fb6918a78f020d3aae48de5caef50951713e307c",
+      "bytes": 162454415,
+      "retainedLocally": false,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-19-36/spawt-1.1.1-build36.apk.sha256"
+    },
+    {
+      "version": "1.1.1",
+      "build": 40,
+      "fileName": "spawt-1.1.1-build40.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-19-40/spawt-1.1.1-build40.apk",
+      "sha256": "f88aa6776f5b9a9694f275de4252c9f28db8e27c0d9f2618f4352dc993d8e648",
+      "bytes": 162494335,
+      "retainedLocally": false,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-19-40/spawt-1.1.1-build40.apk.sha256"
+    },
+    {
+      "version": "1.1.1",
+      "build": 41,
+      "fileName": "spawt-1.1.1-build41.apk",
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-22-41/spawt-1.1.1-build41.apk",
+      "sha256": "62074f4dc68ec3c84dfce3f1e191b4353a3a1b8e6e979a7232600040dd0a6aa9",
+      "bytes": 162536491,
+      "retainedLocally": true,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-22-41/spawt-1.1.1-build41.apk.sha256"
+    }
+  ]
+}
