@@ -11,19 +11,27 @@ const exact = (v: Record<string, unknown>, keys: string[]) => Object.keys(v).len
 const text = (v: unknown, max: number) => typeof v === "string" && !!v.trim() && v.length <= max;
 const fontTypes = ["font/otf", "font/ttf"], imageTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
-function file(v: unknown, edition: string, types: string[]) {
+function file(v: unknown, sourceEditions: Set<string>, types: string[]) {
   if (!record(v) || !exact(v, ["url", "hash", "bytes", "type"]) || typeof v.hash !== "string" || !/^[a-f0-9]{64}$/.test(v.hash)
     || !Number.isInteger(v.bytes) || Number(v.bytes) < 1 || Number(v.bytes) > 10_000_000 || typeof v.type !== "string" || !types.includes(v.type) || typeof v.url !== "string") return false;
   try {
     const u = new URL(v.url), ext: Record<string, string> = { "font/otf": "otf", "font/ttf": "ttf", "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg" };
-    return u.origin === new URL(PUBLIC_BRAND_URL).origin && !u.username && !u.password && !u.search && !u.hash
-      && u.pathname === `/brand/editions/${edition}/${v.hash}.${ext[v.type]}`;
+    const sourceEdition = u.pathname.match(/^\/brand\/editions\/([a-zA-Z0-9_-]{1,100})\/[a-f0-9]{64}\.[a-z]+$/)?.[1];
+    if (u.origin !== new URL(PUBLIC_BRAND_URL).origin || u.username || u.password || u.search || u.hash || !sourceEdition
+      || u.pathname !== `/brand/editions/${sourceEdition}/${v.hash}.${ext[v.type]}`
+      || (sourceEditions.size > 0 && !sourceEditions.has(sourceEdition))) return false;
+    sourceEditions.add(sourceEdition);
+    return true;
   } catch { return false; }
 }
 /** Strict v2 boundary: no styles, private ids, arbitrary assets or foreign origins. */
 export function validPublicIdentity(v: unknown, edition: string): v is PublicIdentity | null {
   if (v === null) return true;
   if (!/^[a-zA-Z0-9_-]{1,100}$/.test(edition) || !record(v) || !exact(v, ["palette", "typography", "mascots", "voice"])) return false;
+  // A links-only publication can retain immutable files from one earlier
+  // edition. The chosen publisher owns their brand provenance; this reader
+  // still requires a single coherent source and verifies every file's bytes.
+  const sourceEditions = new Set<string>();
   if (v.palette !== null && (!record(v.palette) || !exact(v.palette, ["ink", "signature", "community", "paper", "warm", "soft"])
     || Object.values(v.palette).some(c => typeof c !== "string" || !/^#[a-fA-F0-9]{6}$/.test(c)))) return false;
   if (v.typography !== null) {
@@ -33,7 +41,7 @@ export function validPublicIdentity(v: unknown, edition: string): v is PublicIde
       const weights = new Set();
       for (const face of font.faces) {
         if (!record(face) || !exact(face, ["weight", "file"]) || !Number.isInteger(face.weight) || Number(face.weight) < 100 || Number(face.weight) > 900
-          || Number(face.weight) % 100 || weights.has(face.weight) || !file(face.file, edition, fontTypes)) return false;
+          || Number(face.weight) % 100 || weights.has(face.weight) || !file(face.file, sourceEditions, fontTypes)) return false;
         weights.add(face.weight);
       }
     }
@@ -42,7 +50,7 @@ export function validPublicIdentity(v: unknown, edition: string): v is PublicIde
   const roles = new Set();
   for (const mascot of v.mascots) {
     if (!record(mascot) || !exact(mascot, ["role", "alt", "file"]) || !["greeting", "curious", "guide"].includes(String(mascot.role))
-      || roles.has(mascot.role) || !text(mascot.alt, 240) || !file(mascot.file, edition, imageTypes)) return false;
+      || roles.has(mascot.role) || !text(mascot.alt, 240) || !file(mascot.file, sourceEditions, imageTypes)) return false;
     roles.add(mascot.role);
   }
   return v.voice === null || (record(v.voice) && exact(v.voice, ["quote", "attribution"]) && text(v.voice.quote, 600) && text(v.voice.attribution, 120));

@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash, webcrypto } from "node:crypto";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
-import { PUBLISHED_COPY, PublicBrandProvider, receivePublicBrand } from "../lib/public-brand";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { PUBLISHED_COPY, PublicBrandProvider, receivePublicBrand, type BrandCopy } from "../lib/public-brand";
 import { identityFileBytes, loadPublicIdentity, validPublicIdentity, type IdentityFile, type PublicIdentity } from "../lib/public-identity";
 import LandingPage from "../pages/LandingPage";
+import Layout from "../components/Layout";
 import { palette } from "../theme/tokens";
 
 const bytes = new TextEncoder().encode("verified fixture bytes");
@@ -23,8 +24,8 @@ function canonical(v: unknown): unknown {
   if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => [key, canonical(value)]));
   return v ?? null;
 }
-function edition(id = "identity-one", value: PublicIdentity | null = identity(id)) {
-  const content = { ...PUBLISHED_COPY, title: `Édition ${id}`, identity: value };
+function edition(id = "identity-one", value: PublicIdentity | null = identity(id), patch: Partial<BrandCopy> = {}) {
+  const content = { ...PUBLISHED_COPY, title: `Édition ${id}`, identity: value, ...patch };
   const digest = createHash("sha256").update(JSON.stringify(canonical({ rawContent: null, rawData: content, extractedFields: null, certainty: null, fileName: null, sourceType: null, fileType: null }))).digest("hex");
   return { schema: "public-brand-v2", slug: "LFA-spawt", edition: id, version: 1, publishedAt: "2026-10-09T00:00:00.000Z", selection: "chosen", digest, content };
 }
@@ -39,6 +40,38 @@ function browserDecoders() {
 }
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); delete (document as unknown as { fonts?: unknown }).fonts; });
 describe("Public identity reception", () => {
+  it("receives V6 normally and a V7 links-only publication retaining the exact V6 identity", async () => {
+    vi.stubGlobal("crypto", webcrypto);
+    const before = { ...edition("identity-six"), version: 6 };
+    const after = { ...edition("publication-seven", before.content.identity, { title: before.content.title, links: [...before.content.links, { label: "Parler à SPAWT", url: "https://powerupgraders.com/talk/spawt-public" }] }), version: 7 };
+    expect(await receivePublicBrand(before)).toEqual(before.content);
+    expect({ ...after.content, links: before.content.links }).toEqual(before.content);
+    expect(await receivePublicBrand(after)).toEqual(after.content);
+  });
+  it("renders the new footer link after verifying a retained identity from one earlier source edition", async () => {
+    browserDecoders();
+    const before = edition("identity-six");
+    const current = edition("publication-seven", before.content.identity, { title: before.content.title, links: [...before.content.links, { label: "Parler à SPAWT", url: "https://powerupgraders.com/talk/spawt-public" }] });
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => Promise.resolve(url.includes("api/export") ? new Response(JSON.stringify(current)) : new Response(bytes, { headers: { "Content-Type": url.endsWith(".ttf") ? "font/ttf" : "image/png" } }))));
+    render(<MemoryRouter><PublicBrandProvider><Routes><Route element={<Layout />}><Route path="/" element={<LandingPage />} /></Route></Routes></PublicBrandProvider></MemoryRouter>);
+    expect((await screen.findByRole("link", { name: "Parler à SPAWT" })).getAttribute("href")).toBe("https://powerupgraders.com/talk/spawt-public");
+    expect(screen.getByRole("heading", { level: 1, name: before.content.title })).toBeInTheDocument();
+    expect(screen.getByAltText("Moka reçu pour l’accueil")).toHaveAttribute("src", expect.stringMatching(/^data:image\/png;base64,/));
+  });
+  it.each([
+    `https://foreign.invalid/brand/editions/identity-six/${hash}.ttf`,
+    `https://spawter@powerupgraders.com/brand/editions/identity-six/${hash}.ttf`,
+    `https://powerupgraders.com/brand/editions/identity-six/${hash}.ttf?token=private`,
+    `https://powerupgraders.com/brand/editions/identity-six/${hash}.ttf#fragment`,
+    `https://powerupgraders.com/brand/editions/identity-six/${"0".repeat(64)}.ttf`,
+    `https://powerupgraders.com/other/identity-six/${hash}.ttf`,
+    `https://powerupgraders.com/brand/editions/identity-six/${hash}.png`,
+    `https://powerupgraders.com/brand/editions/another-source/${hash}.ttf`,
+  ])("refuses unsafe or mixed identity references in a retained publication: %s", url => {
+    const value = identity("identity-six");
+    value.typography!.body.faces[0].file.url = url;
+    expect(validPublicIdentity(value, "publication-seven")).toBe(false);
+  });
   it("receives all four public families and rejects private fields, foreign files, edition confusion and invalid shapes", async () => {
     vi.stubGlobal("crypto", webcrypto);
     expect(await receivePublicBrand(edition())).toEqual(edition().content);

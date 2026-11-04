@@ -218,7 +218,16 @@ polices (titres/corps) et leurs fichiers OTF/TTF, trois usages de Moka
 et références privés restent dans La Fusée ; aucune charte brouillon n’est
 publiée implicitement. Les familles non choisies gardent leur présentation locale.
 
-Le site valide le contrat, le digest et les URL exactes de l’édition. Il reçoit
+Le site valide le contrat, le digest et les URL exactes des fichiers. Une nouvelle
+publication peut conserver l’identité d’une édition antérieure : l’édition de
+publication et l’édition physique des fichiers sont distinctes. Toutes les polices
+et poses d’une même identité doivent cependant provenir d’une seule édition source,
+sur l’origine et dans le répertoire autorisés, avec leur type et leur empreinte
+canoniques. Un mélange d’éditions reste refusé.
+
+La publication HTTPS choisie pour SPAWT fait autorité sur le rattachement de ces
+fichiers à la marque ; La Fusée vérifie leurs sources et leur historique avant
+publication. Le lecteur ne prétend pas reconstituer cet historique privé. Il reçoit
 et vérifie longueur/type/SHA-256 de chaque fichier, puis décode les polices avec
 FontFace et les images avant d’appliquer l’identité entière. Les polices sont
 chargées depuis les octets vérifiés ; les poses utilisent ces mêmes octets en
