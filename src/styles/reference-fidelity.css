@@ -1,0 +1,93 @@
+/* Coordinates follow the accepted 1586 x 992 artboard. Text and actions stay live;
+   only custom lettering and illustration use the original artwork viewports. */
+.showcase-layout { container-type:inline-size; --ru:calc(100cqw / 1586); }
+.showcase-layout,.showcase { background:var(--reference-cream); }
+.sc-readable-copy { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.sc-lettering { width:100%; height:auto; display:block; overflow:hidden; }
+.sc-reference-food { width:100%; height:100%; max-width:none; display:block; }
+.sc-reference-control-patch { fill:var(--reference-plate); }
+.sc-scene--food::before { content:none; }
+.sc-welcome { background:var(--reference-paper); overflow:clip; overflow-clip-margin:100px; }
+.sc-wave { fill:var(--reference-paper); }
+.sc-carousel-bar { background:transparent; padding:0; border-radius:0; }
+.sc-image-credit { background:transparent; padding:0; width:130px; height:30px; }
+.sc-reference-moka { width:100%; height:100%; max-width:none; }
+.sc-primary .sc-android-robot { width:32px; height:32px; }
+.sc-lettering--signature { width:calc(610 * var(--ru)); height:calc(39 * var(--ru)); }
+
+@media(min-width:761px) {
+  .sc-header { min-height:0; height:calc(90 * var(--ru)); padding:0 calc(68 * var(--ru)); }
+  .sc-logo img { width:calc(226 * var(--ru)); height:calc(84 * var(--ru)); object-fit:contain; }
+  .sc-header nav { gap:calc(54 * var(--ru)); }
+  .sc-header nav a { font-size:calc(18 * var(--ru)); font-weight:400; }
+  .sc-header nav .sc-nav-download { padding:0 calc(30 * var(--ru)); min-height:calc(50 * var(--ru)); font-size:calc(18 * var(--ru)); }
+  .sc-hero { height:calc(720 * var(--ru)); min-height:0; max-width:none; }
+  .sc-hero-copy { position:absolute; width:calc(660 * var(--ru)); left:calc(82 * var(--ru)); top:calc(80 * var(--ru)); padding:0; }
+  .sc-location { height:calc(56 * var(--ru)); font-size:calc(18 * var(--ru)); line-height:calc(24 * var(--ru)); letter-spacing:.16em; margin:0; }
+  .sc-location::after { width:calc(56 * var(--ru)); height:calc(6 * var(--ru)); margin-top:calc(10 * var(--ru)); }
+  .showcase h1 { position:relative; left:calc(-6 * var(--ru)); width:calc(660 * var(--ru)); min-height:calc(222 * var(--ru)); margin:0; font-size:calc(102 * var(--ru)); }
+  .sc-signature { font-size:calc(30 * var(--ru)); line-height:calc(39 * var(--ru)); color:var(--reference-gold); max-width:none; margin:0 0 calc(17 * var(--ru)); letter-spacing:-.025em; }
+  .sc-intro { font-size:calc(25 * var(--ru)); line-height:calc(33 * var(--ru)); max-width:none; margin:0 0 calc(34 * var(--ru)); letter-spacing:-.035em; }
+  .sc-desktop-break { display:initial; }
+  .sc-actions { position:relative; left:calc(-4 * var(--ru)); flex-direction:row; flex-wrap:nowrap; gap:calc(60 * var(--ru)); }
+  .sc-primary { width:calc(334 * var(--ru)); min-height:calc(68 * var(--ru)); padding:0 calc(26 * var(--ru)); font-size:calc(22 * var(--ru)); gap:calc(15 * var(--ru)); letter-spacing:-.035em; }
+  .sc-primary .sc-android-robot { width:calc(32 * var(--ru)); height:calc(36 * var(--ru)); }
+  .sc-primary>span:last-child { font-size:calc(30 * var(--ru)); margin-left:auto; }
+  .sc-install>p { font-size:calc(16 * var(--ru)); line-height:calc(24 * var(--ru)); margin-top:calc(7 * var(--ru)); }
+  .sc-web-link { font-size:calc(21 * var(--ru)); min-height:calc(68 * var(--ru)); max-width:none; letter-spacing:-.025em; }
+  .sc-scenes { inset:0 0 0 calc(660 * var(--ru)); }
+  .sc-scene--moka,.sc-scene--palais { border-radius:0; padding-left:calc(110 * var(--ru)); mask-image:linear-gradient(to right,transparent,var(--noir) calc(110 * var(--ru))); }
+  .sc-scenes[data-scene="2"] .sc-carousel-bar { color:var(--blanc-casse); }
+  .sc-scenes[data-scene="2"] .sc-scene-count>span { color:inherit; }
+  .sc-scenes[data-scene="2"] .sc-carousel-arrow:hover { color:var(--noir); }
+  .sc-carousel-bar { left:calc(293 * var(--ru)); bottom:calc(44 * var(--ru)); gap:0; }
+  .sc-carousel-arrow { width:calc(44 * var(--ru)); height:calc(44 * var(--ru)); min-width:36px; min-height:36px; font-size:calc(29 * var(--ru)); }
+  .sc-scene-count { font-size:calc(16 * var(--ru)); min-width:calc(53 * var(--ru)); text-align:center; }
+  .sc-image-credit { right:calc(20 * var(--ru)); bottom:calc(17 * var(--ru)); width:calc(160 * var(--ru)); height:calc(34 * var(--ru)); }
+  .sc-welcome { height:calc(182 * var(--ru)); min-height:0; }
+  .sc-wave { height:calc(90 * var(--ru)); }
+  .sc-welcome-inner { display:block; position:relative; min-height:0; height:100%; width:100%; margin:0; }
+  .sc-welcome-moka { position:absolute; left:calc(60 * var(--ru)); top:calc(-80 * var(--ru)); width:calc(545 * var(--ru)); height:calc(262 * var(--ru)); display:block; }
+  .sc-welcome-moka>img { width:calc(300 * var(--ru)); height:100%; object-fit:contain; margin:0; }
+  .sc-welcome h2 { position:absolute; left:calc(638 * var(--ru)); top:calc(21 * var(--ru)); width:calc(900 * var(--ru)); height:calc(115 * var(--ru)); padding:0; margin:0; max-width:none; }
+  .sc-welcome:has(.sc-brand-voice) { height:auto; min-height:calc(182 * var(--ru)); padding-top:calc(182 * var(--ru)); }
+  .sc-welcome:has(.sc-brand-voice) .sc-welcome-inner { position:absolute; top:0; height:calc(182 * var(--ru)); }
+}
+
+@media(max-width:760px) {
+  .sc-hero-copy { padding-top:30px; }
+  .showcase h1 { width:100%; min-height:0; margin-bottom:20px; }
+  .sc-signature { color:var(--or-profond); }
+  .sc-signature-copy { position:static; width:auto; height:auto; clip-path:none; white-space:normal; }
+  .sc-lettering--signature { display:none; }
+  .sc-scene--food { overflow:hidden; }
+  .sc-reference-food { position:absolute; width:126%; height:auto; left:-10%; top:-6%; }
+  .sc-carousel-bar { background:var(--reference-paper); border-radius:var(--r-full); bottom:40px; }
+  .sc-image-credit { right:20px; bottom:48px; width:100px; height:28px; background:var(--reference-paper); border-radius:var(--r-s); }
+  .sc-image-credit::after { content:"Crédits visuels"; display:block; padding:4px 8px; }
+  .sc-welcome { padding-bottom:0; overflow:clip; }
+  .sc-welcome-inner { width:100%; padding:12px 16px 0; gap:16px; }
+  .sc-welcome h2 { width:100%; max-width:none; padding:0; margin:0; }
+  .sc-lettering--sharing { width:100%; }
+  .sc-welcome-moka { display:block; width:100%; height:auto; min-height:0; padding:0; }
+  .sc-reference-moka { display:block; height:auto; width:100%; }
+  .sc-primary .sc-android-robot { width:23px; height:26px; }
+}
+
+/* At tablet widths, retain the composition without shrinking tap targets. */
+@media(min-width:761px) and (max-width:1099px) {
+  .sc-header { min-height:72px; }
+  .sc-header nav a { font-size:.85rem; }
+  .sc-header nav .sc-nav-download { min-height:44px; }
+  .sc-primary { min-height:48px; font-size:.9rem; width:250px; }
+  .sc-primary .sc-android-robot { width:24px; height:26px; }
+  .sc-actions { gap:18px; flex-wrap:wrap; }
+  .sc-web-link { min-height:44px; font-size:.85rem; }
+  .sc-intro { font-size:1rem; line-height:1.5; }
+  .sc-hero { height:calc(720 * var(--ru) + 80px); }
+  .sc-scenes { bottom:0; }
+  .sc-reference-food { height:calc(720 * var(--ru)); top:40px; position:absolute; }
+  .sc-carousel-arrow { min-width:44px; min-height:44px; }
+  .sc-scene-count { font-size:.75rem; min-width:42px; }
+  .sc-carousel-bar { bottom:44px; }
+}

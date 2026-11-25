@@ -1,0 +1,106 @@
+.abidjan-diorama {
+  position: relative;
+  color: var(--ink);
+  background: var(--bg-warm);
+  scroll-margin-top: 35px;
+}
+.abidjan-diorama__intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding: clamp(52px, 6.2vw, 100px) clamp(24px, 6vw, 112px) 28px;
+}
+.abidjan-diorama h2 {
+  margin: 0;
+  font: 700 clamp(3.1rem, 6.6vw, 7.6rem)/.99 var(--font-display);
+  letter-spacing: -.065em;
+  color: var(--ink);
+}
+.abidjan-diorama h2 span { color: var(--or-profond); }
+.abidjan-diorama__intro p {
+  margin: 14px 0 0;
+  font: 400 clamp(1rem, 1.25vw, 1.25rem)/1.5 var(--font-body);
+}
+.abidjan-diorama__map-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  gap: 14px;
+  min-height: 46px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  background: var(--noir);
+  color: var(--blanc-casse);
+  text-decoration: none;
+  font: 600 .94rem/1.35 var(--font-body);
+}
+.abidjan-diorama__map-link:hover { background: var(--vert-chat-profond); }
+.abidjan-diorama__frame { overflow: hidden; position: relative; isolation: isolate; }
+.abidjan-diorama__stage {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 1300 / 428;
+  position: relative;
+}
+.abidjan-diorama__stage > picture, .abidjan-diorama__stage > canvas, .abidjan-diorama__stage > picture > img {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.abidjan-diorama__stage canvas { opacity: 0; pointer-events: none; }
+.abidjan-diorama__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: clamp(20px, 4vw, 60px);
+  background: linear-gradient(to bottom, var(--bg-warm), transparent);
+  pointer-events: none;
+}
+.abidjan-diorama__moka {
+  position: absolute;
+  bottom: 0;
+  left: 43.1%;
+  width: 13.4%;
+  height: auto;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+}
+.abidjan-diorama__hotspot {
+  position: absolute;
+  left: 69.2%;
+  top: 41.4%;
+  width: 26%;
+  height: 32.8%;
+  border-radius: 16px;
+}
+.abidjan-diorama a:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 4px;
+}
+.abidjan-diorama__quartiers {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px clamp(18px, 2.5vw, 48px);
+  padding: 14px clamp(24px, 6vw, 112px);
+  color: var(--blanc-casse);
+  background: var(--vert-chat-profond);
+  font: 500 .95rem/1.45 var(--font-body);
+}
+.abidjan-diorama__quartiers > span { margin-right: auto; font-weight: 500; }
+.abidjan-diorama__quartiers a { display: inline-flex; align-items: center; min-height: 44px; gap: 9px; text-decoration: none; color: var(--blanc-casse); }
+.abidjan-diorama__quartiers a:hover { text-decoration: underline; text-underline-offset: .3em; }
+.abidjan-diorama__quartiers a span { color: var(--or-clair); }
+@media(max-width: 700px) {
+  .abidjan-diorama__intro { align-items: flex-start; flex-direction: column; gap: 20px; padding: 42px 22px 15px; }
+  .abidjan-diorama h2 { font-size: clamp(2.65rem, 10vw, 4.5rem); }
+  .abidjan-diorama__intro p { margin-top: 10px; }
+  .abidjan-diorama__stage { width: max(100%, 710px); left: 100%; transform: translateX(-100%); }
+  .abidjan-diorama__moka { left: 55%; width: 12%; }
+  .abidjan-diorama__quartiers { gap: 0 19px; padding: 15px 22px 13px; font-size: .86rem; }
+  .abidjan-diorama__quartiers > span { flex-basis: 100%; color: var(--or-clair); }
+}

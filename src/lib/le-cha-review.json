@@ -1,0 +1,25 @@
+{
+  "placeId": "ef8f3289-a9ca-56f0-899c-f95f93ee9c75",
+  "name": "Le Cha",
+  "city": "Abidjan",
+  "author": "Alexandre",
+  "stage": "Touriste",
+  "ratings": [
+    {
+      "label": "Cuisine",
+      "value": 5
+    },
+    {
+      "label": "Cadre",
+      "value": 4
+    },
+    {
+      "label": "Service",
+      "value": 3
+    }
+  ],
+  "quote": "Je mets 4,5/5 à la cuisine pour le goût qui sort de l’ordinaire. La déco aussi a sa personnalité. Côté service, il y avait peu de monde et on s’est sentis un peu livrés à nous-mêmes.",
+  "photoAlt": "Chez Le Cha, un sandwich grillé et des frites en panier devant des bouchées nappées de sauce.",
+  "area": "Marcory",
+  "frontAlt": "La devanture de Le Cha, avec l’enseigne « le chā asian coffee house »."
+}

@@ -1,0 +1,15 @@
+SPAWT — photographie V3, 30 octobre 2026
+
+hero-v3.webp
+Photographe : Shourav Sheikh.
+Original : Grilled Chicken on a Plate, Pexels no 5695611.
+Source vérifiée : https://www.pexels.com/photo/grilled-chicken-on-a-plate-5695611/
+Licence vérifiée : https://www.pexels.com/license/
+La licence Pexels autorise l'usage gratuit sur les sites, applications et supports promotionnels. Pas d'attribution obligatoire ; crédit conservé volontairement.
+Image source photographiée le 13 mai 2019, Canon EOS 7D Mark II selon les informations de la page.
+Fichier utilisé téléchargé depuis le lien de la page Pexels :
+https://images.pexels.com/photos/5695611/pexels-photo-5695611.jpeg?auto=compress&dpr=1&h=1800&w=1600
+Format reçu : 1200 × 1800 pixels. Conversion WebP qualité 90 ; recadrage d'affichage CSS. Aucun contenu généré ou retouché.
+Il s'agit d'une photo de poulet grillé aux épices / tandoori. Aucune provenance ivoirienne n'est revendiquée ; aucun lien avec un établissement du catalogue ni partenariat avec l'auteur n'est suggéré.
+
+Identité de marque utilisée : logo-horizontal-dark.webp et pin.webp déjà présents dans le dépôt SPAWT ; aucun redessin. Pattern V4 validé, voir ../decor/SOURCES-ASSETS.txt. Moka : poses officielles existantes via le fournisseur de marque du site.

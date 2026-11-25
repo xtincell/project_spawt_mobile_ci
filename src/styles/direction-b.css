@@ -1,0 +1,532 @@
+.direction-b {
+  background: var(--creme-sable);
+  color: var(--noir);
+}
+
+.direction-b .db-wrap {
+  width: min(100% - 64px, 1240px);
+  margin-inline: auto;
+}
+
+.direction-b .db-opening {
+  background: var(--blanc-casse);
+  padding-top: 64px;
+  border-radius: 40px 40px 0 0;
+}
+
+.direction-b .db-text-link {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  min-height: 44px;
+  color: var(--vert-chat-profond);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
+.direction-b .db-text-link > span {
+  flex: 0 0 auto;
+  font-size: 1.375rem;
+  line-height: 1;
+}
+
+.direction-b .db-text-link:hover {
+  color: var(--noir);
+  text-decoration-thickness: 2px;
+}
+
+.direction-b .db-discover {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 48px;
+  scroll-margin-top: 140px;
+}
+
+.direction-b .db-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.direction-b .db-label > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  background: var(--vert-chat);
+  color: var(--blanc-casse);
+  border-radius: 50%;
+  font-size: 0.625rem;
+  letter-spacing: 0;
+}
+
+.direction-b .db-addresses {
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.direction-b .db-addresses > h2 {
+  margin-bottom: 20px;
+  font-size: clamp(2.4rem, 4vw, 3.75rem);
+  line-height: 1;
+}
+
+.direction-b .db-addresses .live-places__intro {
+  margin-bottom: 20px;
+  font-size: 0.75rem;
+  line-height: 1.65;
+}
+
+.direction-b .db-addresses .live-places__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.direction-b .db-addresses .live-place {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 12px;
+  min-height: 109px;
+  padding: 18px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--noir);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.direction-b .db-addresses .live-place:hover {
+  color: var(--vert-chat-profond);
+  background: var(--creme-sable);
+  border-radius: var(--r-l);
+}
+
+.direction-b .db-addresses .live-place:focus-visible {
+  outline-offset: 4px;
+}
+
+.direction-b .db-addresses .live-place__number {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: var(--creme-sable);
+  border-radius: 50%;
+  color: var(--vert-chat-profond);
+  font-size: 0.6875rem;
+}
+
+.direction-b .db-addresses .live-place small {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--ink-soft);
+  font-size: 0.6875rem;
+}
+
+.direction-b .db-addresses .live-place h3 {
+  margin: 0 0 7px;
+  font-size: 1.625rem;
+  line-height: 1.1;
+}
+
+.direction-b .db-addresses .live-place p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+}
+
+.direction-b .db-food {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+.direction-b .db-food-image {
+  position: relative;
+  flex: 1 0 auto;
+  min-height: 440px;
+  height: auto;
+  overflow: hidden;
+  border-radius: 160px 160px 28px 28px;
+}
+
+.direction-b .db-food-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.direction-b .db-food-note {
+  position: absolute;
+  left: 20px;
+  bottom: 22px;
+  padding: 13px 18px 15px;
+  background: var(--creme-sable);
+  border-radius: 16px 16px 16px 4px;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  line-height: 1;
+  transform: rotate(-3deg);
+}
+
+.direction-b .db-food figcaption,
+.direction-b .db-table figcaption {
+  display: block;
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 0.6875rem;
+  line-height: 1.65;
+}
+
+.direction-b .db-map-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 24px 0 44px;
+}
+
+.direction-b .db-map-callout p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  line-height: 1.15;
+}
+
+.direction-b .db-palais {
+  padding-block: 56px;
+  background: var(--vert-chat);
+  color: var(--blanc-casse);
+  overflow: hidden;
+}
+
+.direction-b .db-palais-inner {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.direction-b .db-palais-copy {
+  padding-block: 32px;
+}
+
+.direction-b .db-palais .db-label > span {
+  background: var(--or-clair);
+  color: var(--noir);
+}
+
+.direction-b .db-palais h2 {
+  margin-bottom: 24px;
+  font-size: clamp(3rem, 5.5vw, 5.25rem);
+  line-height: 0.97;
+}
+
+.direction-b .db-palais-copy > p:not(.db-label) {
+  max-width: 42ch;
+  margin-bottom: 28px;
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.direction-b .db-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: 58px;
+  padding: 16px 23px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color var(--dur-base) var(--ease);
+}
+
+.direction-b .db-button > span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.direction-b .db-button--light {
+  background: var(--creme-sable);
+  color: var(--noir);
+}
+
+.direction-b .db-button--light:hover {
+  background: var(--blanc-casse);
+  color: var(--noir);
+}
+
+.direction-b .db-moka-portrait {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 520px;
+  padding: 44px 18px 30px;
+  background-color: var(--creme-sable);
+  background-image: var(--dots-encre);
+  background-size: 18px 18px;
+  color: var(--noir);
+  border-radius: 220px 220px 32px 32px;
+}
+
+.direction-b .db-moka-portrait img {
+  z-index: 1;
+  width: min(70%, 240px);
+  height: auto;
+  margin-bottom: 12px;
+  transform: rotate(4deg);
+}
+
+.direction-b .db-moka-aside {
+  align-self: start;
+  margin-bottom: 24px;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.5vw, 2.125rem);
+  line-height: 1.1;
+  text-align: center;
+  transform: rotate(-4deg);
+}
+
+.direction-b .db-moka-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.direction-b .db-moka-name span {
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 400;
+}
+
+.direction-b .db-table {
+  padding-top: 64px;
+  margin-block: 0;
+}
+
+.direction-b .db-table-image {
+  width: 100%;
+  height: clamp(250px, 36vw, 440px);
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+.direction-b .db-table-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+}
+
+.direction-b .db-table figcaption {
+  margin-top: 16px;
+}
+
+.direction-b .db-download {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  padding-block: 88px 96px;
+}
+
+.direction-b .db-download h2 {
+  margin: 0;
+  font-size: clamp(2.5rem, 4.5vw, 4rem);
+  line-height: 1;
+}
+
+.direction-b .db-download-content {
+  padding-top: 6px;
+}
+
+.direction-b .db-download-content > p:first-child {
+  max-width: 44ch;
+  margin-bottom: 24px;
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+
+.direction-b .db-download .store-badges {
+  gap: 12px;
+}
+
+.direction-b .db-download .store-badge {
+  flex: 1 1 200px;
+  border-radius: var(--r-l);
+  min-height: 92px;
+  padding: 17px 18px;
+}
+
+.direction-b .db-download .store-badge--soon {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--ink-soft);
+}
+
+.direction-b .db-download .store-badge--soon .store-badge__hint {
+  color: var(--ink-soft);
+}
+
+.direction-b .db-download .db-download-note {
+  margin: 20px 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 960px) {
+  .direction-b .db-wrap {
+    width: calc(100% - 48px);
+  }
+
+  .direction-b .db-discover {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+    gap: 28px;
+  }
+
+  .direction-b .db-palais-inner {
+    grid-template-columns: 1fr 0.8fr;
+    gap: 28px;
+  }
+
+  .direction-b .db-download {
+    gap: 40px;
+    padding-block: 72px;
+  }
+}
+
+@media (max-width: 700px) {
+  .direction-b .db-wrap {
+    width: calc(100% - 40px);
+  }
+
+  .direction-b .db-opening {
+    padding-top: 40px;
+    border-radius: 28px 28px 0 0;
+  }
+
+  .direction-b .db-discover {
+    grid-template-columns: 1fr;
+    gap: 26px;
+    scroll-margin-top: 118px;
+  }
+
+  .direction-b .db-addresses {
+    padding: 0;
+  }
+
+  .direction-b .db-label {
+    margin-bottom: 18px;
+    font-size: 0.625rem;
+  }
+
+  .direction-b .db-food-image {
+    min-height: 0;
+    height: clamp(270px, 74vw, 420px);
+    border-radius: 110px 110px 24px 24px;
+  }
+
+  .direction-b .db-food-note {
+    bottom: 18px;
+    left: 18px;
+  }
+
+  .direction-b .db-map-callout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding-block: 24px;
+    margin-top: 20px;
+  }
+
+  .direction-b .db-map-callout p {
+    font-size: 1.5rem;
+  }
+
+  .direction-b .db-palais-inner {
+    grid-template-columns: 1fr;
+    gap: 0;
+    width: 100%;
+  }
+
+  .direction-b .db-palais-copy {
+    padding: 0 20px 30px;
+  }
+
+  .direction-b .db-palais h2 {
+    font-size: clamp(3rem, 12vw, 4.75rem);
+  }
+
+  .direction-b .db-palais-copy > p:not(.db-label) {
+    max-width: 40ch;
+  }
+
+  .direction-b .db-moka-portrait {
+    min-height: 0;
+    padding: 38px 20px 28px;
+    margin: 0 20px 30px;
+    border: 0;
+    border-radius: 160px 160px 28px 28px;
+  }
+
+  .direction-b .db-moka-aside {
+    margin-bottom: 20px;
+    font-size: 1.9rem;
+  }
+
+  .direction-b .db-moka-portrait img {
+    width: 170px;
+    margin-bottom: 8px;
+  }
+
+  .direction-b .db-table {
+    padding-top: 40px;
+  }
+
+  .direction-b .db-table-image {
+    height: 300px;
+  }
+
+  .direction-b .db-download {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-block: 52px 60px;
+  }
+
+  .direction-b .db-download h2 {
+    font-size: clamp(2.3rem, 10vw, 3.75rem);
+  }
+
+  .direction-b .db-download-content {
+    padding: 0;
+  }
+
+  .direction-b .db-download .store-badge {
+    flex-basis: 100%;
+  }
+}

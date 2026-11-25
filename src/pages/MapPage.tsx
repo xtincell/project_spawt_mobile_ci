@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 maplibregl.setWorkerUrl(mapWorkerUrl);
 import { loadPublicPlaces, type PublicPlace } from '../lib/public-places';
 export default function MapPage() {
+  const [searchParams] = useSearchParams();
+  const requestedPlace = searchParams.get('lieu')?.trim() || null;
+  const requestedQuery = searchParams.get('q') || '';
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const detail = useRef<HTMLElement>(null);
+  const resolvedTarget = useRef<string | null>(null);
+  const pendingDetailFocus = useRef<string | null>(null);
   const [places, setPlaces] = useState<PublicPlace[]>([]);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(requestedQuery);
   const [selected, setSelected] = useState<string | null>(null);
+  const [missingLinkedPlace, setMissingLinkedPlace] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [mapError, setMapError] = useState(false);
@@ -17,6 +25,7 @@ export default function MapPage() {
   const [attempt, setAttempt] = useState(0);
   const filtered = useMemo(() => places.filter(p => `${p.name} ${p.neighborhood} ${p.cuisine.join(' ')}`.toLocaleLowerCase('fr').includes(query.toLocaleLowerCase('fr'))), [places, query]);
   const active = places.find(p => p.id === selected);
+  useEffect(() => setQuery(requestedQuery), [requestedQuery]);
   useEffect(() => {
     const controller = new AbortController(); setLoading(true); setError(false);
     loadPublicPlaces(controller.signal).then(setPlaces).catch(e => {if (e.name !== 'AbortError') setError(true);}).finally(() => {if (!controller.signal.aborted) setLoading(false);});
@@ -33,6 +42,25 @@ export default function MapPage() {
     return () => {map.current?.remove(); map.current = null;};
   }, []);
   useEffect(() => {
+    if (loading || error) return;
+    const target = `${attempt}:${requestedPlace ?? ''}`;
+    if (resolvedTarget.current === target) return;
+    resolvedTarget.current = target;
+    const linkedPlace = requestedPlace ? places.find(p => p.id === requestedPlace) : undefined;
+    setMissingLinkedPlace(!!requestedPlace && !linkedPlace);
+    setSelected(linkedPlace?.id ?? null);
+    pendingDetailFocus.current = linkedPlace?.id ?? null;
+    if (linkedPlace?.lng != null && linkedPlace.lat != null) {
+      map.current?.flyTo({center: [linkedPlace.lng, linkedPlace.lat], zoom: 14, essential: false});
+    }
+  }, [requestedPlace, loading, error, places, attempt]);
+  useEffect(() => {
+    if (!active || pendingDetailFocus.current !== active.id || !detail.current) return;
+    pendingDetailFocus.current = null;
+    detail.current.focus({preventScroll: true});
+    detail.current.scrollIntoView({behavior: 'auto', block: 'start'});
+  }, [active]);
+  useEffect(() => {
     if (!map.current) return;
     const markers = filtered.filter(p => p.lat !== null && p.lng !== null).map(p => {
       const button = document.createElement('button'); button.type = 'button'; button.className = `spot-pin${selected === p.id ? ' spot-pin--active' : ''}`; button.setAttribute('aria-label', p.name); button.textContent = '●'; button.onclick = () => setSelected(p.id);
@@ -46,8 +74,9 @@ export default function MapPage() {
     <label className="spot-search">Chercher une adresse ou un quartier<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Kaiten, Zone 4…" type="search" /></label>
     {loading && <p role="status">Chargement des adresses…</p>}
     {error && <p role="alert">Les adresses sont indisponibles. <button onClick={()=>setAttempt(a=>a+1)}>Réessayer</button></p>}
+    {!loading && !error && missingLinkedPlace && <p role="status">Ce lieu n’est pas disponible dans les adresses publiées. Tu peux explorer les autres spots ci-dessous.</p>}
     <div className={`spot-explorer__grid${mapUnavailable ? " spot-explorer__grid--list" : ""}`}><section aria-label="Carte des spots" className={`spot-map${mapUnavailable ? " spot-map--unavailable" : ""}`}><div ref={container} className="spot-map__canvas"/>{mapError && <p className="spot-map__notice">{mapUnavailable ? "Ce navigateur ne permet pas d’afficher la carte interactive. Retrouvez toutes les adresses dans les fiches ci-dessous." : "Le fond de carte est momentanément indisponible. Les fiches restent accessibles."}</p>}</section>
     <section className="spot-list" aria-label="Liste des spots"><p aria-live="polite">{filtered.length} adresse{filtered.length !== 1 ? 's' : ''} · {filtered.filter(p => p.lat !== null && p.lng !== null).length} sur la carte</p>{!loading && !error && filtered.length === 0 && <p>Aucune adresse pour cette recherche.</p>}{filtered.map(p=><button key={p.id} className={`spot-card${selected===p.id?' spot-card--active':''}`} aria-pressed={selected===p.id} onClick={()=>select(p)}><strong>{p.name}</strong><span>{p.neighborhood || p.city}</span>{p.cuisine.length>0 && <small>{p.cuisine.join(' · ')}</small>}</button>)}</section></div>
-    {active && <section className="spot-detail" aria-label={`Fiche ${active.name}`}><button className="spot-detail__close" onClick={()=>setSelected(null)} aria-label="Fermer la fiche">×</button><p className="eyebrow">LA FICHE</p><h2>{active.name}</h2><p>{active.descriptive_address || active.neighborhood || active.city}</p>{active.cuisine.length>0 && <p>{active.cuisine.join(' · ')}</p>}{(active.lat === null || active.lng === null) && <p>Localisation à préciser — cette fiche reste accessible sans point sur la carte.</p>}<p className="muted">Les horaires, tarifs et disponibilités sont à confirmer auprès du lieu.</p></section>}
+    {active && <section ref={detail} tabIndex={-1} style={{scrollMarginTop: '7rem'}} className="spot-detail" aria-label={`Fiche ${active.name}`}><button className="spot-detail__close" onClick={()=>setSelected(null)} aria-label="Fermer la fiche">×</button><p className="eyebrow">LA FICHE</p><h2>{active.name}</h2><p>{active.descriptive_address || active.neighborhood || active.city}</p>{active.cuisine.length>0 && <p>{active.cuisine.join(' · ')}</p>}{(active.lat === null || active.lng === null) && <p>Localisation à préciser — cette fiche reste accessible sans point sur la carte.</p>}<p className="muted">Les horaires, tarifs et disponibilités sont à confirmer auprès du lieu.</p></section>}
   </main>;
 }

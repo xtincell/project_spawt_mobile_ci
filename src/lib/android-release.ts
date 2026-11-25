@@ -9,7 +9,7 @@ export const FALLBACK_ANDROID_RELEASE: AndroidRelease = {
   url: `/downloads/${pinnedRelease.fileName}`,
 };
 
-export function parseAndroidRelease(value: unknown): AndroidRelease | null {
+export function parseAndroidRelease(value: unknown, channel: 'public' | 'pilot' = 'public'): AndroidRelease | null {
   if (!value || typeof value !== 'object') return null;
   const item = value as Record<string, unknown>;
   if (item.schemaVersion !== 1 || item.packageName !== 'com.upgraders.spawt'
@@ -20,7 +20,8 @@ export function parseAndroidRelease(value: unknown): AndroidRelease | null {
     || typeof item.sourceCommit !== 'string' || !/^[a-f0-9]{40}$/.test(item.sourceCommit)
     || typeof item.bytes !== 'number' || !Number.isSafeInteger(item.bytes) || item.bytes <= 0) return null;
   const fileName = `spawt-${item.version}-build${item.build}.apk`;
-  const url = `https://github.com/${repository}/releases/download/local-build-android-${item.buildDate}-${item.build}/${fileName}`;
+  const url = channel === 'pilot' ? `/pilot-delivery/${fileName}`
+    : `https://github.com/${repository}/releases/download/local-build-android-${item.buildDate}-${item.build}/${fileName}`;
   if (item.fileName !== fileName || item.url !== url) return null;
   return { version: item.version, build: item.build, sha256: item.sha256, sourceCommit: item.sourceCommit, bytes: item.bytes, fileName, url };
 }
@@ -41,33 +42,44 @@ export async function verifyLocalAndroidRelease(release: AndroidRelease, signal:
   return { ...release, url };
 }
 
-let current = FALLBACK_ANDROID_RELEASE;
+const localPilot = import.meta.env.DEV && import.meta.env.MODE === 'development' && import.meta.env.VITE_PILOT_LOCAL_APK === '1';
+// A private test entry must never start the public build while its own manifest is in flight.
+const initialRelease = localPilot ? undefined : FALLBACK_ANDROID_RELEASE;
+let current: AndroidRelease | undefined | null = initialRelease;
 let pending: Promise<void> | null = null;
 let lastAttempt = 0;
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 const snapshot = () => current;
 
-export async function refreshAndroidRelease(): Promise<void> {
+function publish(next: typeof current) {
+  if (next === current) return;
+  current = next;
+  listeners.forEach(listener => listener());
+}
+
+export async function refreshAndroidRelease(retry = false): Promise<void> {
   if (pending) return pending;
-  if (Date.now() - lastAttempt < 30_000) return;
+  if (!retry && Date.now() - lastAttempt < 30_000) return;
+  if (current === null) publish(undefined);
   lastAttempt = Date.now();
   pending = (async () => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 5_000);
     try {
-      const response = await fetch(ANDROID_CHANNEL_URL, { cache: 'no-store', credentials: 'omit', redirect: 'error', signal: controller.signal });
-      if (!response.ok) return;
-      const next = parseAndroidRelease(await response.json());
+      const response = await fetch(localPilot ? '/pilot-delivery/release.json' : ANDROID_CHANNEL_URL,
+        { cache: 'no-store', credentials: 'omit', redirect: 'error', signal: controller.signal });
+      if (!response.ok) throw new Error('Android manifest unavailable');
+      const next = parseAndroidRelease(await response.json(), localPilot ? 'pilot' : 'public');
+      if (!next) throw new Error('Invalid Android manifest');
       // A delayed response or a reverted channel must never downgrade a page.
-      if (!next || next.build <= current.build) return;
-      // Publication alone must not switch the main button away from our mirror.
-      const local = await verifyLocalAndroidRelease(next, controller.signal);
-      if (!local) return;
-      current = local;
-      listeners.forEach(listener => listener());
+      if (current && next.build <= current.build) return;
+      // Public metadata only becomes an offer once our own mirror proves it can deliver.
+      // The private endpoint validates the signed candidate and serves those exact bytes.
+      const available = localPilot ? next : await verifyLocalAndroidRelease(next, controller.signal);
+      if (available) publish(available);
     } catch {
-      // Preserve the last verified link, including the bundled APK on first load.
+      if (!current) publish(null);
     } finally {
       clearTimeout(timer);
       pending = null;
@@ -76,8 +88,8 @@ export async function refreshAndroidRelease(): Promise<void> {
   return pending;
 }
 
-export function useAndroidRelease(): AndroidRelease {
-  const release = useSyncExternalStore(subscribe, snapshot, () => FALLBACK_ANDROID_RELEASE);
+export function useAndroidRelease() {
+  const release = useSyncExternalStore(subscribe, snapshot, () => initialRelease);
   useEffect(() => {
     const refresh = () => { if (!document.hidden) void refreshAndroidRelease(); };
     refresh();
