@@ -34,6 +34,7 @@ export default function App() {
         <Route element={<Layout header={<AccueilHeader />} className="accueil-layout" />}>
           <Route path="/" element={<Accueil />} />
           <Route path="/ouvrir/avis/le-cha-alexandre" element={<LeChaReview reader />} />
+          <Route path="/trouvailles/:slug" element={<LeChaReview reader />} />
         </Route>
         {import.meta.env.DEV && <Route element={<Layout header={<ShowcaseHeader />} className="showcase-layout" />}>
           <Route path="/_propositions/c" element={<DirectionC />} />
