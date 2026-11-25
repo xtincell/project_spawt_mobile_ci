@@ -22,7 +22,7 @@ function Member({ place }: { place: CommunityPlace }) {
   </div>;
 }
 
-export function PhotoCredit({ photo }: { photo: CommunityPlace["meal"] }) {
+export function PhotoCredit({ photo }: { photo: Pick<CommunityPlace["meal"], "credit" | "source"> }) {
   return photo.source ? <a href={photo.source} target="_blank" rel="noreferrer">{photo.credit}</a> : <span>{photo.credit}</span>;
 }
 

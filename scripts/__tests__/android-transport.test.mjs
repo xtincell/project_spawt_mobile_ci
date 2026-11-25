@@ -16,7 +16,8 @@ afterEach(() => folders.splice(0).forEach(folder => rmSync(folder, { recursive: 
 
 describe('Android artifact transport', () => {
   it('retains the previous version and preserves exact public archive targets', () => {
-    expect(validateDownloadConfig(current, history).map(release => release.build)).toEqual([42, 41]);
+    const previous = Math.max(...history.releases.map(release => release.build));
+    expect(validateDownloadConfig(current, history).map(release => release.build)).toEqual([current.build, previous]);
     const routes = renderDownloadRoutes(current, history);
     expect(routes).toContain('location = /downloads/spawt-latest.apk {');
     expect(routes).toContain(`return 307 "/downloads/${current.fileName}";`);
@@ -28,7 +29,9 @@ describe('Android artifact transport', () => {
     }
     expect(routes).not.toContain('$arg_');
     expect(routes).not.toContain('location ~');
-    expect(routes).not.toContain('location = /downloads/spawt-1.1.1-build41.apk');
+    for (const release of history.releases.filter(release => release.retainedLocally)) {
+      expect(routes).not.toContain(`location = /downloads/${release.fileName}`);
+    }
   });
 
   it('rejects ambiguous versions and untrusted archive destinations', () => {

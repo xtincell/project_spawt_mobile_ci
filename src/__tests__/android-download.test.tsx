@@ -6,7 +6,7 @@ afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.resetModules()
 
 it('updates both buttons together and preserves the last link after a downgrade or outage', async () => {
   const build = pinned.build + 2;
-  const fileName = `spawt-1.1.1-build${build}.apk`;
+  const fileName = `spawt-${pinned.version}-build${build}.apk`;
   const url = `https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-${build}/${fileName}`;
   const publication = { ...pinned, schemaVersion: 1, packageName: 'com.upgraders.spawt', buildDate: '2026-10-18', build, fileName, url };
   const localUrl = `/downloads/${fileName}`;
@@ -32,7 +32,7 @@ it('updates both buttons together and preserves the last link after a downgrade 
   let now = Date.now();
   vi.spyOn(Date, 'now').mockImplementation(() => now);
   const olderBuild = build - 1;
-  const olderName = `spawt-1.1.1-build${olderBuild}.apk`;
+  const olderName = `spawt-${pinned.version}-build${olderBuild}.apk`;
   fetcher.mockImplementation(async () => new Response(JSON.stringify({ ...publication, build: olderBuild, fileName: olderName,
     url: `https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-18-${olderBuild}/${olderName}` })));
   now += 31_000;
