@@ -1,0 +1,109 @@
+{
+  "verifiedOn": "2026-11-25",
+  "places": [
+    {
+      "name": "Kaiten",
+      "city": "Abidjan",
+      "neighborhood": "Marcory · Zone 4",
+      "address": "Rue du Docteur Blanchard",
+      "spawtId": "a1000000-0000-4000-8000-000000000001",
+      "source": "https://www.kaiten.ci/fr/",
+      "assets": [
+        {
+          "role": "plat",
+          "file": "kaiten-nigiri.webp",
+          "width": 1080,
+          "height": 547,
+          "originalWidth": 1600,
+          "originalHeight": 810,
+          "credit": "Kaiten Sushi & More · galerie officielle du catalogue SPAWT",
+          "alt": "Un nigiri surmonté d’une tranche grillée et entouré d’une bande d’algue, servi sur une assiette blanche.",
+          "source": "https://api.spawt.online/storage/v1/object/public/place-covers/places/a1000000-0000-4000-8000-000000000001/official-20261009-8a6f300bdb3a139c.jpg",
+          "rights": "Visuel officiel déjà diffusé dans la galerie publique SPAWT de cet établissement. Le restaurant conserve ses droits. Réduction proportionnelle et conversion en WebP."
+        },
+        {
+          "role": "enseigne",
+          "file": "kaiten-enseigne.webp",
+          "width": 349,
+          "height": 120,
+          "originalWidth": 349,
+          "originalHeight": 120,
+          "credit": "Kaiten Sushi & More",
+          "alt": "Kaiten Sushi & More",
+          "source": "https://www.kaiten.ci/images/interface/logo-kaiten-small.png",
+          "rights": "Logotype du restaurant, utilisé pour désigner cet établissement. Conversion en WebP sans perte."
+        }
+      ]
+    },
+    {
+      "name": "dipndip",
+      "city": "Abidjan",
+      "neighborhood": "Marcory · Prima Center",
+      "spawtId": "85433084-a972-563c-b9d1-6fac34f776d9",
+      "branchSource": "https://api.dipndip.fmqtemplate.tech/api/branches?lang=fr&countryId=36",
+      "branchAnnouncement": "https://www.instagram.com/p/Df115_fIYwe/",
+      "assets": [
+        {
+          "role": "enseigne",
+          "file": "dipndip-enseigne.webp",
+          "width": 1000,
+          "height": 316,
+          "originalWidth": 1000,
+          "originalHeight": 316,
+          "credit": "dipndip · Wikimedia Commons",
+          "alt": "dipndip",
+          "source": "https://commons.wikimedia.org/wiki/File:Dipndip_logo.png",
+          "original": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Dipndip_logo.png",
+          "rights": "Domaine public selon la fiche Wikimedia Commons (PD-textlogo). La marque reste la propriété de dipndip. Version du logo déposée sur Commons, utilisée pour identifier l’enseigne. Conversion en WebP sans perte."
+        },
+        {
+          "role": "entrée du centre commercial",
+          "file": "dipndip-prima-center.webp",
+          "width": 1024,
+          "height": 768,
+          "originalWidth": 1024,
+          "originalHeight": 768,
+          "credit": "Citizen59 · Flickr · CC BY-SA 2.0",
+          "alt": "L’enseigne PRIMA au-dessus de l’entrée du centre commercial de Marcory, à Abidjan.",
+          "depicts": "Entrée de Prima Center, qui abrite dipndip. Photographie du 8 octobre 2016.",
+          "source": "https://www.flickr.com/photos/t_abdelmoumen/29916948540",
+          "original": "https://live.staticflickr.com/5028/29916948540_356abf6b6e_b.jpg",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+          "adaptation": "Conversion JPEG en WebP, cadre intégral conservé. La version WebP conserve la même licence."
+        },
+        {
+          "role": "photographie d’illustration du dessert",
+          "file": "dipndip-crepe-illustration.webp",
+          "width": 1100,
+          "height": 825,
+          "originalWidth": 3456,
+          "originalHeight": 2592,
+          "credit": "Amanda Slater · Wikimedia Commons · CC BY-SA 4.0",
+          "alt": "Crêpe aux fraises fraîches et filets de chocolat, photographiée au restaurant La Petite Bretagne à Londres.",
+          "caption": "Crêpe chocolat-fraises · illustration, Londres",
+          "depicts": "Dessert de la crêperie La Petite Bretagne, Hammersmith, Londres, photographié le 6 septembre 2025. La publication du compte ivoirien de dipndip accompagne cette illustration.",
+          "source": "https://commons.wikimedia.org/wiki/File:La_Petite_Bretagne.jpg",
+          "original": "https://upload.wikimedia.org/wikipedia/commons/d/d8/La_Petite_Bretagne.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+          "photographerSource": "https://www.flickr.com/photos/pikerslanefarm/54775933040/",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "adaptation": "Réduction proportionnelle et conversion WebP, cadre intégral. La version WebP conserve la même licence."
+        },
+        {
+          "role": "publication ivoirienne du plat",
+          "kind": "lien externe",
+          "file": null,
+          "permalink": "https://www.instagram.com/p/DgABPJIg3hl/",
+          "previewWidth": 640,
+          "previewHeight": 639,
+          "credit": "dipndip Côte d’Ivoire · Instagram, 21 novembre 2026",
+          "alt": "Crêpes nappées de chocolat dans la publication de dipndip Côte d’Ivoire.",
+          "depicts": "Crêpes présentées par l’enseigne pour ses restaurants d’Abidjan. La succursale où cette image a été prise n’est pas précisée.",
+          "fallbackLabel": "Voir les crêpes de dipndip Côte d’Ivoire sur Instagram",
+          "rights": "Lien vers la publication publique originale de dipndip Côte d’Ivoire. Aucun hébergement de ce média par SPAWT."
+        }
+      ]
+    }
+  ]
+}

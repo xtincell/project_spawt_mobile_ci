@@ -1,52 +1,58 @@
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router";
 import ApkDownload from "./ApkDownload";
-import review from "../lib/le-cha-review.json";
+import PlaceReviewCard, { PhotoCredit } from "./PlaceReviewCard";
+import { communityPlaces, type CommunityPlace } from "../lib/community-places";
 import "../styles/le-cha-review.css";
 
-const publicPath = "/ouvrir/avis/le-cha-alexandre";
-const androidIntent = "intent://spawt.online" + publicPath + "#Intent;scheme=https;package=com.upgraders.spawt;S.browser_fallback_url=" + encodeURIComponent("https://spawt.online" + publicPath + "#installer") + ";end";
-const average = review.ratings.reduce((total, rating) => total + rating.value, 0) / review.ratings.length;
+const media = "/brand/editorial/";
+const icons = "/brand/accueil/";
+const leChaRoute = "/ouvrir/avis/le-cha-alexandre";
+function reviewLink(place: CommunityPlace, reader: boolean) {
+  const localReader = place.slug === "le-cha" ? leChaRoute : "/trouvailles/" + place.slug;
+  const android = /Android/i.test(navigator.userAgent);
+  if (!android || (place.slug === "le-cha" && !reader)) return localReader;
+  const fallback = encodeURIComponent("https://spawt.online" + localReader + "#installer");
+  const intent = place.slug === "le-cha" ? "spawt.online" + leChaRoute + "#Intent;scheme=https" : "place/" + place.id + (place.slug === "dipndip" ? "" : "/reviews") + "#Intent;scheme=spawt";
+  return "intent://" + intent + ";package=com.upgraders.spawt;S.browser_fallback_url=" + fallback + ";end";
+}
+
+function PlacePanel({ place, reader }: { place: CommunityPlace; reader: boolean }) {
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  return <div className="lecha-layout" data-place={place.slug}>
+    <figure className="lecha-experience">
+      <img className="lecha-photo" src={media + place.meal.src}
+        srcSet={place.slug === "le-cha" ? media + "lecha-table-480.webp 480w, " + media + place.meal.src + " 960w" : undefined}
+        sizes="(max-width: 760px) 100vw, (max-width: 1250px) 52vw, 620px"
+        loading={reader ? "eager" : "lazy"} decoding="async" alt={place.meal.alt} />
+      <figcaption><span>{place.meal.caption ?? ("À table chez " + place.name)}</span> <PhotoCredit photo={place.meal} />
+        {place.meal.venueSource && <a className="lecha-local-dessert" href={place.meal.venueSource} target="_blank" rel="noreferrer">Voir les crêpes de DipnDip à Abidjan</a>}
+      </figcaption>
+    </figure>
+    <div className="lecha-card-wrap"><PlaceReviewCard place={place} reader={reader} appHref={reviewLink(place, reader)} showApp={!reader || isAndroid} />
+      {reader && <div id="installer" className="lecha-install"><ApkDownload className="accueil-lien" /></div>}
+    </div>
+    <Link className="accueil-lien lecha-map-link" to={reader ? "/carte?lieu=" + place.id : "/carte"}>
+      {reader ? "Voir la fiche sur la carte" : "Explorer les adresses d’Abidjan"} <img className="accueil-nav-icon" src={icons + "suivant.png"} alt="" />
+    </Link>
+  </div>;
+}
 
 export function LeChaReview({ reader = false }: { reader?: boolean }) {
-  const android = /Android/i.test(navigator.userAgent);
+  const { slug } = useParams();
+  const [selected, setSelected] = useState(0);
+  const recognized = communityPlaces.find(p => p.slug === slug);
+  const current = reader ? (recognized ?? communityPlaces[0]) : communityPlaces[selected];
+  useEffect(() => { if (reader) document.title = current.name + " · Avis | SPAWT"; }, [current, reader]);
   const Heading = reader ? "h1" : "h2";
-  return (
-    <section id="le-cha" className="lecha" aria-labelledby="lecha-heading">
-      <div className="lecha-layout">
-        <Heading id="lecha-heading">{reader ? "L’avis d’Alexandre" : "Les trouvailles de la Bande"}<b>.</b></Heading>
-        <figure className="lecha-experience">
-          <img className="lecha-photo" src="/brand/editorial/lecha-table-960.webp"
-            srcSet="/brand/editorial/lecha-table-480.webp 480w, /brand/editorial/lecha-table-960.webp 960w"
-            sizes="(max-width: 760px) 100vw, (max-width: 1250px) 52vw, 620px" width={960} height={1280}
-            loading={reader ? "eager" : "lazy"} decoding="async" alt={review.photoAlt} />
-          <figcaption>À table chez Le Cha <span>Photo d’Alexandre</span></figcaption>
-        </figure>
-        <article className="lecha-card" aria-label="Avis d’Alexandre sur Le Cha">
-          <header className="lecha-card__head">
-            <img className="lecha-front" src="/brand/editorial/le-cha-devanture.webp" width={75} height={88} alt={review.frontAlt} />
-            <div><h3>{review.name}</h3><span className="lecha-city">{review.area} · {review.city}</span></div>
-            <span className="lecha-score" aria-label={`Note globale : ${average} sur 5`}>{average}<small>/5</small></span>
-          </header>
-          <div className="lecha-author">
-            <span className="lecha-avatar"><img src="/brand/moka-salut.webp" alt="" width={40} height={40} loading="lazy" /></span>
-            <span><strong>{review.author}</strong><small>{review.stage}</small></span>
-          </div>
-          <blockquote>« {review.quote} »</blockquote>
-          <dl className="lecha-ratings">
-            {review.ratings.map(({ label, value }) => (
-              <div key={label}><dt>{label}</dt><dd>{value}<span>/5</span></dd></div>
-            ))}
-          </dl>
-          {(!reader || android) && <a className="lecha-open" href={reader ? androidIntent : publicPath}>
-            {reader ? "Ouvrir dans SPAWT" : "Lire l’avis dans SPAWT"}
-            <img src="/brand/accueil/suivant.png" alt="" width={16} height={16} />
-          </a>}
-          {reader && <div id="installer" className="lecha-install"><ApkDownload className="accueil-lien" /></div>}
-        </article>
-        <Link className="accueil-lien lecha-map-link" to={reader ? `/carte?lieu=${review.placeId}` : "/carte"}>
-          {reader ? "Voir la fiche de Le Cha" : "Explorer les adresses d’Abidjan"} <img className="accueil-nav-icon" src="/brand/accueil/suivant.png" alt="" />
-        </Link>
-      </div>
-    </section>
-  );
+  if (reader && slug && !recognized) return <section className="lecha"><h1>Adresse introuvable</h1><Link to="/#le-cha">Retrouver les trouvailles</Link></section>;
+  return <section id="le-cha" className="lecha" aria-labelledby="lecha-heading">
+    <div className="lecha-section-head">
+      <Heading id="lecha-heading">{reader ? "L’avis sur " + current.name : "Les trouvailles de la Bande"}<b>.</b></Heading>
+      {!reader && <div className="lecha-choices" role="group" aria-label="Choisir une adresse">
+        {communityPlaces.map((place, index) => <button key={place.id} type="button" aria-pressed={index === selected} onClick={() => setSelected(index)}>{place.name}</button>)}
+      </div>}
+    </div>
+    <PlacePanel key={current.id} place={current} reader={reader} />
+  </section>;
 }
