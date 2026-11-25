@@ -8,10 +8,10 @@ import "../styles/le-cha-review.css";
 const media = "/brand/editorial/";
 const icons = "/brand/accueil/";
 const leChaRoute = "/ouvrir/avis/le-cha-alexandre";
-function reviewLink(place: CommunityPlace, reader: boolean) {
+function reviewLink(place: CommunityPlace) {
   const localReader = place.slug === "le-cha" ? leChaRoute : "/trouvailles/" + place.slug;
   const android = /Android/i.test(navigator.userAgent);
-  if (!android || (place.slug === "le-cha" && !reader)) return localReader;
+  if (!android) return localReader;
   const fallback = encodeURIComponent("https://spawt.online" + localReader + "#installer");
   const intent = place.slug === "le-cha" ? "spawt.online" + leChaRoute + "#Intent;scheme=https" : "place/" + place.id + (place.slug === "dipndip" ? "" : "/reviews") + "#Intent;scheme=spawt";
   return "intent://" + intent + ";package=com.upgraders.spawt;S.browser_fallback_url=" + fallback + ";end";
@@ -29,7 +29,7 @@ function PlacePanel({ place, reader }: { place: CommunityPlace; reader: boolean 
         {place.meal.venueSource && <a className="lecha-local-dessert" href={place.meal.venueSource} target="_blank" rel="noreferrer">Voir les crêpes de DipnDip à Abidjan</a>}
       </figcaption>
     </figure>
-    <div className="lecha-card-wrap"><PlaceReviewCard place={place} reader={reader} appHref={reviewLink(place, reader)} showApp={!reader || isAndroid} />
+    <div className="lecha-card-wrap"><PlaceReviewCard place={place} reader={reader} appHref={reviewLink(place)} showApp={!reader || isAndroid} />
       {reader && <div id="installer" className="lecha-install"><ApkDownload className="accueil-lien" /></div>}
     </div>
     <Link className="accueil-lien lecha-map-link" to={reader ? "/carte?lieu=" + place.id : "/carte"}>
