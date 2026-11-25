@@ -11,6 +11,15 @@ function nextRelease(build = pinned.build + 1) {
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.resetModules(); });
 
 describe('Android publication channel', () => {
+  it('only accepts a local APK from its explicitly selected pilot manifest', async () => {
+    const { parseAndroidRelease } = await import('../android-release');
+    const candidate = nextRelease();
+    const local = { ...candidate, url: `/pilot-delivery/${candidate.fileName}` };
+    expect(parseAndroidRelease(local, 'pilot')?.url).toBe(local.url);
+    expect(parseAndroidRelease(local)).toBeNull();
+    expect(parseAndroidRelease(candidate, 'pilot')).toBeNull();
+    expect(parseAndroidRelease({ ...local, url: '/pilot-delivery/other.apk' }, 'pilot')).toBeNull();
+  });
   it('accepts a newer verified release and refuses unrelated links or downgrades', async () => {
     const { parseAndroidRelease } = await import('../android-release');
     expect(parseAndroidRelease(nextRelease())?.build).toBe(pinned.build + 1);

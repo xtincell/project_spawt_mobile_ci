@@ -30,6 +30,12 @@
   --gris-moyen: #8a8a8a;
   --erreur: #b3261e;
 
+  /* Surfaces sampled from the ImageGen reference accepted for the landing. */
+  --reference-cream: #f4eee1;
+  --reference-paper: #fbf5eb;
+  --reference-gold: #b58b35;
+  --reference-plate: #e4e0e2;
+
   /* ── Sémantique surfaces / texte ───────────────── */
   --bg: var(--blanc-casse);
   --bg-card: var(--blanc-pur);

@@ -12,11 +12,14 @@ it('updates both buttons together and preserves the last link after a downgrade 
   const fetcher = vi.fn().mockImplementation(async () => new Response(JSON.stringify(publication)));
   vi.stubGlobal('fetch', fetcher);
   const { default: StoreBadges } = await import('../components/StoreBadges');
-  render(<><StoreBadges /><StoreBadges /></>);
-  const buttons = () => screen.getAllByRole('link', { name: /Télécharger SPAWT pour Android/ });
+  const { default: ApkDownload } = await import('../components/ApkDownload');
+  render(<><StoreBadges /><ApkDownload /></>);
+  const buttons = () => screen.getAllByRole('link', { name: /Télécharger SPAWT pour Android|Télécharger l’APK/ });
   expect(buttons()).toHaveLength(2);
   expect(buttons()[0]).toHaveAttribute('href', `/downloads/${pinned.fileName}`);
+  expect(buttons()[1]).toHaveAttribute('href', `/downloads/${pinned.fileName}`);
   await waitFor(() => buttons().forEach(button => expect(button).toHaveAttribute('href', url)));
+  buttons().forEach(button => expect(button).toHaveAttribute('download', fileName));
   expect(fetcher).toHaveBeenCalledTimes(1);
 
   let now = Date.now();

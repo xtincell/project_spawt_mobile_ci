@@ -1,0 +1,32 @@
+SPAWT - ASSETS DE MARQUE POUR MAQUETTES
+Recuperation et verification : 29 octobre 2026
+Aucun dessin, recoloriage, ajout ni reinterpretation. Sources originales conservees dans work/brand-assets-revision.
+Manifeste V4 : https://drive.google.com/file/d/181qgYFXYD9VTUzexiTcREUIcdV9rU9NW/view
+
+pattern-v4.webp
+Source : https://drive.google.com/file/d/1cip2ccwE2CLNtOXYmxp9vPnqncGOmSMz/view
+Fichier source : pattern-v4-approved.png
+SHA256 source : dc78e7b3848a31c96e3bc96a6151349f2fcbb48634ce27adca1dcf6fd28d6c74
+SHA256 livre : 9d73398988323ec4a761cf9b5b422266aed9496e6d924eb5c704a778b82f37d9
+Statut : VALIDE V4. Empreinte source conforme au PUBLIC_MANIFEST.json du lot approuve. Conversion WebP sans perte, dimensions et pixels RGBA identiques.
+
+duo.svg
+Source : https://drive.google.com/file/d/10UQAvdIIvBXzEWf7PvfDIJ_JKHrIaQpo/view
+Fichier source : duo-master.svg
+SHA256 source : 31673910567be4459add3dabe16c667f89ea19944dbc10ad38b827afc9fda0a7
+SHA256 livre : 31673910567be4459add3dabe16c667f89ea19944dbc10ad38b827afc9fda0a7
+Statut : MASTER CANONIQUE V4 VALIDE. Empreinte source conforme au manifeste approuve. Copie exacte, aucun remaniement.
+
+pin.svg
+Source : https://drive.google.com/file/d/1jal-ZU_uhZl_nApUgKkrv_RnAxWwGHvE/view
+Fichier source : pin-master.svg
+SHA256 source : cb0d4624e787f24c7c8d558d1655bcf3e7587bd08315d971c14ea041e66f5da5
+SHA256 livre : cb0d4624e787f24c7c8d558d1655bcf3e7587bd08315d971c14ea041e66f5da5
+Statut : MASTER CANONIQUE V4 VALIDE. Empreinte source conforme au manifeste approuve. Copie exacte, aucun remaniement.
+
+moka-regale.webp
+Source : https://drive.google.com/file/d/14AjeRCR_4XoyLI_PSioL6fIyo8qh6M_M/view
+Fichier source : moka-regale.png
+SHA256 source : 1aec1365d26f828b4ed1e509d09b27e6d654e9e58d9944507cfbf6c5e3fca4b9
+SHA256 livre : 98d5ef2ca0807a78a1e9e9e0dcbd86bbb39fb198fa85b1f83613a09d7dfdde99
+Statut : BIBLIOTHEQUE HISTORIQUE EXISTANTE. Validation individuelle non reevaluee. Nouvelle reutilisation en maquette seulement ; aucune nouvelle validation globale ni publication revendiquee. Conversion WebP sans perte, dimensions et pixels RGBA identiques.

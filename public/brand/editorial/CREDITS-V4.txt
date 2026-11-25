@@ -1,0 +1,18 @@
+SPAWT — accueil corrigé d'après la référence ImageGen
+
+ACTIF ACTUEL
+reference-approved.webp est la conversion WebP sans perte de SPAWT-v4-imagegen.png (1586 × 992), la maquette demandée pour l'implémentation.
+Les composants SVG affichent des régions de cette source pour conserver exactement le lettrage, le plat et son motif, ainsi que Moka et sa légende. Les filtres retirent le fond du lettrage ; ils ne génèrent pas un nouveau dessin.
+Les textes accessibles, les liens, le téléchargement, les commandes du carrousel et le contenu du reste de la page sont des éléments HTML interactifs.
+Le logo et les mascottes des scènes supplémentaires utilisent les fichiers SPAWT existants. Polices du texte HTML : Klinsman et Gotham.
+
+PROVENANCE CULINAIRE
+La maquette ImageGen avait comme référence photographique le poulet grillé de Shourav Sheikh :
+https://www.pexels.com/photo/grilled-chicken-on-a-plate-5695611/
+Licence de la référence : https://www.pexels.com/license/
+Le résultat est une composition générée, pas la photographie originale inchangée. La mention visible dans la maquette désigne la référence photographique ; le pied de page précise la génération.
+Aucune provenance ivoirienne ni association avec un lieu du catalogue n'est revendiquée.
+
+ACTIF HISTORIQUE
+hero-v4-food.webp correspond à la première tentative de détourage généré (PNG source 1254 × 1254, WebP avec transparence). Il est conservé mais n'est plus utilisé par l'accueil corrigé.
+Le motif autonome utilisé dans les sections complémentaires est documenté dans ../decor/SOURCES-ASSETS.txt.

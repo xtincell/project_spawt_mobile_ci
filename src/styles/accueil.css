@@ -1,0 +1,149 @@
+.accueil-layout {
+  --papier: var(--reference-paper);
+  --gout-or: var(--or);
+  --marge: clamp(20px, 4.2vw, 112px);
+  background: var(--papier);
+}
+.accueil-layout .page-main { min-width: 0; }
+.accueil { background: var(--papier); color: var(--ink); }
+.accueil-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; padding: 10px var(--marge); min-height: 74px;
+  background: var(--noir); color: var(--reference-cream);
+}
+.accueil-logo img { display: block; width: clamp(102px, 10vw, 168px); height: auto; }
+.accueil-header nav { display: flex; align-items: center; gap: clamp(18px, 3vw, 48px); }
+.accueil-header nav a {
+  color: inherit; font: 700 clamp(15px, 1.4vw, 22px)/1.2 var(--font-display);
+  text-decoration: none; padding-block: 12px;
+}
+.accueil-header nav a:hover { color: var(--or-clair); }
+.accueil-skip {
+  position: absolute; z-index: 20; top: -100px; left: var(--marge);
+  background: var(--papier); color: var(--noir); padding: 12px;
+}
+.accueil-skip:focus { top: 10px; }
+.accueil a.accueil-apk {
+  display: inline-flex; align-items: center; justify-content: center; gap: .58em;
+  min-height: 48px; padding: .55em 1.12em; border-radius: 80px;
+  font: 700 clamp(17px, 1.7vw, 29px)/1.2 var(--font-display);
+  letter-spacing: -.025em; text-decoration: none;
+  background: var(--or); color: var(--noir);
+}
+.accueil a.accueil-apk:hover { background: var(--or-clair); color: var(--noir); }
+.accueil-apk svg { width: 1.05em; height: 1.05em; }
+.accueil-ruban {
+  display: flex; position: relative; align-items: center; justify-content: center;
+  gap: clamp(16px, 3.5vw, 68px); padding: clamp(15px, 2.6vw, 42px) var(--marge);
+  color: var(--vert-chat-profond); text-decoration: none; background: var(--reference-cream);
+  border-bottom: 1px solid var(--line-strong);
+}
+.accueil-ruban img { width: clamp(80px, 13.2vw, 220px); height: auto; }
+.accueil-ruban > span:first-of-type {
+  padding-left: clamp(16px, 3.5vw, 68px); border-left: 2px solid var(--or);
+  font: 700 clamp(31px, 5.2vw, 88px)/1.05 var(--font-display); letter-spacing: -.05em;
+}
+.accueil-ruban-flèche { font-size: clamp(19px, 2.8vw, 45px); }
+.accueil b { color: var(--gout-or); }
+.accueil-ruban:hover span:first-of-type { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .12em; }
+.accueil-bande { display: grid; grid-template-columns: .9fr 1.1fr; background: var(--papier); }
+.accueil-table { min-height: 100%; position: relative; }
+.accueil-table img { position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: center 65%; }
+.accueil-adresses { padding: clamp(38px, 5.5vw, 100px) var(--marge); }
+.accueil-adresses h2, .accueil-palais h2, .accueil-installer h2 {
+  font: 700 clamp(40px, 4.85vw, 86px)/1.02 var(--font-display); letter-spacing: -.055em; margin: 0;
+}
+.accueil-adresses .live-places { margin: 25px 0 24px; }
+.accueil-adresses .live-places__intro { margin: 0 0 16px; }
+.accueil-adresses .live-places__list { grid-template-columns: 1fr; }
+.accueil-adresses .live-place { grid-template-columns: 1fr auto; align-items: center; padding: 16px 0; }
+.accueil-adresses .live-place__number { display: none; }
+.accueil-adresses .live-place h3 { font-size: clamp(21px, 1.95vw, 34px); margin: 3px 0; }
+.accueil-adresses .live-place__arrow { color: var(--vert-chat-profond); }
+.accueil-lien {
+  display: inline-flex; align-items: center; gap: 15px; min-height: 44px; color: inherit;
+  font: 500 15px/1.4 var(--font-body); text-decoration: underline; text-underline-offset: 6px;
+}
+.accueil-lien:hover { text-decoration-thickness: 2px; }
+.accueil-palais {
+  display: grid; grid-template-columns: 1fr .75fr; gap: 6%; align-items: center;
+  padding: clamp(50px, 6vw, 105px) max(var(--marge), calc((100vw - 1260px) / 2));
+  background: var(--vert-chat-profond); color: var(--papier); overflow: hidden;
+}
+.accueil-palais h2 { font-size: clamp(52px, 7vw, 120px); }
+.accueil-palais-texte p { max-width: 37ch; margin: 22px 0 16px; line-height: 1.65; }
+.accueil-palais .accueil-lien:hover { color: var(--or-clair); }
+.accueil-carte-palais {
+  justify-self: center; width: min(100%, 285px); background: var(--reference-cream); color: var(--ink);
+  margin: 12px 16px; padding: 18px 24px; border: 2px solid var(--or); border-radius: 16px;
+  transform: rotate(4deg); box-shadow: 7px 8px 0 var(--or), 12px 15px 0 var(--noir);
+}
+.accueil-carte-type { display: block; padding-bottom: 10px; border-bottom: 1px solid var(--line-strong); font-size: .75rem; }
+.accueil-carte-palais img { width: 100%; height: clamp(130px, 14vw, 198px); object-fit: contain; margin-block: 15px; }
+.accueil-carte-palais figcaption { display: grid; gap: 3px; padding-top: 10px; border-top: 1px solid var(--line-strong); }
+.accueil-carte-palais strong { font: 700 2.3rem/1 var(--font-display); }
+.accueil-carte-palais figcaption span { color: var(--vert-chat-profond); font-size: .85rem; }
+.accueil-installer {
+  background: var(--creme-sable); display: flex; justify-content: space-between; gap: 30px;
+  align-items: center; padding: clamp(40px, 5.3vw, 90px) var(--marge);
+}
+.accueil-installer-texte { display: flex; align-items: center; gap: clamp(14px, 2.6vw, 48px); }
+.accueil-installer-texte img { width: clamp(50px, 5.8vw, 95px); height: auto; }
+.accueil-installer h2 { font-size: clamp(34px, 4vw, 67px); }
+.accueil-installer p { margin: 8px 0 0; }
+.accueil-installer-action { flex: none; display: grid; text-align: center; justify-items: center; gap: 6px; }
+.accueil-installer-action > span { font-size: .8rem; }
+.accueil-installer-action a.accueil-apk { color: var(--papier); background: var(--noir); }
+.accueil-installer-action a.accueil-apk:hover { color: var(--papier); background: var(--vert-chat-profond); }
+.accueil-layout .site-footer { padding: clamp(34px, 4.3vw, 80px) var(--marge) 24px; }
+.accueil-layout .site-footer > .container { margin: 0 auto; width: 100%; max-width: 1600px; padding: 0; }
+.accueil-layout .site-footer__brand img { width: 154px; height: auto; }
+.accueil-layout .site-footer__cols { gap: clamp(20px, 4vw, 70px); }
+.accueil-layout .site-footer__legal { margin-bottom: 0; }
+@media (max-width: 760px) {
+  .accueil-header { min-height: 65px; }
+  .accueil-ruban { padding-block: 18px; gap: 14px; }
+  .accueil-ruban > span:first-of-type { padding-left: 14px; }
+  .accueil-bande { grid-template-columns: 1fr; }
+  .accueil-table { height: clamp(220px, 57vw, 385px); min-height: 0; }
+  .accueil-table img { object-position: center 70%; }
+  .accueil-palais { grid-template-columns: 1fr 36%; gap: 5%; }
+  .accueil-palais-texte p { font-size: .95rem; }
+  .accueil-carte-palais { width: 95%; padding: 12px; margin: 7px; }
+  .accueil-carte-palais strong { font-size: 1.65rem; }
+  .accueil-installer { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .accueil-logo img { width: 95px; }
+  .accueil-header { min-height: 60px; }
+  .accueil-header nav { gap: 16px; }
+  .accueil-header nav a { font-size: 15px; }
+  .accueil a.accueil-apk { min-height: 44px; font-size: 16px; padding-inline: 13px; }
+  .accueil-ruban img { width: 63px; }
+  .accueil-ruban > span:first-of-type { font-size: clamp(23px, 6.6vw, 32px); }
+  .accueil-ruban-flèche { font-size: 19px; }
+  .accueil-palais { grid-template-columns: 1fr; gap: 24px; }
+  .accueil-carte-palais { width: 190px; }
+  .accueil-carte-palais img { height: 104px; }
+  .accueil-installer-texte { align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has(.accueil-layout) { scroll-behavior: auto; }
+}
+
+.accueil .accueil-nav-icon { width: 16px; height: 16px; object-fit: contain; }
+.accueil-palais .accueil-nav-icon { filter: brightness(0) invert(1); }
+.pilot-offer { display: grid; justify-items: start; gap: 7px; }
+.pilot-offer small { font: 500 clamp(10px, 0.88vw, 14px)/1.5 var(--font-body); }
+.pilot-offer img { width: 1.13em; height: 1.13em; object-fit: contain; }
+.accueil-installer .pilot-offer img { filter: brightness(0) invert(1); }
+.accueil-installer .pilot-offer { justify-items: center; }
+.pilot-resume { width: min(92vw, 440px); max-height: 90dvh; padding: clamp(24px, 3vw, 40px); border: 1px solid var(--or); border-radius: 18px; background: var(--reference-paper); color: var(--noir); }
+.pilot-resume::backdrop { background: rgba(10,10,10,.72); }
+.pilot-resume form { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.pilot-resume button,.pilot-code-return { cursor: pointer; font: inherit; color: var(--vert-chat-profond); background: none; border: none; padding: 8px 0; text-decoration: underline; }
+.pilot-resume output { display: block; font: 700 clamp(19px,5vw,28px) monospace; letter-spacing: .12em; }
+.pilot-resume a.accueil-apk { font-size: 16px; margin: 0 0 20px; }
+.pilot-code-return { display: block; margin: 0 auto; padding: 14px; }
+.pilot-return { padding: 8vh 6vw; max-width: 680px; margin: auto; }
+.pilot-return-link { display: inline-block; background: var(--or); color: var(--noir); border-radius: 14px; padding: 14px 24px; margin-bottom: 24px; }

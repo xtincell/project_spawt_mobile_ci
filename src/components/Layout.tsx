@@ -9,7 +9,7 @@
 // compte, donc plus de provider, donc plus rien à charger avant le premier
 // rendu.
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, Outlet } from "react-router";
 import { CONTACT_EMAIL, QUIZ_URL, PUBLIC_BRAND_URL } from "../lib/config";
 import { usePublicBrand } from "../lib/public-brand";
@@ -17,7 +17,7 @@ import { usePublicBrand } from "../lib/public-brand";
 const FALLBACK_LOGO = "/brand/logo-horizontal-dark.webp";
 /** Match the public publisher's asset directory and the CSP, without remote
  * tracking/referrers. A broken edition image never removes the live identity. */
-function logoForSite(value: string | null) {
+export function logoForSite(value: string | null) {
   if (!value) return FALLBACK_LOGO;
   try {
     const url = new URL(value);
@@ -26,7 +26,7 @@ function logoForSite(value: string | null) {
       ? url.href : FALLBACK_LOGO;
   } catch { return FALLBACK_LOGO; }
 }
-function BrandLogo({ url, alt }: { url: string; alt: string }) {
+export function BrandLogo({ url, alt }: { url: string; alt: string }) {
   const [failed, setFailed] = useState(false);
   return <img src={failed ? FALLBACK_LOGO : url} alt={alt} width={340} height={141}
     referrerPolicy="no-referrer" onError={() => { if (!failed) setFailed(true); }} />;
@@ -101,10 +101,10 @@ function Footer() {
   );
 }
 
-export default function Layout() {
+export default function Layout({ header, className = "" }: { header?: ReactNode; className?: string } = {}) {
   return (
-    <div className="page">
-      <Header />
+    <div className={`page ${className}`}>
+      {header ?? <Header />}
       <main className="page-main">
         <Outlet />
       </main>

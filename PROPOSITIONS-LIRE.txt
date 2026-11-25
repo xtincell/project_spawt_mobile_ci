@@ -1,0 +1,37 @@
+SPAWT — CORRECTION DE FIDÉLITÉ À LA RÉFÉRENCE IMAGEGEN
+30 octobre 2026
+
+Page intégrée à / et à /_propositions/c en développement.
+État : aperçu et sources locaux. Aucun envoi Git, aucune publication sur spawt.online.
+
+CORRECTION
+Le cadrage du plat, son motif, le dessin du titre, la signature et la section Moka reprennent les éléments de la référence SPAWT-v4-imagegen.png. Les couleurs et proportions de la composition ont été recalées sur son plan de travail 1586 × 992.
+Le titre « Le bon goût se partage. » reste sur une ligne comme dans la référence. Le petit écran utilise une composition verticale, avec téléchargement avant la photo et Moka juste après.
+
+IMPLÉMENTATION
+public/brand/editorial/reference-approved.webp : source 1586 × 992 convertie sans perte, environ 1,5 Mo. Une même image est réutilisée par les régions SVG, avec une seule ressource réseau.
+src/pages/proposals/ReferenceArtwork.tsx : lettrages et illustrations de référence, affichés par régions SVG. Le texte des titres reste présent dans le DOM pour l'accessibilité. Le titre et la signature publiés utilisent du texte HTML si leur contenu change.
+src/styles/reference-fidelity.css : proportions, palette de référence et adaptation des écrans.
+La navigation, le paragraphe, les boutons et le carrousel sont interactifs. Les trois scènes sont À table, Moka et Le Palais ; pas de rotation automatique. Le téléchargement reste disponible dans chaque scène.
+Le catalogue, les accès légaux et le mécanisme de version Android sont conservés. Les modifications de marque publiées continuent d'être prises en compte.
+Crédits : public/brand/editorial/CREDITS-V4.txt. La composition culinaire est générée d'après une référence photographique, sans association avec un établissement réel du catalogue.
+
+VÉRIFICATIONS DE CETTE CORRECTION
+5 tests ciblés réussis : accueil, accès Android courants, accès légaux, transitions du carrousel et maintien du téléchargement.
+TypeScript, vocabulaire/palette et construction Vite réussis. Avertissement existant sur le poids du module de carte.
+Inspection visuelle à 1586, 820, 390 et 320 pixels. Trois scènes vérifiées sur ordinateur. Premier écran et section Moka inspectés sur téléphone. Pas de débordement horizontal à 1586, 390 et 320 pixels.
+Les 57 tests de la version précédente avaient réussi ; seule la suite ciblée a été relancée pour cette correction visuelle.
+
+OUVRIR
+npm ci
+npm run dev
+Aperçu actuel : http://127.0.0.1:5174/
+Vérifier : npm test, npm run lint:vocab, npm run build.
+Base du dépôt : xtincell/project_spawt_mobile_ci, d1f3a9961a9aa70180ec6525ce848f82627d9fdd.
+
+LIVRABLES
+SPAWT-reference-correction-desktop.png : capture du premier écran corrigé.
+SPAWT-reference-correction-mobile.png : capture mobile.
+SPAWT-reference-correction-complet.png : page complète.
+SPAWT-reference-comparatif.html : référence à gauche, intégration à droite, images incluses.
+SPAWT-reference-corrigee-source.zip : sources et actifs, sans dépendances, secrets ni construction.

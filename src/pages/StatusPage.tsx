@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { usePageTitle } from '../lib/use-page-title';
 import { readPublicStatus, type PublicCheck } from '../lib/public-status';
 import { useAndroidRelease } from '../lib/android-release';
+import { AndroidReleasePending } from '../components/ApkDownload';
 const labels = { places: 'Lieux publiés', editorials: 'Avis éditoriaux', collections: 'Carnets', announcements: 'Fil du Chat', menus: 'Menus et plats', guet: 'Coordonnées validées pour Le Guet', sync: 'Actualisation des contenus' };
 export default function StatusPage() {
   usePageTitle('Vérifier les contenus SPAWT');
@@ -26,8 +27,10 @@ export default function StatusPage() {
     </div>)}</dl>
     <p>Un résultat de zéro signifie qu’aucun contenu n’est publié dans cette rubrique. Un échec de lecture est affiché comme indisponible.</p>
     <h2>La version disponible</h2>
-    <p>Android {release.version} · build {release.build}. Le bouton suit la dernière version publiée après ses contrôles.</p>
-    <p><a href={release.url}>Télécharger cette version</a> · <a href="https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases" target="_blank" rel="noreferrer">Voir les versions et leurs preuves</a></p>
+    {release ? <>
+      <p>Android {release.version} · build {release.build}. Le bouton suit la dernière version publiée après ses contrôles.</p>
+      <p><a href={release.url}>Télécharger cette version</a> · <a href="https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases" target="_blank" rel="noreferrer">Voir les versions et leurs preuves</a></p>
+    </> : <AndroidReleasePending failed={release === null} />}
     <h2>Quelque chose ne va pas ?</h2>
     <p>Dans l’app, ouvre Palais → Paramètres → Aide et retours. Tu peux vérifier les contenus, signaler un souci, proposer une idée et retrouver la réponse de l’équipe. Les écrans en erreur proposent aussi un accès direct.</p>
     <p>Cette lecture publique confirme l’accès aux contenus depuis ce navigateur. La connexion à ton compte et l’envoi de tes avis se vérifient depuis l’app.</p>
