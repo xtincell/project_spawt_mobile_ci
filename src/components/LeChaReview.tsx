@@ -21,7 +21,7 @@ function PlacePanel({ place, reader }: { place: CommunityPlace; reader: boolean 
   const isAndroid = /Android/i.test(navigator.userAgent);
   return <div className="lecha-layout" data-place={place.slug}>
     <figure className="lecha-experience">
-      <img className="lecha-photo" src={media + place.meal.src}
+      <img className="lecha-photo" src={media + place.meal.src} width={place.meal.width} height={place.meal.height}
         srcSet={place.slug === "le-cha" ? media + "lecha-table-480.webp 480w, " + media + place.meal.src + " 960w" : undefined}
         sizes="(max-width: 760px) 100vw, (max-width: 1250px) 52vw, 620px"
         loading={reader ? "eager" : "lazy"} decoding="async" alt={place.meal.alt} />
