@@ -1,6 +1,6 @@
 // Configuration Vite + Vitest de la vitrine SPAWT.
 // Vite 5, plugin React, jsdom pour les tests de composants.
-// Pas de SSR — SPA statique servie par nginx (cf. Dockerfile).
+// Métadonnées et contenu public prérendus au build, puis servis par nginx.
 import { defineConfig } from "vitest/config";
 import { existsSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
@@ -15,6 +15,11 @@ function androidDownloadMirror(): Plugin {
   function downloads(root: string): Connect.NextHandleFunction {
     return (request, response, next) => {
       const path = request.url?.split("?")[0];
+      if (path === "/spawt-latest.apk" || path === "/spawt-latest.apk.sha256") {
+        response.writeHead(307, { Location: "/downloads/" + pinnedRelease.fileName + (path.endsWith(".sha256") ? ".sha256" : ""), "Cache-Control": "no-store" });
+        response.end();
+        return;
+      }
       if (path === "/" + pinnedRelease.fileName + ".sha256" && existsSync(resolve(root, "downloads", pinnedRelease.fileName + ".sha256"))) return next();
       if (path !== "/" + pinnedRelease.fileName) { response.statusCode = 404; response.end(); return; }
       if (existsSync(resolve(root, "downloads", pinnedRelease.fileName))) {

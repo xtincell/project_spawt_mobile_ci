@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /_propositions/
+Disallow: /pilot-api/
+Sitemap: https://spawt.online/sitemap.xml

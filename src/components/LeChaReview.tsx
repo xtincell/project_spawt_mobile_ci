@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router";
 import ApkDownload from "./ApkDownload";
 import PlaceReviewCard, { PhotoCredit } from "./PlaceReviewCard";
@@ -43,7 +43,6 @@ export function LeChaReview({ reader = false }: { reader?: boolean }) {
   const [selected, setSelected] = useState(0);
   const recognized = communityPlaces.find(p => p.slug === slug);
   const current = reader ? (recognized ?? communityPlaces[0]) : communityPlaces[selected];
-  useEffect(() => { if (reader) document.title = current.name + " · Avis | SPAWT"; }, [current, reader]);
   const Heading = reader ? "h1" : "h2";
   if (reader && slug && !recognized) return <section className="lecha"><h1>Adresse introuvable</h1><Link to="/#le-cha">Retrouver les trouvailles</Link></section>;
   return <section id="le-cha" className="lecha" aria-labelledby="lecha-heading">

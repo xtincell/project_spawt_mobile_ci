@@ -3,6 +3,7 @@ import { useEffect } from "react";
 
 export function usePageTitle(title: string): void {
   useEffect(() => {
+    if (!window.location.pathname.startsWith("/_propositions/")) return;
     const previous = document.title;
     document.title = `${title} · SPAWT`;
     return () => {
