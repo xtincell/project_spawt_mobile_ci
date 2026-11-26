@@ -74,7 +74,7 @@ export default function PlaceReviewCard({ place, reader, appHref, showApp }: {
           <Member place={place} />
           {place.sourceUrl ? <p className="lecha-quote">{place.comment}</p> : <blockquote>« {place.comment} »</blockquote>}
           {place.ratings && <dl className="lecha-ratings">{place.ratings.map(({ label, value }) =>
-            <div key={label}><dt>{label}</dt><dd>{value}<span>/5</span></dd></div>)}</dl>}
+            <div key={label}><dt>{label}</dt><dd>{value.toLocaleString("fr-FR")}<span>/5</span></dd></div>)}</dl>}
           <small className="lecha-source">{place.sourceUrl ? <a href={place.sourceUrl} target="_blank" rel="noreferrer">{place.sourceLabel}</a> : place.sourceLabel}</small>
           <div className="lecha-reactions"><h4>Les réactions de Moka</h4>
             <ul>{place.reactions.map((reaction, i) => {

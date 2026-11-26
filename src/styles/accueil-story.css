@@ -1,0 +1,134 @@
+.city-story, .inside, .palais-story {
+  --section-gutter: max(var(--marge), calc((100vw - 1330px) / 2));
+}
+.accueil .story-kicker {
+  display: block;
+  margin: 0 0 1.25rem;
+  font: 650 .88rem/1.35 var(--font-body);
+  color: inherit;
+}
+.city-copy h2, .inside h2, .palais-heading h2 {
+  margin: 0;
+  font: 700 clamp(3.25rem, 6.4vw, 7.2rem)/.95 var(--font-display);
+  letter-spacing: -.055em;
+}
+.city-story {
+  display: grid;
+  grid-template-columns: minmax(0,.93fr) minmax(0,1.12fr);
+  align-items: stretch;
+  background: var(--reference-paper);
+}
+.city-copy {
+  padding: clamp(3rem,6vw,7rem) clamp(1.75rem,4vw,5rem) clamp(3rem,6vw,7rem) var(--section-gutter);
+}
+.city-copy h2 { color: var(--vert-chat-profond); margin-bottom: 1.65rem; }
+.city-copy > p:not(.story-kicker), .palais-heading > p:not(.story-kicker) {
+  max-width: 39ch;
+  margin: .8rem 0 0;
+  font: 400 clamp(1rem,1.17vw,1.22rem)/1.65 var(--font-body);
+}
+.city-copy strong { font-weight: 700; }
+.city-view { position: relative; min-width: 0; min-height: 20rem; margin: 0; isolation: isolate; background: var(--noir); color: var(--reference-cream); }
+.city-view > img { position: absolute; inset: 0; height: 100%; width: 100%; object-fit: cover; object-position: 56% 53%; z-index: -2; }
+.city-view::after { content: ""; position: absolute; inset: 40% 0 0; z-index: -1; background: linear-gradient(transparent,rgba(0,0,0,.86)); }
+.city-view figcaption { position: absolute; right: max(var(--marge),3%); bottom: 2rem; left: clamp(1.4rem,3vw,4rem); }
+.city-view figcaption strong, .city-view figcaption span { display: block; }
+.city-view figcaption strong { margin-bottom: .25rem; font: 700 clamp(1.3rem,2.15vw,2.4rem)/1.12 var(--font-display); }
+.city-view figcaption span { font: 500 .75rem/1.6 var(--font-body); }
+.city-view a { color: inherit; text-underline-offset: .18em; }
+.inside {
+  padding: clamp(3rem,5.8vw,7rem) var(--section-gutter);
+  background: var(--creme-sable);
+}
+.inside-inner { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.32fr); align-items: center; gap: clamp(2rem,4.6vw,6rem); }
+.inside h2 { color: var(--noir); }
+.inside-steps { max-width: 26rem; margin-top: clamp(1.75rem,3vw,3rem); border-top: 1px solid var(--line-strong); }
+.inside-steps button {
+  display: flex; align-items: center; gap: 1rem; width: 100%; min-height: 3.6rem;
+  border: 0; border-bottom: 1px solid var(--line-strong); padding: .65rem .8rem;
+  background: transparent; color: var(--ink); cursor: pointer; text-align: left;
+  font: 700 clamp(1.15rem,1.7vw,1.7rem)/1.15 var(--font-display);
+}
+.inside-steps button[aria-pressed=true] { background: var(--vert-chat-profond); color: var(--reference-paper); }
+.inside-steps button[aria-pressed=true] img { filter: brightness(0) invert(1); }
+.inside-steps img { flex: none; object-fit: contain; }
+.inside-arrow { margin-left: auto; visibility: hidden; }
+.inside-steps button[aria-pressed=true] .inside-arrow { visibility: visible; }
+.inside-stage {
+  display: grid; grid-template-columns: minmax(0,1.12fr) minmax(0,.9fr); align-items: center;
+  position: relative; isolation: isolate; gap: clamp(1rem,2vw,2.2rem); margin: 0;
+  padding: clamp(1.25rem,2.5vw,3rem);
+  border-radius: var(--r-l); background: var(--vert-chat-profond); color: var(--reference-paper);
+  overflow: hidden;
+}
+.inside-stage::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: .1;
+  background: url("/brand/decor/pattern-v4.webp") 50% 50% / 38rem auto;
+}
+.inside-phone { width: 100%; max-width: 16rem; margin: auto; background: var(--noir); border: 5px solid var(--noir); border-radius: 1.65rem; box-shadow: 0 .7rem 1.5rem rgba(0,0,0,.22); overflow: hidden; }
+.inside-phone img { display: block; width: 100%; height: auto; }
+.inside-stage figcaption { min-width: 0; }
+.inside-stage figcaption strong { display: block; margin-bottom: .85rem; font: 700 clamp(1.5rem,2.55vw,2.9rem)/1.06 var(--font-display); letter-spacing: -.035em; }
+.inside-stage figcaption span { display: block; font: 400 clamp(.88rem,1.1vw,1.08rem)/1.55 var(--font-body); }
+.palais-story { padding: clamp(3.5rem,6.4vw,7.5rem) var(--section-gutter); color: var(--reference-paper); background: var(--vert-chat-profond); }
+.palais-inner { display: grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.2fr); gap: clamp(2rem,5vw,7rem); align-items: center; }
+.palais-heading h2 { color: inherit; margin-bottom: 1.6rem; }
+.palais-portraits { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(.8rem,1.6vw,2rem); align-items: start; }
+.palais-portraits figure { margin: 0; min-width: 0; }
+.palais-portraits figure + figure { margin-top: clamp(2rem,5vw,6rem); }
+.palais-portraits img { display: block; width: 100%; height: auto; aspect-ratio: 4/4.7; object-fit: cover; border-radius: 50% 50% 4px 4px; background: var(--creme-sable); }
+.palais-portraits figcaption { padding-top: .9rem; }
+.palais-portraits strong, .palais-portraits span { display: block; }
+.palais-portraits strong { color: var(--or-clair); font: 700 clamp(1.15rem,2.1vw,2rem)/1.08 var(--font-display); }
+.palais-portraits span { margin-top: .4rem; font: 400 .85rem/1.45 var(--font-body); }
+.accueil .lecha-choices button { display: inline-flex; align-items: center; gap: .5rem; padding: .3rem .85rem .3rem .3rem; }
+.lecha-choices button img { width: 2rem; height: 2rem; object-fit: contain; border-radius: 50%; background: var(--blanc-casse); }
+.accueil :is(.inside,.city-story,.lecha,.palais-story) :is(button,a):focus-visible { outline: 3px solid var(--or); outline-offset: 3px; }
+@media (max-width: 950px) and (min-width: 751px) {
+  .inside-inner { grid-template-columns: .75fr 1.3fr; gap: 1rem; }
+  .inside-stage { gap: .85rem; padding: 1.1rem; }
+}
+@media (max-width: 750px) {
+  .city-story, .inside-inner, .palais-inner { grid-template-columns: 1fr; }
+  .city-copy { padding: 2.75rem var(--marge) 2.1rem; }
+  .city-copy > p:not(.story-kicker), .palais-heading > p:not(.story-kicker) { max-width: 50ch; }
+  .city-view { min-height: 0; aspect-ratio: 2.02; }
+  .city-view figcaption { bottom: 1rem; }
+  .inside-steps { display: flex; max-width: none; margin-top: 1.4rem; border: 0; gap: .3rem; }
+  .inside-steps button { flex: 1; min-width: 0; justify-content: center; gap: .3rem; padding: .5rem .15rem; min-height: 2.85rem; font-size: clamp(.9rem,3.4vw,1.15rem); border: 1px solid var(--line-strong); border-radius: var(--r-pill); }
+  .inside-steps button > img:first-child { width: 1rem; height: 1rem; }
+  .inside-steps .inside-arrow { display: none; }
+  .inside-inner { gap: 1rem; }
+  .inside-stage { gap: 1rem; padding: 1.1rem; }
+  .inside-stage figcaption strong { font-size: clamp(1.3rem,4.5vw,2rem); }
+  .palais-inner { gap: 2.2rem; }
+  .palais-portraits { max-width: 34rem; }
+  .palais-portraits img { aspect-ratio: 1; }
+}
+@media (max-width: 480px) {
+  .inside-stage { grid-template-columns: 1fr; gap: 1.2rem; padding: 1.4rem .95rem; }
+  .inside-phone { max-width: min(70%, 13rem); }
+  .inside-stage figcaption { margin-inline: auto; max-width: 28rem; }
+  .city-copy h2, .inside h2, .palais-heading h2 { font-size: clamp(2.8rem,11.3vw,4.3rem); }
+  .accueil .lecha-choices { flex-wrap: nowrap; gap: .35rem; }
+  .accueil .lecha-choices button { font-size: .78rem; padding-right: .6rem; }
+  .lecha-choices button img { width: 1.5rem; height: 1.5rem; }
+}
+
+
+.accueil .lecha-card__head {
+  display: grid; grid-template-columns: minmax(0,1fr);
+  grid-template-rows: minmax(8rem,1fr) auto;
+  align-items: stretch; align-content: start;
+  gap: clamp(.75rem,1vw,1rem); min-height: 0;
+}
+.accueil .lecha-card__head .lecha-front,
+.accueil .lecha-card__head .lecha-venue-art {
+  width: 100%; height: 100%; min-height: 0; max-height: none;
+  aspect-ratio: auto; border-radius: var(--r-m);
+}
+.accueil .lecha-card__head .lecha-front { object-position: 50% 27%; }
+.accueil .lecha-layout[data-place="kaiten"] .lecha-front { padding: 1rem; }
+.accueil .lecha-logo-stamp { width: 36%; max-height: 52%; left: auto; right: .75rem; bottom: .75rem; padding: .45rem; object-fit: contain; }
+.accueil .lecha-card__head h3 { margin-bottom: .25rem; }
+.accueil .lecha-card__head .lecha-specialty { margin-bottom: .2rem; }

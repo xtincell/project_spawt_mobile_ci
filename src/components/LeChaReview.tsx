@@ -32,9 +32,9 @@ function PlacePanel({ place, reader }: { place: CommunityPlace; reader: boolean 
     <div className="lecha-card-wrap"><PlaceReviewCard place={place} reader={reader} appHref={reviewLink(place)} showApp={!reader || isAndroid} />
       {reader && <div id="installer" className="lecha-install"><ApkDownload className="accueil-lien" /></div>}
     </div>
-    <Link className="accueil-lien lecha-map-link" to={reader ? "/carte?lieu=" + place.id : "/carte"}>
-      {reader ? "Voir la fiche sur la carte" : "Explorer les adresses d’Abidjan"} <img className="accueil-nav-icon" src={icons + "suivant.png"} alt="" />
-    </Link>
+    {reader && <Link className="accueil-lien lecha-map-link" to={"/carte?lieu=" + place.id}>
+      Voir la fiche sur la carte <img className="accueil-nav-icon" src={icons + "suivant.png"} alt="" />
+    </Link>}
   </div>;
 }
 
@@ -50,7 +50,7 @@ export function LeChaReview({ reader = false }: { reader?: boolean }) {
     <div className="lecha-section-head">
       <Heading id="lecha-heading">{reader ? "L’avis sur " + current.name : "Les trouvailles de la Bande"}<b>.</b></Heading>
       {!reader && <div className="lecha-choices" role="group" aria-label="Choisir une adresse">
-        {communityPlaces.map((place, index) => <button key={place.id} type="button" aria-pressed={index === selected} onClick={() => setSelected(index)}>{place.name}</button>)}
+        {communityPlaces.map((place, index) => <button key={place.id} type="button" aria-pressed={index === selected} onClick={() => setSelected(index)}><img width="36" height="36" src={media + place.front.src} alt="" loading="lazy" /><span>{place.name}</span></button>)}
       </div>}
     </div>
     <PlacePanel key={current.id} place={current} reader={reader} />

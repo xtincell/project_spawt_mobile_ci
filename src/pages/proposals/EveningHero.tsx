@@ -146,7 +146,7 @@ export default function EveningHero({
           </h1>
         </div>
         <p className="eh-promise">
-          Les trouvailles de la Bande, autour de toi.
+          L’app pour choisir où manger à Abidjan avec les trouvailles de la Bande.
         </p>
         <div className="eh-primary-action">{download}</div>
       </div>

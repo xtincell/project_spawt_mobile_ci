@@ -5,12 +5,14 @@ import { usePilotJourney } from "../lib/pilot-journey";
 import { Link, useLocation } from "react-router";
 import ApkDownload from "../components/ApkDownload";
 import { BrandLogo, logoForSite } from "../components/Layout";
-import { QUIZ_URL } from "../lib/config";
-import { usePublicBrand, usePublicMascot } from "../lib/public-brand";
+import { InsideSpawt } from "../components/InsideSpawt";
+import { CityStory, PalaisStory } from "../components/AccueilStory";
+import { usePublicBrand } from "../lib/public-brand";
 import { usePageTitle } from "../lib/use-page-title";
 import EveningHero from "./proposals/EveningHero";
 
 import "../styles/accueil.css";
+import "../styles/accueil-story.css";
 
 export function AccueilHeader() {
   const brand = usePublicBrand();
@@ -20,8 +22,8 @@ export function AccueilHeader() {
       <BrandLogo key={brand.logoUrl} url={logoForSite(brand.logoUrl)} alt={brand.name} />
     </Link>
     <nav aria-label="Navigation principale">
-      <Link to="/carte">La carte</Link>
-      <a href={QUIZ_URL}>Mon Palais</a>
+      <a href="/#dans-spawt">Dans l’app</a>
+      <a href="/#le-cha">La Bande</a>
     </nav>
   </header>;
 }
@@ -33,7 +35,6 @@ export default function Accueil() {
 
 function AccueilContent() {
   const brand = usePublicBrand();
-  const curious = usePublicMascot("curious", "/brand/moka-curieux.webp", "Moka, le chat calico de SPAWT");
   const location = useLocation();
   const journey = usePilotJourney(location.search);
   usePageTitle(brand.title);
@@ -53,26 +54,16 @@ function AccueilContent() {
     </a>
 
 
+    <CityStory />
+    <InsideSpawt />
     <LeChaReview />
-
-    <section className="accueil-palais" id="mon-palais" aria-labelledby="palais-titre">
-      <div className="accueil-palais-texte">
-        <h2 id="palais-titre">À chacun<br />son Palais<b>.</b></h2>
-        <p>Tu retournes au même maquis pour son braisé ou tu changes de quartier à chaque sortie&nbsp;? Découvre ce que tes envies disent de toi.</p>
-        <a className="accueil-lien" href={QUIZ_URL}>Découvrir mon Palais <img className="accueil-nav-icon" src="/brand/accueil/suivant.png" alt="" /></a>
-      </div>
-      <figure className="accueil-carte-palais">
-        <span className="accueil-carte-type">Archétype du Palais</span>
-        <img {...curious} loading="lazy" decoding="async" width="352" height="508" />
-        <figcaption><strong>Pisteur</strong><span>Nomade × Maquis</span></figcaption>
-      </figure>
-    </section>
+    <PalaisStory />
 
     <section className="accueil-installer" aria-labelledby="installer-titre">
       <div className="accueil-installer-texte">
         <img src="/brand/pin.webp" width="129" height="200" alt="" loading="lazy" />
         <div><h2 id="installer-titre">Abidjan dans ta poche<b>.</b></h2>
-          <p>Emporte la carte et retrouve ton prochain spawt.</p></div>
+          <p>Télécharge SPAWT et choisis où retrouver la Bande.</p></div>
       </div>
       <div className="accueil-installer-action">
         {download}
