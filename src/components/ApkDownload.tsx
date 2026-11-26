@@ -1,12 +1,9 @@
 import { Link } from "react-router";
 import { refreshAndroidRelease, useAndroidRelease } from "../lib/android-release";
 import { APPSTORE_URL } from "../lib/config";
+import { installDevice } from "../lib/install-device";
 
 type DownloadProps = { className?: string; onDownload?: () => void; id?: string };
-function isAppleMobile() {
-  return /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-}
 
 export function AndroidReleasePending({ failed }: { failed: boolean }) {
   return <div role="status" className="pilot-offer">{failed ? <>
@@ -17,7 +14,7 @@ export function AndroidReleasePending({ failed }: { failed: boolean }) {
 
 export default function ApkDownload({ className, onDownload, id }: DownloadProps) {
   const release = useAndroidRelease();
-  if (isAppleMobile()) return <div id={id} className="pilot-offer">
+  if (installDevice() === "apple") return <div id={id} className="pilot-offer">
     {APPSTORE_URL
       ? <a className={className} href={APPSTORE_URL}>Ouvrir dans l’App Store</a>
       : <Link className={className} to="/carte">Explorer la carte</Link>}

@@ -9,6 +9,7 @@ const code = "AB101EF00CA3";
 const campaign = (source: string) => "/?utm_source=" + source + "&utm_medium=paid_social&utm_campaign=abidjan_beta_20261204&utm_content=pancakes_v2#telecharger";
 const actions: { p_visit_key: string; p_action: string; p_source: string; p_creative: string; p_campaign: string; p_medium: string }[] = [];
 let clickStatus = 200;
+afterEach(() => { Reflect.deleteProperty(navigator, "clipboard"); });
 function renderLanding(url: string, device = "Android 14; Instagram") {
   vi.spyOn(navigator, "userAgent", "get").mockReturnValue(device);
   window.history.replaceState({}, "", url);
@@ -69,6 +70,36 @@ it("présente la carte web à un iPhone Instagram et garde la visite à l’éta
   expect(screen.queryByRole("link",{name:/Télécharger l’APK/})).not.toBeInTheDocument();
   expect(screen.queryByRole("link",{name:/App Store|Google Play/})).not.toBeInTheDocument();
   expect(actions.map(a=>a.p_action)).toEqual(["arrival"]);
+});
+
+it("transmet seulement le lien de campagne public à un autre téléphone", async () => {
+  const writeText = vi.fn().mockResolvedValue(undefined);
+  Object.defineProperty(navigator, "clipboard", {value: {writeText}, configurable: true});
+  renderLanding(campaign("facebook") + "&token=secret", "Mozilla/5.0 (Windows NT 10.0)");
+  const cta = getHero().getByRole("link", {name:/Télécharger l’APK/});
+  expect(screen.queryByRole("dialog")).toBeNull();
+  cta.addEventListener("click", event => event.preventDefault());
+  fireEvent.click(cta);
+  const handoff = within(await screen.findByRole("dialog"));
+  expect(handoff.getByRole("img", {name:/QR code/})).toHaveAttribute("src", "/brand/install/qr-facebook.png");
+  expect(handoff.queryByText(code)).toBeNull();
+  fireEvent.click(handoff.getByRole("button", {name:"Copier le lien"}));
+  expect(await handoff.findByText("Lien copié.")).toBeVisible();
+  expect(writeText).toHaveBeenCalledWith("https://spawt.online" + campaign("facebook"));
+});
+
+it("laisse sélectionner le code quand le navigateur intégré refuse le presse-papiers", async () => {
+  const writeText = vi.fn().mockRejectedValue(new Error("Permission refusée"));
+  Object.defineProperty(navigator, "clipboard", {value: {writeText}, configurable: true});
+  renderLanding(campaign("instagram"));
+  const cta = getHero().getByRole("link", {name:/Télécharger l’APK/});
+  cta.addEventListener("click", event => event.preventDefault());
+  fireEvent.click(cta);
+  fireEvent.click(await screen.findByRole("button", {name:"Copier le code"}));
+  const field = await screen.findByRole("textbox", {name:"Code à copier"});
+  expect(field).toHaveValue(code);
+  expect(field).toHaveFocus();
+  expect(screen.getByText(/Dans le menu d’Instagram/)).toBeInTheDocument();
 });
 
 it("garde une source inconnue et l’APK disponible quand l’attribution est indisponible", async () => {

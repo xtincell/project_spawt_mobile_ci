@@ -1,0 +1,11 @@
+.pilot-resume .pilot-transfer { text-align: center; }
+.pilot-transfer img { display: block; max-width: 76%; height: auto; margin: 1rem auto .5rem; image-rendering: pixelated; }
+.pilot-resume .pilot-code-panel { margin: .45rem 0 1rem; padding: 1rem; border: 1px solid currentColor; border-radius: 12px; }
+.pilot-code-panel p { margin-top: 0; }
+.pilot-copy { display: flex; flex-wrap: wrap; gap: 0 .75rem; align-items: center; }
+.pilot-transfer .pilot-copy { justify-content: center; }
+.pilot-copy span { font-size: .875rem; }
+.pilot-copy input { width: 100%; min-width: 0; padding: .6rem; font: inherit; }
+.pilot-install-help { margin-top: 1rem; }
+.pilot-install-help summary { cursor: pointer; font-weight: 700; }
+.pilot-install-help p { margin-bottom: 0; }
