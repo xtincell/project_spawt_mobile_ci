@@ -78,7 +78,7 @@
       "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-30-42/spawt-1.1.1-build42.apk",
       "sha256": "2fba5164863e446c8a4087c48954e67a790073865c9cd94c31a3a9a9003160f7",
       "bytes": 162537663,
-      "retainedLocally": true,
+      "retainedLocally": false,
       "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-10-30-42/spawt-1.1.1-build42.apk.sha256"
     },
     {
