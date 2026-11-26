@@ -42,7 +42,7 @@ function AccueilContent() {
   useEffect(() => {
     if (location.hash === "#telecharger") window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.hash]);
-  const download = <ApkDownload className="accueil-apk" onDownload={journey.startDownload} />;
+  const download = <ApkDownload className="accueil-apk" onDownload={journey.startDownload} onReceived={journey.reportApkReceived} />;
   return <div className="accueil" id="contenu-accueil" tabIndex={-1}>
     <div id="telecharger"><EveningHero initialSpot={journey.entry.source === "unknown" ? "marcory" : "in-concept"} download={download} /></div>
     {journey.clicked && <button className="pilot-code-return" onClick={() => journey.setShowResume(true)}>Retrouver mon code de reprise</button>}

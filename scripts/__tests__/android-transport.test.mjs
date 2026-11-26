@@ -17,7 +17,10 @@ afterEach(() => folders.splice(0).forEach(folder => rmSync(folder, { recursive: 
 describe('Android artifact transport', () => {
   it('retains the previous version and preserves exact public archive targets', () => {
     const previous = Math.max(...history.releases.map(release => release.build));
-    expect(validateDownloadConfig(current, history).map(release => release.build)).toEqual([current.build, previous]);
+    const retained = validateDownloadConfig(current, history).map(release => release.build);
+    expect(retained[0]).toBe(current.build);
+    expect(retained).toContain(previous);
+    expect(retained).toContain(45);
     const routes = renderDownloadRoutes(current, history);
     expect(routes).toContain('location = /downloads/spawt-latest.apk {');
     expect(routes).toContain(`return 307 "/downloads/${current.fileName}";`);

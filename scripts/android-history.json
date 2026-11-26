@@ -90,6 +90,17 @@
       "bytes": 162850779,
       "retainedLocally": true,
       "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-11-25-45/spawt-1.1.4-build45.apk.sha256"
+    },
+    {
+      "url": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-11-26-46/spawt-1.1.5-build46.apk",
+      "fileName": "spawt-1.1.5-build46.apk",
+      "sha256": "0f2f78ccaf65ece6467c23f5969eacdf5821773790ddcf3a00bcce2a7e87690f",
+      "bytes": 162896707,
+      "version": "1.1.5",
+      "build": 46,
+      "sourceCommit": "c88d79880c40dcc2d9f92f8a37da1d9812b942c7",
+      "retainedLocally": true,
+      "checksumUrl": "https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases/download/local-build-android-2026-11-26-46/spawt-1.1.5-build46.apk.sha256"
     }
   ]
 }
