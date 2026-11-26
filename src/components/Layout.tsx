@@ -1,17 +1,8 @@
-// Enveloppe commune — en-tête réduit à la marque, pied de page légal.
-//
-// La vitrine n'a PAS de navigation : c'est une page unique, et un menu à
-// une entrée est un menu de trop. Le seul lien de l'en-tête est le quiz,
-// parce que c'est la seule chose qu'un visiteur peut faire aujourd'hui.
-//
-// Aucune dépendance à une session : l'ancien en-tête appelait useAuth()
-// pour choisir entre « Mon compte » et « Connexion ». Il n'y a plus de
-// compte, donc plus de provider, donc plus rien à charger avant le premier
-// rendu.
+// En-tête des pages secondaires et pied de page commun de la vitrine.
 
 import { useState, type ReactNode } from "react";
 import { Link, Outlet } from "react-router";
-import { CONTACT_EMAIL, QUIZ_URL, PUBLIC_BRAND_URL } from "../lib/config";
+import { CONTACT_EMAIL, PUBLIC_BRAND_URL } from "../lib/config";
 import { usePublicBrand } from "../lib/public-brand";
 
 const FALLBACK_LOGO = "/brand/logo-horizontal-dark.webp";
@@ -40,10 +31,7 @@ function Header() {
         <Link className="brand" to="/" aria-label={`${brand.name} — accueil`}>
           <BrandLogo key={brand.logoUrl} url={logoForSite(brand.logoUrl)} alt={`${brand.name} — ${brand.title}`} />
         </Link>
-        <Link className="header-link" to="/carte">Voir les spots</Link>
-        <a className="header-link" href={QUIZ_URL} target="_blank" rel="noreferrer">
-          Faire le quiz
-        </a>
+        <Link className="header-link" to="/#telecharger">Télécharger SPAWT</Link>
       </div>
     </header>
   );
