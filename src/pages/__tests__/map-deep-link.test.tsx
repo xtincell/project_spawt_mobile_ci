@@ -3,14 +3,15 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter } from "react-router";
 import type { PublicPlace } from "../../lib/public-places";
 import { loadPublicPlaces } from "../../lib/public-places";
+import { loadLinkedPlace, loadPlaceContact, loadPlaceMenu, loadPractical, loadReviewStats, parsePlaceContact } from "../../lib/place-details";
 import MapPage from "../MapPage";
 
 const mapMocks = vi.hoisted(() => ({ created: vi.fn(), flyTo: vi.fn(), scrollIntoView: vi.fn() }));
 
 vi.mock("../../lib/public-places", () => ({ loadPublicPlaces: vi.fn() }));
-vi.mock("../../lib/place-details", () => ({
-  loadPlaceContact: async () => null, loadPractical: async () => null,
-  loadPlaceMenu: async () => [], loadReviewStats: async () => null,
+vi.mock("../../lib/place-details", async (original) => ({
+  ...await original<typeof import("../../lib/place-details")>(),
+  loadLinkedPlace: vi.fn(), loadPlaceContact: vi.fn(), loadPractical: vi.fn(), loadPlaceMenu: vi.fn(), loadReviewStats: vi.fn(),
 }));
 vi.mock("maplibre-gl", () => ({
   setWorkerUrl: vi.fn(),
@@ -37,6 +38,10 @@ const originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.proto
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(loadPlaceContact).mockResolvedValue(parsePlaceContact({}));
+  vi.mocked(loadPractical).mockImplementation(async () => ({ website:null,maps:null,email:null,description:'',socials:[],services:[],payments:[],sources:[] }));
+  vi.mocked(loadPlaceMenu).mockResolvedValue([]);
+  vi.mocked(loadReviewStats).mockResolvedValue(null);
   vi.stubGlobal("WebGL2RenderingContext", class {});
   vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ getExtension: () => null } as unknown as WebGL2RenderingContext);
   Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {configurable: true, value: mapMocks.scrollIntoView});
@@ -50,6 +55,38 @@ afterEach(() => {
 });
 
 describe("Carte — liens directs", () => {
+  const uuid = "c5acfd12-01dd-5cd3-9beb-0531d89c3e99";
+  const directPlace = { ...places[0], id: uuid };
+  const received = () => ({ place: directPlace, contact: parsePlaceContact({ phone:'+2250701020304' }) });
+  it.each(['en attente', 'en panne'])('ouvre le lien UUID, même avec le catalogue %s', async mode => {
+    let resume!: (rows: PublicPlace[]) => void;
+    vi.mocked(loadPublicPlaces).mockImplementation(() => mode === 'en panne' ? Promise.reject(new Error()) : new Promise(done => { resume = done; }));
+    vi.mocked(loadLinkedPlace).mockResolvedValue(received());
+    render(<MemoryRouter initialEntries={['/carte?lieu=' + uuid]}><MapPage /></MemoryRouter>);
+    const sheet = await screen.findByRole('region', {name:'Fiche Table Cocody'});
+    await waitFor(() => expect(sheet).toHaveFocus());
+    expect(screen.getByRole('link',{name:'Appeler'})).toHaveAttribute('href','tel:+2250701020304');
+    expect(screen.getByRole('link',{name:'Itinéraire'})).toBeInTheDocument();
+    if (mode === 'en attente') await act(async () => resume([directPlace]));
+    else expect(screen.getByRole('alert')).toHaveTextContent('Les adresses sont indisponibles');
+    expect(screen.getByRole('region', {name:'Fiche Table Cocody'})).toBe(sheet);
+    expect(loadLinkedPlace).toHaveBeenCalledTimes(1);
+    expect(loadPlaceContact).not.toHaveBeenCalled();
+    for (const load of [loadPlaceMenu, loadPractical, loadReviewStats]) expect(load).toHaveBeenCalledTimes(1);
+  });
+
+  it('ouvre le résumé quand le catalogue arrive en premier et garde la fermeture lors de la réponse ciblée', async () => {
+    let done!: (value: ReturnType<typeof received>) => void;
+    vi.mocked(loadPublicPlaces).mockResolvedValue([directPlace]);
+    vi.mocked(loadLinkedPlace).mockImplementation(() => new Promise(resolve => { done = resolve; }));
+    render(<MemoryRouter initialEntries={['/carte?lieu=' + uuid]}><MapPage /></MemoryRouter>);
+    await screen.findByRole('region', {name:'Fiche Table Cocody'});
+    expect(loadPlaceContact).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Fermer la fiche'}));
+    await act(async () => done(received()));
+    expect(screen.queryByRole('region', {name:'Fiche Table Cocody'})).toBeNull();
+    expect(screen.getByRole('button',{name:/Table Cocody/})).toHaveFocus();
+  });
   it("attend les données, filtre le quartier et ouvre une fiche accessible sans la rouvrir après fermeture", async () => {
     let resolvePlaces!: (value: PublicPlace[]) => void;
     vi.mocked(loadPublicPlaces).mockReturnValue(new Promise(resolve => { resolvePlaces = resolve; }));

@@ -1,4 +1,5 @@
 import backend from './public-backend.json';
+import { parsePublicPlaces } from './public-places';
 
 const text = (value: unknown) => typeof value === 'string' ? value.trim() : '';
 const list = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
@@ -118,9 +119,19 @@ async function read(table: string, query: Record<string, string>, signal: AbortS
 }
 
 export async function loadPlaceContact(id: string, signal: AbortSignal) {
-  const rows = await read('places', { select: 'id,phone,whatsapp,avg_ticket_xof,price_tier,hours,menu_urls,cover_photo_url,editorial_profile',
+  const rows = await read('places', { select: 'id,' + contactColumns,
     id: 'eq.' + id, city_code: 'eq.abidjan', is_published: 'eq.true', limit: '1' }, signal);
   return parsePlaceContact(rows.find(row => row?.id === id));
+}
+
+const contactColumns = 'phone,whatsapp,avg_ticket_xof,price_tier,hours,menu_urls,cover_photo_url,editorial_profile';
+
+export async function loadLinkedPlace(id: string, signal: AbortSignal) {
+  const rows = await read('places', { select: 'id,name,cuisine,lat,lng,neighborhood,descriptive_address,city,city_code,is_published,' + contactColumns,
+    id: 'eq.' + id, city_code: 'eq.abidjan', is_published: 'eq.true', limit: '1' }, signal);
+  const row = rows.find(item => item?.id === id);
+  const [place] = parsePublicPlaces([row]);
+  return place ? { place, contact: parsePlaceContact(row) } : null;
 }
 
 export async function loadPractical(id: string, signal: AbortSignal) {

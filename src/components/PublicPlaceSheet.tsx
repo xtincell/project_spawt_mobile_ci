@@ -12,15 +12,16 @@ const label = (value: string) => cuisines[value] || value.replaceAll('_', ' ');
 const formatDate = (value: string) => dateFormat.format(new Date(value + 'T00:00:00Z'));
 const sameTextKey = (value: string) => value.normalize().toLocaleLowerCase('fr').replace(/\s+/g, ' ').trim();
 
-function usePlaceInfo<T>(load: (id: string, signal: AbortSignal) => Promise<T>, id: string, attempt: number) {
+function usePlaceInfo<T>(load: (id: string, signal: AbortSignal) => Promise<T>, id: string, attempt: number, provided?: T, pending = false) {
   const [state, setState] = useState<{ value?: T; failed?: boolean }>({});
   useEffect(() => {
+    if (provided !== undefined || pending) return;
     const controller = new AbortController();
     load(id, controller.signal).then(value => { if (!controller.signal.aborted) setState({ value }); })
       .catch(() => { if (!controller.signal.aborted) setState({ failed: true }); });
     return () => controller.abort();
-  }, [load, id, attempt]);
-  return state;
+  }, [load, id, attempt, provided, pending]);
+  return provided !== undefined ? { value: provided, failed: false } : state;
 }
 
 function External({ url, children }: { url: string; children: ReactNode }) {
@@ -49,11 +50,11 @@ function PublishedMenu({ items }: { items: Awaited<ReturnType<typeof loadPlaceMe
   })}</div>;
 }
 
-export function PublicPlaceSheet({ place, detailRef, onClose }: {
-  place: PublicPlace; detailRef: RefObject<HTMLElement>; onClose: () => void;
+export function PublicPlaceSheet({ place, detailRef, onClose, contactInfo, contactPending = false }: {
+  place: PublicPlace; detailRef: RefObject<HTMLElement>; onClose: () => void; contactInfo?: Awaited<ReturnType<typeof loadPlaceContact>>; contactPending?: boolean;
 }) {
   const [attempt, setAttempt] = useState(0);
-  const contact = usePlaceInfo(loadPlaceContact, place.id, attempt);
+  const contact = usePlaceInfo(loadPlaceContact, place.id, attempt, contactInfo, contactPending);
   const practical = usePlaceInfo(loadPractical, place.id, attempt);
   const menu = usePlaceInfo(loadPlaceMenu, place.id, attempt);
   const reviews = usePlaceInfo(loadReviewStats, place.id, attempt);
