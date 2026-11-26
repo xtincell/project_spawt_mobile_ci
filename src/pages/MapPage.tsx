@@ -5,6 +5,11 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 maplibregl.setWorkerUrl(mapWorkerUrl);
 import { loadPublicPlaces, type PublicPlace } from '../lib/public-places';
+function reveal(element: HTMLElement | null, block: ScrollLogicalPosition) {
+  if (!element) return;
+  element.focus({preventScroll: true});
+  element.scrollIntoView({behavior: 'instant', block});
+}
 export default function MapPage() {
   const [searchParams] = useSearchParams();
   const requestedPlace = searchParams.get('lieu')?.trim() || null;
@@ -12,6 +17,8 @@ export default function MapPage() {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const detail = useRef<HTMLElement>(null);
+  const search = useRef<HTMLInputElement>(null);
+  const opener = useRef<HTMLButtonElement | null>(null);
   const resolvedTarget = useRef<string | null>(null);
   const pendingDetailFocus = useRef<string | null>(null);
   const [places, setPlaces] = useState<PublicPlace[]>([]);
@@ -48,6 +55,7 @@ export default function MapPage() {
     resolvedTarget.current = target;
     const linkedPlace = requestedPlace ? places.find(p => p.id === requestedPlace) : undefined;
     setMissingLinkedPlace(!!requestedPlace && !linkedPlace);
+    opener.current = null;
     setSelected(linkedPlace?.id ?? null);
     pendingDetailFocus.current = linkedPlace?.id ?? null;
     if (linkedPlace?.lng != null && linkedPlace.lat != null) {
@@ -57,26 +65,42 @@ export default function MapPage() {
   useEffect(() => {
     if (!active || pendingDetailFocus.current !== active.id || !detail.current) return;
     pendingDetailFocus.current = null;
-    detail.current.focus({preventScroll: true});
-    detail.current.scrollIntoView({behavior: 'auto', block: 'start'});
+    reveal(detail.current, 'start');
   }, [active]);
   useEffect(() => {
     if (!map.current) return;
     const markers = filtered.filter(p => p.lat !== null && p.lng !== null).map(p => {
-      const button = document.createElement('button'); button.type = 'button'; button.className = `spot-pin${selected === p.id ? ' spot-pin--active' : ''}`; button.setAttribute('aria-label', p.name); button.textContent = '●'; button.onclick = () => setSelected(p.id);
+      const button = document.createElement('button'); button.type = 'button'; button.className = `spot-pin${selected === p.id ? ' spot-pin--active' : ''}`; button.setAttribute('aria-label', p.name); button.textContent = '●'; button.onclick = () => select(p, button);
       return new maplibregl.Marker({element: button}).setLngLat([p.lng!,p.lat!]).addTo(map.current!);
     });
     return () => markers.forEach(m => m.remove());
   }, [filtered, selected]);
-  function select(p: PublicPlace) {setSelected(p.id); if(p.lng !== null && p.lat !== null) map.current?.flyTo({center:[p.lng,p.lat],zoom:14,essential:false});}
+  function select(p: PublicPlace, button: HTMLButtonElement) {
+    opener.current = button;
+    if (selected === p.id) {
+      reveal(detail.current, 'start');
+      return;
+    }
+    pendingDetailFocus.current = p.id;
+    setSelected(p.id);
+    if (p.lng !== null && p.lat !== null) map.current?.flyTo({center:[p.lng,p.lat],zoom:14,essential:false});
+  }
+  function closeDetail() {
+    setSelected(null);
+    const button = opener.current;
+    // Selection redraws the native map pins; the matching catalogue button remains available.
+    const target = button?.isConnected ? button : Array.from(document.querySelectorAll<HTMLButtonElement>('[data-spot-id]')).find(card => card.dataset.spotId === selected);
+    reveal(target ?? search.current, 'center');
+    opener.current = null;
+  }
   return <main className="spot-explorer container">
     <header className="spot-explorer__heading"><p className="eyebrow">ABIDJAN · LES SPOTS</p><h1>Une adresse, un point sur la carte.</h1><p>Explorez les adresses actuellement publiées dans SPAWT. Sélectionnez une carte ou un repère pour voir la fiche. Les positions sont celles renseignées par SPAWT ; confirmez votre destination auprès du lieu.</p></header>
-    <label className="spot-search">Chercher une adresse ou un quartier<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Kaiten, Zone 4…" type="search" /></label>
+    <label className="spot-search">Chercher une adresse ou un quartier<input ref={search} value={query} onChange={e=>setQuery(e.target.value)} placeholder="Kaiten, Zone 4…" type="search" /></label>
     {loading && <p role="status">Chargement des adresses…</p>}
     {error && <p role="alert">Les adresses sont indisponibles. <button onClick={()=>setAttempt(a=>a+1)}>Réessayer</button></p>}
     {!loading && !error && missingLinkedPlace && <p role="status">Ce lieu n’est pas disponible dans les adresses publiées. Tu peux explorer les autres spots ci-dessous.</p>}
     <div className={`spot-explorer__grid${mapUnavailable ? " spot-explorer__grid--list" : ""}`}><section aria-label="Carte des spots" className={`spot-map${mapUnavailable ? " spot-map--unavailable" : ""}`}><div ref={container} className="spot-map__canvas"/>{mapError && <p className="spot-map__notice">{mapUnavailable ? "Ce navigateur ne permet pas d’afficher la carte interactive. Retrouvez toutes les adresses dans les fiches ci-dessous." : "Le fond de carte est momentanément indisponible. Les fiches restent accessibles."}</p>}</section>
-    <section className="spot-list" aria-label="Liste des spots"><p aria-live="polite">{filtered.length} adresse{filtered.length !== 1 ? 's' : ''} · {filtered.filter(p => p.lat !== null && p.lng !== null).length} sur la carte</p>{!loading && !error && filtered.length === 0 && <p>Aucune adresse pour cette recherche.</p>}{filtered.map(p=><button key={p.id} className={`spot-card${selected===p.id?' spot-card--active':''}`} aria-pressed={selected===p.id} onClick={()=>select(p)}><strong>{p.name}</strong><span>{p.neighborhood || p.city}</span>{p.cuisine.length>0 && <small>{p.cuisine.join(' · ')}</small>}</button>)}</section></div>
-    {active && <section ref={detail} tabIndex={-1} style={{scrollMarginTop: '7rem'}} className="spot-detail" aria-label={`Fiche ${active.name}`}><button className="spot-detail__close" onClick={()=>setSelected(null)} aria-label="Fermer la fiche">×</button><p className="eyebrow">LA FICHE</p><h2>{active.name}</h2><p>{active.descriptive_address || active.neighborhood || active.city}</p>{active.cuisine.length>0 && <p>{active.cuisine.join(' · ')}</p>}{(active.lat === null || active.lng === null) && <p>Localisation à préciser — cette fiche reste accessible sans point sur la carte.</p>}<p className="muted">Les horaires, tarifs et disponibilités sont à confirmer auprès du lieu.</p></section>}
+    <section className="spot-list" aria-label="Liste des spots"><p aria-live="polite">{filtered.length} adresse{filtered.length !== 1 ? 's' : ''} · {filtered.filter(p => p.lat !== null && p.lng !== null).length} sur la carte</p>{!loading && !error && filtered.length === 0 && <p>Aucune adresse pour cette recherche.</p>}{filtered.map(p=><button key={p.id} data-spot-id={p.id} className={`spot-card${selected===p.id?' spot-card--active':''}`} aria-pressed={selected===p.id} onClick={event=>select(p, event.currentTarget)}><strong>{p.name}</strong><span>{p.neighborhood || p.city}</span>{p.cuisine.length>0 && <small>{p.cuisine.join(' · ')}</small>}</button>)}</section></div>
+    {active && <section ref={detail} tabIndex={-1} style={{scrollMarginTop: '7rem'}} className="spot-detail" aria-label={`Fiche ${active.name}`}><button className="spot-detail__close" onClick={closeDetail} aria-label="Fermer la fiche">×</button><p className="eyebrow">LA FICHE</p><h2>{active.name}</h2><p>{active.descriptive_address || active.neighborhood || active.city}</p>{active.cuisine.length>0 && <p>{active.cuisine.join(' · ')}</p>}{(active.lat === null || active.lng === null) && <p>Localisation à préciser — cette fiche reste accessible sans point sur la carte.</p>}<p className="muted">Les horaires, tarifs et disponibilités sont à confirmer auprès du lieu.</p></section>}
   </main>;
 }

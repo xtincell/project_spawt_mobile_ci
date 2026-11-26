@@ -53,7 +53,7 @@ describe("Carte — liens directs", () => {
     await act(async () => resolvePlaces(places));
     const fiche = await screen.findByRole("region", { name: "Fiche Table Cocody" });
     await waitFor(() => expect(fiche).toHaveFocus());
-    expect(mapMocks.scrollIntoView).toHaveBeenCalledWith({behavior: "auto", block: "start"});
+    expect(mapMocks.scrollIntoView).toHaveBeenCalledWith({behavior: "instant", block: "start"});
     expect(mapMocks.flyTo).toHaveBeenCalledWith({center: [-3.98, 5.36], zoom: 14, essential: false});
     expect(screen.getByRole("button", { name: /Table Cocody/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.queryByRole("button", { name: /Table Marcory/ })).not.toBeInTheDocument();
@@ -62,6 +62,19 @@ describe("Carte — liens directs", () => {
     fireEvent.change(screen.getByRole("searchbox"), {target: {value: ""}});
     expect(screen.queryByRole("region", { name: "Fiche Table Cocody" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Table Marcory/ })).toBeInTheDocument();
+  });
+
+  it("amène la fiche dans la fenêtre après un clic et rend le focus à la même adresse à la fermeture", async () => {
+    vi.mocked(loadPublicPlaces).mockResolvedValue(places);
+    render(<MemoryRouter initialEntries={["/carte"]}><MapPage /></MemoryRouter>);
+    const card = await screen.findByRole("button", { name: /Table Marcory/ });
+    fireEvent.click(card);
+    const fiche = await screen.findByRole("region", { name: "Fiche Table Marcory" });
+    await waitFor(() => expect(fiche).toHaveFocus());
+    expect(mapMocks.scrollIntoView).toHaveBeenCalledWith({behavior: "instant", block: "start"});
+    fireEvent.click(screen.getByRole("button", { name: "Fermer la fiche" }));
+    expect(card).toHaveFocus();
+    expect(mapMocks.scrollIntoView).toHaveBeenLastCalledWith({behavior: "instant", block: "center"});
   });
 
   it("signale un lieu inconnu tout en laissant les autres adresses accessibles", async () => {
