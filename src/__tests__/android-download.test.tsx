@@ -59,3 +59,32 @@ it('keeps the bundled local link while a newer release has no matching mirror', 
   await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(3));
   expect(screen.getByRole('link', { name: /Télécharger SPAWT pour Android/ })).toHaveAttribute('href', `/downloads/${pinned.fileName}`);
 });
+
+it('retains the pinned direct fallback after a failed transfer and never counts it as received', async () => {
+  const { Blob } = await import('node:buffer');
+  vi.stubGlobal('Blob', Blob);
+  vi.stubGlobal('URL', class extends URL { static createObjectURL = vi.fn(); });
+  const localUrl = '/downloads/' + pinned.fileName;
+  const fetcher = vi.fn(async (url: string | URL) => {
+    if (String(url) !== new URL(localUrl, location.origin).href) throw new Error('manifest unavailable');
+    return new Response(Uint8Array.from([80,75,3,4]), {
+      headers: { 'content-type': 'application/vnd.android.package-archive' },
+    });
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const onDownload = vi.fn(), onReceived = vi.fn();
+  const { default: ApkDownload } = await import('../components/ApkDownload');
+  render(<ApkDownload onDownload={onDownload} onReceived={onReceived} />);
+  const start = screen.getByRole('link', { name: /Télécharger/ });
+  expect(start).toHaveAttribute('href', localUrl);
+  fireEvent.click(start);
+  const fallback = await screen.findByRole('link', { name: 'Télécharger directement' });
+  expect(fallback).toHaveAttribute('href', localUrl);
+  expect(fallback).toHaveAttribute('download', pinned.fileName);
+  // jsdom cannot save files. The public browser check exercises this native link.
+  fallback.addEventListener('click', event => event.preventDefault());
+  fireEvent.click(fallback);
+  expect(onDownload).toHaveBeenCalledTimes(1);
+  expect(onReceived).not.toHaveBeenCalled();
+  expect(fetcher.mock.calls.filter(([url]) => String(url).endsWith(localUrl))).toHaveLength(1);
+});
