@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import * as maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
-maplibregl.setWorkerUrl(mapWorkerUrl);
+import type { Map as CityMap, Marker } from 'maplibre-gl';
 import { loadPublicPlaces, type PublicPlace } from '../lib/public-places';
 import { PublicPlaceSheet } from '../components/PublicPlaceSheet';
 function reveal(element: HTMLElement | null, block: ScrollLogicalPosition) {
@@ -16,7 +13,7 @@ export default function MapPage() {
   const requestedPlace = searchParams.get('lieu')?.trim() || null;
   const requestedQuery = searchParams.get('q') || '';
   const container = useRef<HTMLDivElement>(null);
-  const map = useRef<maplibregl.Map | null>(null);
+  const [map, setMap] = useState<{ instance: CityMap; Marker: typeof Marker } | null>(null);
   const detail = useRef<HTMLElement>(null);
   const search = useRef<HTMLInputElement>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
@@ -40,14 +37,28 @@ export default function MapPage() {
     return () => controller.abort();
   }, [attempt]);
   useEffect(() => {
-    if (!container.current) return;
-    try {
-      map.current = new maplibregl.Map({container: container.current, style: 'https://tiles.openfreemap.org/styles/dark', center: [-4.0267,5.3364], zoom: 11, attributionControl: {compact: true}});
-      map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
-      map.current.on('error', () => setMapError(true));
-      map.current.on('load', () => setMapError(false));
-    } catch { setMapUnavailable(true); setMapError(true); }
-    return () => {map.current?.remove(); map.current = null;};
+    const element = container.current;
+    if (!element) return;
+    let cancelled = false;
+    let instance: CityMap | undefined;
+    async function initialize(element: HTMLDivElement) {
+      try {
+        const context = typeof WebGL2RenderingContext === 'function' && document.createElement('canvas').getContext('webgl2');
+        if (!context) throw new Error('WebGL indisponible');
+        context.getExtension('WEBGL_lose_context')?.loseContext();
+        const engine = await import('../lib/interactive-map');
+        if (cancelled) return;
+        instance = new engine.Map({container: element, style: 'https://tiles.openfreemap.org/styles/dark', center: [-4.0267,5.3364], zoom: 11, attributionControl: {compact: true}});
+        instance.addControl(new engine.NavigationControl(), 'top-right');
+        instance.on('error', () => { if (!cancelled) setMapError(true); });
+        instance.on('load', () => { if (!cancelled) setMapError(false); });
+        setMap({ instance, Marker: engine.Marker });
+      } catch {
+        if (!cancelled) { setMapUnavailable(true); setMapError(true); }
+      }
+    }
+    void initialize(element);
+    return () => { cancelled = true; instance?.remove(); };
   }, []);
   useEffect(() => {
     if (loading || error) return;
@@ -59,23 +70,23 @@ export default function MapPage() {
     opener.current = null;
     setSelected(linkedPlace?.id ?? null);
     pendingDetailFocus.current = linkedPlace?.id ?? null;
-    if (linkedPlace?.lng != null && linkedPlace.lat != null) {
-      map.current?.flyTo({center: [linkedPlace.lng, linkedPlace.lat], zoom: 14, essential: false});
-    }
   }, [requestedPlace, loading, error, places, attempt]);
+  useEffect(() => {
+    if (map && active?.lng != null && active.lat != null) map.instance.flyTo({center:[active.lng,active.lat],zoom:14,essential:false});
+  }, [map, active]);
   useEffect(() => {
     if (!active || pendingDetailFocus.current !== active.id || !detail.current) return;
     pendingDetailFocus.current = null;
     reveal(detail.current, 'start');
   }, [active]);
   useEffect(() => {
-    if (!map.current) return;
+    if (!map) return;
     const markers = filtered.filter(p => p.lat !== null && p.lng !== null).map(p => {
       const button = document.createElement('button'); button.type = 'button'; button.className = `spot-pin${selected === p.id ? ' spot-pin--active' : ''}`; button.setAttribute('aria-label', p.name); button.textContent = '●'; button.onclick = () => select(p, button);
-      return new maplibregl.Marker({element: button}).setLngLat([p.lng!,p.lat!]).addTo(map.current!);
+      return new map.Marker({element: button}).setLngLat([p.lng!,p.lat!]).addTo(map.instance);
     });
     return () => markers.forEach(m => m.remove());
-  }, [filtered, selected]);
+  }, [map, filtered, selected]);
   function select(p: PublicPlace, button: HTMLButtonElement) {
     opener.current = button;
     if (selected === p.id) {
@@ -84,7 +95,6 @@ export default function MapPage() {
     }
     pendingDetailFocus.current = p.id;
     setSelected(p.id);
-    if (p.lng !== null && p.lat !== null) map.current?.flyTo({center:[p.lng,p.lat],zoom:14,essential:false});
   }
   function closeDetail() {
     setSelected(null);

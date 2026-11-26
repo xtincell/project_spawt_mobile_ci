@@ -57,6 +57,13 @@ export function PublicPlaceSheet({ place, detailRef, onClose }: {
   const menu = usePlaceInfo(loadPlaceMenu, place.id, attempt);
   const reviews = usePlaceInfo(loadReviewStats, place.id, attempt);
   const c = contact.value, p = practical.value;
+  const linkedMenus = new Map<string, string>();
+  for (const source of p?.sources || []) {
+    if (source.fields.includes('menu_urls')) linkedMenus.set(source.url, source.label);
+  }
+  for (const [index, url] of (c?.menus || []).entries()) {
+    if (!linkedMenus.has(url)) linkedMenus.set(url, c!.menus.length === 1 ? 'Consulter le menu' : `Consulter le menu ${index + 1}`);
+  }
   const [imageFailed, setImageFailed] = useState(false);
   const [shareState, setShareState] = useState<'ready' | 'copied' | 'manual'>('ready');
   const shareLink = new URL('/carte', window.location.origin);
@@ -100,9 +107,9 @@ export function PublicPlaceSheet({ place, detailRef, onClose }: {
         <dl className="place-sheet__hours">{c.hours.map(({ day, intervals }) => <div key={day}><dt>{day}</dt><dd>
           {intervals.length ? intervals.map(({ open, close }) => open + ' – ' + close + (close < open ? ' (lendemain)' : '')).join(' / ') : 'Fermé'}</dd></div>)}</dl></details>}
       {menu.value && <PublishedMenu items={menu.value} />}
-      {!!c?.menus.length && <div className="place-sheet__section"><h3>Menus du lieu</h3>
-        <ul>{c.menus.map((url, i) => <li key={url}><External url={url}>{c.menus.length === 1 ? 'Consulter le menu' : 'Consulter le menu ' + (i + 1)}</External></li>)}</ul></div>}
-      {p && (p.services.length > 0 || p.payments.length > 0) && <div className="place-sheet__section"><h3>Services et paiements</h3>
+      {linkedMenus.size > 0 && <div className="place-sheet__section"><h3>Menus du lieu</h3>
+        <ul>{Array.from(linkedMenus, ([url, title]) => <li key={url}><External url={url}>{title}</External></li>)}</ul></div>}
+      {p && (p.services.length > 0 || p.payments.length > 0) && <div className="place-sheet__section"><h3>{p.payments.length > 0 ? 'Services et paiements' : 'Services'}</h3>
         {p.services.length > 0 && <p>{p.services.join(' · ')}</p>}
         {p.payments.length > 0 && <p>Paiements acceptés · {p.payments.join(' · ')}</p>}</div>}
       {reviews.value && <details className="place-sheet__section"><summary>Avis de la Bande <span>({reviews.value.count})</span></summary>
@@ -110,10 +117,11 @@ export function PublicPlaceSheet({ place, detailRef, onClose }: {
         {reviews.value.histogram && <ul className="place-sheet__distribution">{reviews.value.histogram.map((count, index) => <li key={index}>
           <span>{index + 1} / 5</span><meter min={0} max={reviews.value!.count} value={count} aria-label={`Nombre d’avis à ${index + 1} sur 5`} /><span>{count}</span></li>)}</ul>}
       </details>}
-      {p && (p.email || p.socials.length > 0 || (destination && p.maps)) && <div className="place-sheet__section"><h3>Liens du lieu</h3>
-        <ul>{p.email && <li><a href={'mailto:' + p.email}>{p.email}</a></li>}
-        {destination && p.maps && <li><External url={p.maps}>Adresse sur Google Maps</External></li>}
-        {p.socials.map(s => <li key={s.url}><External url={s.url}>{s.label}</External></li>)}</ul></div>}
+      {(c?.phone || p?.email || !!p?.socials.length || (destination && p?.maps)) && <div className="place-sheet__section"><h3>Coordonnées du lieu</h3>
+        <ul>{c?.phone && <li><a href={'tel:' + c.phone}>{'+225 ' + c.phone.slice(4).match(/.{2}/g)?.join(' ')}</a></li>}
+        {p?.email && <li><a href={'mailto:' + p.email}>{p.email}</a></li>}
+        {destination && p?.maps && <li><External url={p.maps}>Adresse sur Google Maps</External></li>}
+        {p?.socials.map(s => <li key={s.url}><External url={s.url}>{s.label}</External></li>)}</ul></div>}
       {!!p?.sources.length && <details className="place-sheet__section"><summary>Sources du lieu</summary>
         <ul>{p.sources.map(s => <li key={s.url + s.label}><External url={s.url}>{s.label}</External>
           {s.date && <span> · Vérifié le {formatDate(s.date)}</span>}</li>)}</ul></details>}

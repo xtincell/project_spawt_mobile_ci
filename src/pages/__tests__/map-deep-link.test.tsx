@@ -5,16 +5,17 @@ import type { PublicPlace } from "../../lib/public-places";
 import { loadPublicPlaces } from "../../lib/public-places";
 import MapPage from "../MapPage";
 
-const mapMocks = vi.hoisted(() => ({ flyTo: vi.fn(), scrollIntoView: vi.fn() }));
+const mapMocks = vi.hoisted(() => ({ created: vi.fn(), flyTo: vi.fn(), scrollIntoView: vi.fn() }));
 
 vi.mock("../../lib/public-places", () => ({ loadPublicPlaces: vi.fn() }));
 vi.mock("../../lib/place-details", () => ({
-  loadPlaceContact: vi.fn().mockResolvedValue(null), loadPractical: vi.fn().mockResolvedValue(null),
-  loadPlaceMenu: vi.fn().mockResolvedValue([]), loadReviewStats: vi.fn().mockResolvedValue(null),
+  loadPlaceContact: async () => null, loadPractical: async () => null,
+  loadPlaceMenu: async () => [], loadReviewStats: async () => null,
 }));
 vi.mock("maplibre-gl", () => ({
   setWorkerUrl: vi.fn(),
   Map: class {
+    constructor() { mapMocks.created(); }
     addControl() {}
     on() {}
     remove() {}
@@ -36,10 +37,14 @@ const originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.proto
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubGlobal("WebGL2RenderingContext", class {});
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ getExtension: () => null } as unknown as WebGL2RenderingContext);
   Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {configurable: true, value: mapMocks.scrollIntoView});
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
   if (originalScrollIntoView) Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScrollIntoView);
   else Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
 });
@@ -58,7 +63,7 @@ describe("Carte — liens directs", () => {
     const fiche = await screen.findByRole("region", { name: "Fiche Table Cocody" });
     await waitFor(() => expect(fiche).toHaveFocus());
     expect(mapMocks.scrollIntoView).toHaveBeenCalledWith({behavior: "instant", block: "start"});
-    expect(mapMocks.flyTo).toHaveBeenCalledWith({center: [-3.98, 5.36], zoom: 14, essential: false});
+    await waitFor(() => expect(mapMocks.flyTo).toHaveBeenCalledWith({center: [-3.98, 5.36], zoom: 14, essential: false}));
     expect(screen.getByRole("button", { name: /Table Cocody/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.queryByRole("button", { name: /Table Marcory/ })).not.toBeInTheDocument();
 
@@ -87,5 +92,17 @@ describe("Carte — liens directs", () => {
     expect(await screen.findByText(/Ce lieu n’est pas disponible dans les adresses publiées/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Table Cocody/ })).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: /^Fiche / })).not.toBeInTheDocument();
+  });
+
+  it("ouvre le lien direct et conserve les actions de la fiche sans initialiser un moteur sans WebGL", async () => {
+    vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(null);
+    vi.mocked(loadPublicPlaces).mockResolvedValue(places);
+    render(<MemoryRouter initialEntries={["/carte?lieu=spot-cocody"]}><MapPage /></MemoryRouter>);
+    const fiche = await screen.findByRole("region", {name: "Fiche Table Cocody"});
+    await waitFor(() => expect(fiche).toHaveFocus());
+    expect(screen.getByRole("link", {name:"Itinéraire"})).toHaveAttribute("href", "https://www.google.com/maps/dir/?api=1&destination=5.36%2C-3.98");
+    expect(mapMocks.created).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button",{name:"Fermer la fiche"}));
+    expect(screen.getByRole("button", {name:/Table Cocody/})).toHaveFocus();
   });
 });
