@@ -82,6 +82,11 @@ async function checkFirstClick() {
       return route.continue();
     });
     const page=await context.newPage();
+    page.on('pageerror',error=>console.log('page error',error.message.slice(0,180)));
+    page.on('requestfailed',req=>{if(req.url().includes('.apk'))console.log('apk request failed',req.failure());});
+    page.on('requestfinished',req=>{if(req.url().includes('.apk'))console.log('apk request finished',req.url());});
+    page.on('response',response=>{if(response.url().includes('.apk'))console.log('apk HTTP',response.status(),response.headers()['content-type'],response.headers()['content-length']);});
+    page.on('download',download=>console.log('download event',download.suggestedFilename()));
     assert.equal((await page.goto(origin,{waitUntil:"domcontentloaded"})).status(),200);
     const a=page.locator("#telecharger a[download]").first();
     await a.waitFor();
@@ -92,11 +97,18 @@ async function checkFirstClick() {
     assert.ok(label.includes(release.version));
     const href = "/downloads/"+filename;
     assert.equal(await a.getAttribute("href"),href);
+    const diagnostic = setInterval(async()=>{try {
+      const userState=await a.locator("..").innerText({timeout:2000});
+      const progress=await page.evaluate(()=>performance.getEntriesByType('resource').filter(r=>r.name.endsWith('.apk')).map(r=>({bytes:r.encodedBodySize,ms:r.duration})));
+      console.log('handoff',userState,progress);
+    } catch {}},20000);
+    diagnostic.unref();
     const [download, payload] = await Promise.all([
       page.waitForEvent("download",{timeout:180000}),
       page.waitForResponse(response => response.url() === origin+href && response.status() === 200,{timeout:120000}),
       a.click(),
     ]);
+    clearInterval(diagnostic);
     assert.equal(download.suggestedFilename(),filename);
     const downloadedFrom = download.url();
     assert.ok(downloadedFrom === origin+href || downloadedFrom.startsWith("blob:"+origin+"/"));
