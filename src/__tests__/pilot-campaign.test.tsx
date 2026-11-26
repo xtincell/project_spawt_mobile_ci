@@ -34,7 +34,7 @@ it.each(["facebook", "instagram"])("relie une arrivée %s au clic explicite et �
   const url = campaign(source);
   const {unmount} = renderLanding(url);
   expect(getHero().getByRole("heading", {name: "Envie d’un brunch ?"})).toBeVisible();
-  const cta = getHero().getByRole("link", {name:/Télécharger l’APK/i});
+  const cta = getHero().getByRole("link", {name:/Télécharger SPAWT/i});
   expect(cta.closest("#telecharger")).toBeTruthy();
   expect(cta).toHaveAttribute("download", FALLBACK_ANDROID_RELEASE.fileName);
   expect(cta).toHaveAttribute("href", "/downloads/" + FALLBACK_ANDROID_RELEASE.fileName);
@@ -66,7 +66,7 @@ it.each(["facebook", "instagram"])("relie une arrivée %s au clic explicite et �
 it("présente la carte web à un iPhone Instagram et garde la visite à l’étape arrivée", async () => {
   renderLanding(campaign("instagram"), "iPhone; Instagram");
   expect(getHero().getByRole("link", {name:"Explorer la carte"})).toHaveAttribute("href","/carte");
-  expect(screen.queryByRole("link",{name:/Télécharger l’APK/})).not.toBeInTheDocument();
+  expect(screen.queryByRole("link",{name:/Télécharger SPAWT/})).not.toBeInTheDocument();
   expect(screen.queryByRole("link",{name:/App Store|Google Play/})).not.toBeInTheDocument();
   expect(actions.map(a=>a.p_action)).toEqual(["arrival"]);
 });
@@ -75,7 +75,7 @@ it("garde une source inconnue et l’APK disponible quand l’attribution est in
   clickStatus = 503;
   renderLanding("/?utm_source=facebook&utm_content=pancakes_v2#telecharger");
   expect(getHero().getByRole("heading",{name:"Ce soir, on mange où ?"})).toBeVisible();
-  const cta = getHero().getByRole("link",{name:/Télécharger l’APK/});
+  const cta = getHero().getByRole("link",{name:/Télécharger SPAWT/});
   cta.addEventListener("click",event=>event.preventDefault());
   fireEvent.click(cta);
   const retry = await screen.findByRole("button",{name:"Retrouver mon code"});
@@ -94,7 +94,7 @@ it("utilise des octets aléatoires sur un navigateur sans randomUUID et évite u
   first.unmount(); sessionStorage.clear(); actions.length=0;
   vi.stubGlobal("crypto", undefined);
   renderLanding(campaign("instagram"));
-  const download = getHero().getByRole("link",{name:/Télécharger l’APK/});
+  const download = getHero().getByRole("link",{name:/Télécharger SPAWT/});
   download.addEventListener("click",event=>event.preventDefault());
   fireEvent.click(download);
   await waitFor(()=>expect(screen.getByRole("button",{name:"Retrouver mon code"})).toBeVisible());

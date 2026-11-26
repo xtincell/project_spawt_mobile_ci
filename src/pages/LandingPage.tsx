@@ -305,7 +305,7 @@ function Telechargement() {
         />
         <h2 className="section-title">SPAWT dans ta poche</h2>
         <p className="section-lede">
-          Télécharge la dernière version Android au format APK.
+          Télécharge la dernière version de SPAWT pour Android.
           L&rsquo;installation se fait directement depuis le fichier téléchargé.
           La version iOS arrive bientôt.
         </p>

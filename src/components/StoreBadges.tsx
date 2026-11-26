@@ -13,9 +13,9 @@ export default function StoreBadges({ downloadOrigin = "" }: { downloadOrigin?: 
   const downloadUrl = release.url.startsWith("/downloads/") ? `${downloadOrigin}${release.url}` : release.url;
   return (
     <div className="store-badges">
-      <a className="store-badge store-badge--platform" href={downloadUrl} download={release.fileName} aria-label={`Télécharger SPAWT pour Android, APK version ${release.version}, build ${release.build}`}>
+      <a className="store-badge store-badge--platform" href={downloadUrl} download={release.fileName} aria-label={`Télécharger SPAWT pour Android, version ${release.version}, build ${release.build}`}>
         <PlatformIcon platform="android" />
-        <span><span className="store-badge__hint">Télécharger pour</span><span className="store-badge__name">Android</span><span className="store-badge__detail">APK · v{release.version} · build {release.build}</span></span>
+        <span><span className="store-badge__hint">Pour Android</span><span className="store-badge__name">Télécharger SPAWT</span><span className="store-badge__detail">v{release.version} · build {release.build}</span></span>
       </a>
       {APPSTORE_URL ? (
         <a className="store-badge store-badge--platform" href={APPSTORE_URL} target="_blank" rel="noreferrer"><PlatformIcon platform="apple" /><span><span className="store-badge__hint">Télécharger sur</span><span className="store-badge__name">App Store</span></span></a>

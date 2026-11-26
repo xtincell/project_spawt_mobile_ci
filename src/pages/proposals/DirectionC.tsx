@@ -16,7 +16,7 @@ export function ShowcaseHeader() {
   const brand = usePublicBrand();
   return <header className="sc-header">
     <Link className="sc-logo" to="/" aria-label={`${brand.name} — accueil`}><BrandLogo key={brand.logoUrl} url={logoForSite(brand.logoUrl)} alt={`${brand.name} — ${brand.title}`} /></Link>
-    <nav aria-label="Navigation principale"><Link to="/carte">La carte</Link><a href={QUIZ_URL}>Mon Palais</a><a className="sc-nav-download" href="#telecharger">Télécharger</a></nav>
+    <nav aria-label="Navigation principale"><Link to="/carte">La carte</Link><a href={QUIZ_URL}>Mon Palais</a><a className="sc-nav-download" href="#telecharger">Télécharger SPAWT</a></nav>
   </header>;
 }
 
@@ -25,8 +25,8 @@ function DownloadAction() {
   if (!release) return <AndroidReleasePending failed={release === null} />;
   const url = release.url;
   return <div className="sc-install">
-    <a className="sc-primary" href={url} download={release.fileName} aria-label={`Télécharger SPAWT pour Android, APK version ${release.version}, build ${release.build}`}><svg className="sc-android-robot" viewBox="0 0 24 28" aria-hidden="true" fill="currentColor"><path d="M7 5 5.5 2.5M17 5l1.5-2.5" stroke="currentColor" strokeWidth="1"/><path fillRule="evenodd" d="M5 11a7 7 0 0 1 14 0H5Zm4-5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/><rect x="5" y="12" width="14" height="10" rx="1.5"/><rect x="1" y="12" width="3" height="10" rx="1.5"/><rect x="20" y="12" width="3" height="10" rx="1.5"/><rect x="7" y="20" width="3" height="7" rx="1.5"/><rect x="14" y="20" width="3" height="7" rx="1.5"/></svg><span>Télécharger l’app</span><span aria-hidden="true">→</span></a>
-    <p>Android · Gratuit</p>
+    <a className="sc-primary" href={url} download={release.fileName} aria-label={`Télécharger SPAWT pour Android, version ${release.version}, build ${release.build}`}><svg className="sc-android-robot" viewBox="0 0 24 28" aria-hidden="true" fill="currentColor"><path d="M7 5 5.5 2.5M17 5l1.5-2.5" stroke="currentColor" strokeWidth="1"/><path fillRule="evenodd" d="M5 11a7 7 0 0 1 14 0H5Zm4-5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/><rect x="5" y="12" width="14" height="10" rx="1.5"/><rect x="1" y="12" width="3" height="10" rx="1.5"/><rect x="20" y="12" width="3" height="10" rx="1.5"/><rect x="7" y="20" width="3" height="7" rx="1.5"/><rect x="14" y="20" width="3" height="7" rx="1.5"/></svg><span>Télécharger SPAWT</span><span aria-hidden="true">→</span></a>
+    <p>Pour Android · Gratuit</p>
   </div>;
 }
 
