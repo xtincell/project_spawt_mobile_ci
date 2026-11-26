@@ -1,0 +1,42 @@
+name: Recette de réception du fichier Android en lecture seule
+on:
+  push:
+    branches: ['codex/qa-clic-android-lecture']
+    paths: ['.github/workflows/qa-reception-lecture.yml']
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer Playwright
+        run: npm install --prefix "$RUNNER_TEMP/qa" --no-save playwright-core@1.51.1
+      - name: Rejouer les gestes publics sans écrire de mesure
+        env:
+          NODE_PATH: ${{ runner.temp }}/qa/node_modules
+        run: |
+          node <<'JS'
+          const {chromium,devices}=require('playwright-core'),fs=require('fs'),crypto=require('crypto'),a=require('assert/strict');
+          const origin='https://spawt.online',rel='/downloads/spawt-1.1.6-build47.apk',sha='88042ac19e7c6d3af6626f761f25eab45bbe3d212651af05f0a8ab1e66214129',bytes=162897383;
+          async function check(d){const p=await d.path();a.ok(p);const h=crypto.createHash('sha256');for await(const c of fs.createReadStream(p))h.update(c);const s=h.digest('hex');a.equal(s,sha);a.equal(fs.statSync(p).size,bytes);return {sha256:s,bytes};}
+          (async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome'});for(const blockedManifest of [false,true]){
+            const ctx=await browser.newContext({...devices['Pixel 7'],acceptDownloads:true,serviceWorkers:'block'}),p=await ctx.newPage(),results={blockedManifest,blockedWrites:0,get:[],manifest:[]};let downloads=[];
+            await ctx.route('**/*',r=>{const req=r.request();if(!['GET','HEAD','OPTIONS'].includes(req.method())){results.blockedWrites++;return r.abort();}if(blockedManifest&&req.url().includes('/android-releases/latest.json'))return r.abort();return r.continue();});
+            p.on('response',s=>{if(s.url()===origin+rel&&s.request().method()==='GET')results.get.push({status:s.status(),length:s.headers()['content-length']??null,encoding:s.headers()['content-encoding']??null,type:s.headers()['content-type']});if(s.url().includes('/android-releases/latest.json'))results.manifest.push(s.status());});
+            p.on('download',d=>downloads.push(d));await p.goto(origin+'/?utm_source=facebook&utm_medium=paid_social#telecharger',{waitUntil:'domcontentloaded'});
+            results.asset=await p.locator('script[src*="/assets/index-"]').first().getAttribute('src');const link=p.locator('#telecharger a[download]').first();await link.waitFor();a.equal(await link.getAttribute('href'),rel);await link.click();
+            const failed=p.getByRole('link',{name:'Télécharger directement'}).first(),manual=p.getByRole('link',{name:'Enregistrer le fichier'}).first();
+            for(let i=0;i<160&&!downloads.length&&!(await failed.isVisible())&&!(await manual.isVisible());i++)await p.waitForTimeout(500);
+            await p.waitForTimeout(1200);results.firstEvent=downloads.length>0;results.failed=await failed.isVisible();results.saveLink=await manual.isVisible();
+            if(downloads.length)results.first=await check(downloads[0]);else if(results.failed||results.saveLink){const wait=p.waitForEvent('download',{timeout:90000});await (results.failed?failed:manual).click();results.second=await check(await wait);}
+            console.log(JSON.stringify(results));a.ok(results.first||results.second);await ctx.close();
+          }await browser.close();})().catch(e=>{console.error(e);process.exit(1)});
+          JS
+      - name: Vérifier le lien direct indépendamment du navigateur
+        run: |
+          url=https://spawt.online/downloads/spawt-1.1.6-build47.apk
+          curl -fsSL --retry 2 "$url" -o "$RUNNER_TEMP/direct.apk"
+          test "$(stat -c %s "$RUNNER_TEMP/direct.apk")" = 162897383
+          echo "88042ac19e7c6d3af6626f761f25eab45bbe3d212651af05f0a8ab1e66214129  $RUNNER_TEMP/direct.apk" | sha256sum -c -
