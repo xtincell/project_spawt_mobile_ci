@@ -1,0 +1,42 @@
+name: Premier clic public 48 — lecture seule
+on:
+  push:
+    branches: ['codex/qa-premier-clic-48']
+    paths: ['.github/workflows/qa-premier-clic-48.yml']
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Charger Playwright
+        run: npm install --prefix "$RUNNER_TEMP/qa" --no-save playwright-core@1.51.1
+      - name: Entrer, cliquer une fois et relire les octets
+        env:
+          NODE_PATH: ${{ runner.temp }}/qa/node_modules
+        run: |
+          node <<'JS'
+          const {chromium,devices}=require('playwright-core'),fs=require('fs'),crypto=require('crypto'),assert=require('node:assert/strict');
+          const origin='https://spawt.online',manifest='https://raw.githubusercontent.com/xtincell/spawt-ci-mobile-v1-mvp/android-releases/latest.json',known={'spawt-1.1.6-build47.apk':[162897383,'88042ac19e7c6d3af6626f761f25eab45bbe3d212651af05f0a8ab1e66214129'],'spawt-1.1.7-build48.apk':[162904823,'641e6d33818a69b1543fda5d6dee08cc6ef737780258ecbc0d7aee0ed8a32d0b']};
+          (async()=>{const release=await(await fetch(manifest)).json();assert.equal(release.build,48);assert.deepEqual([release.bytes,release.sha256],known[release.fileName]);
+            const b=await chromium.launch({executablePath:'/usr/bin/google-chrome'});let checks=[];
+            for(const [label,entry,settle] of [['direct','/#telecharger',0],['facebook','/?utm_source=facebook&utm_medium=paid_social&utm_campaign=abidjan_beta_20261204&utm_content=pancakes_v2#telecharger',1800]]){
+              const ctx=await b.newContext({...devices['Pixel 7'],acceptDownloads:true,serviceWorkers:'block'}),p=await ctx.newPage(),http=[],manifests=[];let prevented=0;
+              await ctx.route('**/*',r=>{if(!['GET','HEAD','OPTIONS'].includes(r.request().method())){prevented++;return r.abort();}return r.continue();});
+              p.on('response',res=>{if(res.url()===manifest)manifests.push(res.status());if(new URL(res.url()).pathname.endsWith('.apk')&&res.request().method()==='GET')http.push({url:res.url(),status:res.status(),length:res.headers()['content-length']??null,encoding:res.headers()['content-encoding']??null});});
+              await p.goto(origin+entry,{waitUntil:'domcontentloaded'});const c=p.locator('#telecharger a[download]').first();await c.waitFor();if(settle)await p.waitForTimeout(settle);
+              const href=await c.getAttribute('href'),labelShown=await c.innerText(),offer=await c.locator('..').innerText();const [download]=await Promise.all([p.waitForEvent('download',{timeout:130000}),c.click()]);
+              const name=download.suggestedFilename(),file=await download.path();assert.equal(await download.failure(),null);assert.equal(href,'/downloads/'+name);
+              const h=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file))h.update(chunk);
+              const bytes=fs.statSync(file).size,sha256=h.digest('hex');assert.deepEqual([bytes,sha256],known[name]);
+              const record={utc:new Date().toISOString(),entry:label,firstClick:true,href,label:labelShown,offer,name,bytes,sha256,manifestStatuses:manifests,prevented,http};checks.push(record);console.log(JSON.stringify(record));await ctx.close();
+            }await b.close();fs.writeFileSync('public-click-48.json',JSON.stringify(checks,null,2));})().catch(e=>{console.error(e);process.exit(1)});
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-click-48
+          path: public-click-48.json
