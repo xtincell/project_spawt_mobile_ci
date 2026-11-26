@@ -4,7 +4,7 @@ const art = "/brand/accueil/";
 const steps = [
   { action: "Repérer", title: "Trouve une table dans ton quartier.", detail: "Parcours les repères sur la carte d’Abidjan. Touche une adresse pour voir ce qui t’y attend.", screen: "app-carte-explorer.webp", alt: "La carte des adresses d’Abidjan dans SPAWT.", icon: "etablissement" },
   { action: "Choisir", title: "Vois ce qui a plu à table.", detail: "Chez Le Cha, un membre a aimé le goût et la déco. Sa photo et ses notes sur le service t’aident à faire ton choix.", screen: "app-fiche-le-cha.webp", alt: "La fiche de Le Cha avec l’avis sur la cuisine, le cadre et le service.", icon: "commenter" },
-  { action: "Garder", title: "Garde ton prochain brunch sous la main.", detail: "Un plat te tente ? Ajoute-le à tes envies et retrouve son adresse quand la Bande te demande où aller.", screen: "app-envies-enregistrees.webp", alt: "Un plat enregistré dans Mes envies pour une prochaine sortie.", icon: "plats" },
+  { action: "Garder", title: "Retrouve tes spawts préférés.", detail: "Enregistre IN’ Concept Store dans tes adresses. Ses Eggs Benedict te tentent aussi ? Ajoute le plat à tes favoris, à part.", screen: "app-envies-enregistrees.webp", alt: "Mes envies dans SPAWT, avec le lieu IN’ Concept Store enregistré et les Eggs Benedict dans les favoris plats.", icon: "plats" },
 ] as const;
 
 export function InsideSpawt() {
