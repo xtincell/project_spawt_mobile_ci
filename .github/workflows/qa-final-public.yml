@@ -1,0 +1,29 @@
+name: Vérifier la vitrine publiée et le premier clic APK
+on:
+  push:
+    branches: ['codex/qualification-vitrine-abidjan']
+permissions:
+  contents: read
+jobs:
+  vitrine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Lire la référence exacte de la vitrine déjà déployée
+        run: |
+          target=$(cat public-target-sha.txt)
+          [[ "$target" =~ ^[a-f0-9]{40}$ ]]
+          git fetch --no-tags --depth 1 origin "$target"
+          echo "WEB_TARGET=$target" >> "$GITHUB_ENV"
+      - name: Vérifier les aperçus, les captures Android et télécharger depuis un Chrome neuf
+        run: |
+          npm install --prefix "$RUNNER_TEMP/spawt-qa" --no-save --no-audit --no-fund playwright-core@1.51.1 jsdom@24.1.3
+          NODE_PATH="$RUNNER_TEMP/spawt-qa/node_modules" node scripts/qa-final-public.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vitrine-publique-entreprise
+          path: validation-vitrine.json
