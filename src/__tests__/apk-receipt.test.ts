@@ -13,6 +13,15 @@ it("rejects a truncated body even with the expected header",async()=>{
  vi.stubGlobal("fetch",vi.fn().mockResolvedValue(new Response(Uint8Array.from([80,75,3,4]),{headers:{"content-type":"application/vnd.android.package-archive","content-length":"8"}})));
  await expect(receiveApk(release,new AbortController().signal)).rejects.toThrow("incomplete transfer");
 });
+it("verifies transferred bytes when the edge omits the length header",async()=>{
+ vi.stubGlobal("location",{origin:"https://spawt.online"});
+ const bytes=Uint8Array.from([80,75,3,4,0,0,0,0]);
+ const headers={"content-type":"application/vnd.android.package-archive"};
+ vi.stubGlobal("fetch",vi.fn().mockResolvedValueOnce(new Response(bytes,{headers}))
+   .mockResolvedValueOnce(new Response(bytes.slice(0,4),{headers})));
+ expect((await receiveApk(release,new AbortController().signal)).size).toBe(8);
+ await expect(receiveApk(release,new AbortController().signal)).rejects.toThrow("incomplete transfer");
+});
 it("never claims an external download",async()=>{
  vi.stubGlobal("location",{origin:"https://spawt.online"});const fetch=vi.fn();vi.stubGlobal("fetch",fetch);
  await expect(receiveApk({...release,url:"https://example.com/spawt.apk"},new AbortController().signal)).rejects.toThrow("untracked mirror");

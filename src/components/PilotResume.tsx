@@ -36,7 +36,10 @@ function PhoneTransfer({ entry }: { entry: Journey["entry"] }) {
   </div>;
 }
 
-export function PilotResume({ journey }: { journey: ReturnType<typeof usePilotJourney> }) {
+export function PilotResume({ journey, transferPanelRef }: {
+  journey: ReturnType<typeof usePilotJourney>;
+  transferPanelRef?: (node: HTMLDivElement | null) => void;
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const box = dialog.current;
@@ -66,6 +69,7 @@ export function PilotResume({ journey }: { journey: ReturnType<typeof usePilotJo
       journey.setShowResume(false);
     }}><button aria-label="Fermer">Fermer</button></form>
     <h2 id="reprise-titre">{device === "desktop" ? "Continuer sur ton téléphone" : device === "apple" ? "SPAWT sur iPhone" : "Après l’installation"}</h2>
+    <div ref={transferPanelRef} />
     {device === "desktop" ? <PhoneTransfer entry={journey.entry} /> :
       device === "apple" ? <Link className="accueil-apk" to="/carte">Explorer la carte</Link> : <>
     <p>Ouvre l’APK SPAWT dans <strong>Téléchargements</strong>, puis appuie sur <strong>Installer</strong>. Reviens ensuite dans cet onglet.</p>

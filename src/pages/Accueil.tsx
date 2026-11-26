@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { LeChaReview } from "../components/LeChaReview";
 import { PilotResume } from "../components/PilotResume";
 import { usePilotJourney } from "../lib/pilot-journey";
@@ -38,15 +38,16 @@ function AccueilContent() {
   const brand = usePublicBrand();
   const location = useLocation();
   const journey = usePilotJourney(location.search);
+  const [transferPanel, setTransferPanel] = useState<HTMLDivElement | null>(null);
   usePageTitle(brand.title);
   useEffect(() => {
     if (location.hash === "#telecharger") window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.hash]);
-  const download = <ApkDownload className="accueil-apk" onDownload={journey.startDownload} onReceived={journey.reportApkReceived} />;
+  const download = <ApkDownload className="accueil-apk" onDownload={journey.startDownload} onReceived={journey.reportApkReceived} transferPanel={transferPanel} />;
   return <div className="accueil" id="contenu-accueil" tabIndex={-1}>
     <div id="telecharger"><EveningHero initialSpot={journey.entry.source === "unknown" ? "marcory" : "in-concept"} download={download} /></div>
     {journey.clicked && <button className="pilot-code-return" onClick={() => journey.setShowResume(true)}>Retrouver mon code de reprise</button>}
-    <PilotResume journey={journey} />
+    <PilotResume journey={journey} transferPanelRef={setTransferPanel} />
 
     <a className="accueil-ruban" href="#mon-palais">
       <img src="/brand/accueil/diorama-moka.webp" width="180" height="98" alt="" />
