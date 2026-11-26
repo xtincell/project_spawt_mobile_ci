@@ -4,6 +4,7 @@ import { PilotResume } from "../components/PilotResume";
 import { usePilotJourney } from "../lib/pilot-journey";
 import { Link, useLocation } from "react-router";
 import ApkDownload from "../components/ApkDownload";
+import { installDevice } from "../lib/install-device";
 import { BrandLogo, logoForSite } from "../components/Layout";
 import { InsideSpawt } from "../components/InsideSpawt";
 import { CityStory, PalaisStory } from "../components/AccueilStory";
@@ -65,8 +66,12 @@ function AccueilContent() {
         <div><h2 id="installer-titre">Abidjan dans ta poche<b>.</b></h2>
           <p>Télécharge SPAWT et choisis où retrouver la Bande.</p></div>
       </div>
-      <div className="accueil-installer-action">
-        {download}
+      <div className="installer-options">
+        {installDevice() === "desktop" && <figure className="installer-qr">
+          <img src={"/brand/install/qr-" + journey.entry.source + ".png"} width="132" height="132" alt="QR code vers le téléchargement sur Android" loading="lazy" />
+          <figcaption>Scanner avec ton Android</figcaption>
+        </figure>}
+        <div className="accueil-installer-action">{download}</div>
       </div>
     </section>
   </div>;

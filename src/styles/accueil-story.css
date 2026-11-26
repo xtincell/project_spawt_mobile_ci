@@ -132,3 +132,11 @@
 .accueil .lecha-logo-stamp { width: 36%; max-height: 52%; left: auto; right: .75rem; bottom: .75rem; padding: .45rem; object-fit: contain; }
 .accueil .lecha-card__head h3 { margin-bottom: .25rem; }
 .accueil .lecha-card__head .lecha-specialty { margin-bottom: .2rem; }
+
+
+.installer-options { display: flex; align-items: center; gap: clamp(1.5rem,3.2vw,3.5rem); }
+.installer-qr { flex: none; margin: 0; text-align: center; }
+.installer-qr img { width: 7rem; height: 7rem; display: block; padding: .25rem; margin-inline: auto; background: var(--blanc-pur); image-rendering: pixelated; }
+.installer-qr figcaption { margin-top: .35rem; font: 500 .76rem/1.4 var(--font-body); }
+@media (max-width: 950px) { .accueil .accueil-installer { flex-wrap: wrap; } }
+@media (max-width: 650px) { .installer-qr { display: none; } }
