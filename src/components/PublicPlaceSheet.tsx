@@ -10,6 +10,7 @@ const cuisines: Record<string, string> = { europeenne: 'Européenne', ivoirienne
   fusion: 'Fusion', ouest_africaine: 'Ouest-africaine', cafe: 'Café', patisserie: 'Pâtisserie', autre: 'Autre' };
 const label = (value: string) => cuisines[value] || value.replaceAll('_', ' ');
 const formatDate = (value: string) => dateFormat.format(new Date(value + 'T00:00:00Z'));
+const sameTextKey = (value: string) => value.normalize().toLocaleLowerCase('fr').replace(/\s+/g, ' ').trim();
 
 function usePlaceInfo<T>(load: (id: string, signal: AbortSignal) => Promise<T>, id: string, attempt: number) {
   const [state, setState] = useState<{ value?: T; failed?: boolean }>({});
@@ -57,6 +58,16 @@ export function PublicPlaceSheet({ place, detailRef, onClose }: {
   const menu = usePlaceInfo(loadPlaceMenu, place.id, attempt);
   const reviews = usePlaceInfo(loadReviewStats, place.id, attempt);
   const c = contact.value, p = practical.value;
+  const printed = new Set([sameTextKey(p?.description || '')]);
+  const editorial = c?.editorial;
+  const identity = editorial && !printed.has(sameTextKey(editorial.identity)) ? editorial.identity : null;
+  if (identity) printed.add(sameTextKey(identity));
+  const sections = editorial?.sections.filter(section => {
+    const key = sameTextKey(section.body);
+    if (printed.has(key)) return false;
+    printed.add(key);
+    return true;
+  }) || [];
   const linkedMenus = new Map<string, string>();
   for (const source of p?.sources || []) {
     if (source.fields.includes('menu_urls')) linkedMenus.set(source.url, source.label);
@@ -87,6 +98,7 @@ export function PublicPlaceSheet({ place, detailRef, onClose }: {
     </div>
     <div className="place-sheet__body">
       {p?.description && <p className="place-sheet__intro">{p.description}</p>}
+      {identity && <p className="place-sheet__intro">{identity}</p>}
       {place.descriptive_address && <address>{place.descriptive_address}</address>}
       {hasPosition && <p className="place-sheet__coordinates">GPS · {place.lat}, {place.lng}</p>}
       {!hasPosition && !place.descriptive_address && <p className="place-sheet__note">Adresse précise à confirmer.</p>}
@@ -100,6 +112,10 @@ export function PublicPlaceSheet({ place, detailRef, onClose }: {
       </div>
       {shareState === 'copied' && <p role="status" className="place-sheet__note">Lien de la fiche copié.</p>}
       {shareState === 'manual' && <label className="place-sheet__shared">Lien de la fiche<input value={shareLink.href} readOnly onFocus={event => event.currentTarget.select()} /></label>}
+      {editorial && (identity || sections.length > 0) && <div className="place-sheet__section">
+        {sections.map(section => <div key={section.body}><h3>{section.title}</h3><p>{section.body}</p></div>)}
+        <p className="place-sheet__note">Rédaction SPAWT · Vérifié le {formatDate(editorial.checkedOn)}</p>
+      </div>}
       {c && (c.ticket || c.tier) && <div className="place-sheet__section"><h3>Budget</h3>
         {c.ticket && <p>Ticket moyen indicatif · <strong>{currency.format(c.ticket)}</strong></p>}
         {c.tier && <p>Gamme de prix · {['Économique', 'Intermédiaire', 'Premium'][c.tier - 1]}</p>}</div>}

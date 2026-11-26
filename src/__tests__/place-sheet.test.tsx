@@ -79,4 +79,20 @@ describe('Fiche publique de lieu', () => {
     fireEvent.click(screen.getByRole('button',{name:'Partager la fiche'}));
     expect(await screen.findByRole('textbox',{name:'Lien de la fiche'})).toHaveValue(window.location.origin + '/carte?lieu=place1');
   });
+
+  it('affiche les conseils et la FAQ du profil publié sans répéter la présentation ou les passages identiques', async () => {
+    const intro = 'Une table à Marcory.';
+    tables({ public_menu_items: [], public_place_review_stats: [],
+      places: [{id:place.id, editorial_profile:{identity:intro, verified_on:'2026-11-26', sections:[
+        {title:'Présentation',body:intro}, {title:'Venir en groupe',body:'Réserver avant de venir.'},
+        {title:'FAQ',body:'Le lieu ouvre le dimanche.'}, {title:'Doublon',body:' réserver  avant de venir. '}, {title:'Brouillon',body:' '}]}}],
+      public_place_practical:[{place_id:place.id, official_description:intro}] });
+    mount();
+    expect(await screen.findByRole('heading',{name:'FAQ'})).toBeVisible();
+    expect(screen.getAllByText(intro)).toHaveLength(1);
+    expect(screen.getByRole('heading',{name:'Venir en groupe'})).toBeVisible();
+    expect(screen.getByText('Rédaction SPAWT · Vérifié le 26 novembre 2026')).toBeVisible();
+    expect(screen.queryByRole('heading',{name:/Doublon|Brouillon|Présentation/})).toBeNull();
+    expect(parsePlaceContact({editorial_profile:{identity:intro,verified_on:'2026-02-30',sections:[]}}).editorial).toBeNull();
+  });
 });

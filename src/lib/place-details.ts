@@ -49,6 +49,7 @@ export function parsePlaceContact(input: unknown) {
     ticket: money(r.avg_ticket_xof), tier: tier === 1 || tier === 2 || tier === 3 ? tier : null,
     hours: openingHours(r.hours), menus: [...new Set(list(r.menu_urls).map(webUrl).filter((s): s is string => !!s))],
     cover: cover?.startsWith(backend.url + '/storage/v1/object/public/place-covers/') ? cover : null,
+    editorial: parseEditorial(r.editorial_profile),
   };
 }
 
@@ -57,6 +58,16 @@ function dated(value: unknown) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
   const parsed = new Date(date + 'T00:00:00Z');
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().startsWith(date) ? date : null;
+}
+
+function parseEditorial(input: unknown) {
+  const doc = record(input), identity = text(doc.identity), checkedOn = dated(doc.verified_on);
+  if (!identity || !checkedOn) return null;
+  const sections = list(doc.sections).flatMap(item => {
+    const section = record(item), title = text(section.title), body = text(section.body);
+    return title && body ? [{ title, body }] : [];
+  });
+  return { identity, checkedOn, sections };
 }
 
 export function parsePractical(input: unknown) {
@@ -107,7 +118,7 @@ async function read(table: string, query: Record<string, string>, signal: AbortS
 }
 
 export async function loadPlaceContact(id: string, signal: AbortSignal) {
-  const rows = await read('places', { select: 'id,phone,whatsapp,avg_ticket_xof,price_tier,hours,menu_urls,cover_photo_url',
+  const rows = await read('places', { select: 'id,phone,whatsapp,avg_ticket_xof,price_tier,hours,menu_urls,cover_photo_url,editorial_profile',
     id: 'eq.' + id, city_code: 'eq.abidjan', is_published: 'eq.true', limit: '1' }, signal);
   return parsePlaceContact(rows.find(row => row?.id === id));
 }
