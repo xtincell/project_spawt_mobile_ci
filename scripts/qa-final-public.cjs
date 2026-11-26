@@ -82,6 +82,8 @@ async function checkFirstClick() {
       return route.continue();
     });
     const page=await context.newPage();
+    let apkRequests=0;
+    page.on("request",request=>{if(request.url()===origin+"/downloads/"+release.fileName)apkRequests++;});
     page.on('pageerror',error=>console.log('page error',error.message.slice(0,180)));
     page.on('requestfailed',req=>{if(req.url().includes('.apk'))console.log('apk request failed',req.failure());});
     page.on('requestfinished',req=>{if(req.url().includes('.apk'))console.log('apk request finished',req.url());});
@@ -112,7 +114,8 @@ async function checkFirstClick() {
     assert.equal(download.suggestedFilename(),filename);
     const downloadedFrom = download.url();
     assert.ok(downloadedFrom === origin+href || downloadedFrom.startsWith("blob:"+origin+"/"));
-    assert.equal(Number(await payload.headerValue("content-length")),release.bytes);
+    const declaredLength=await payload.headerValue("content-length");
+    if(declaredLength!==null && !await payload.headerValue("content-encoding")) assert.equal(Number(declaredLength),release.bytes);
     assert.equal(await download.failure(),null);
     const path=await download.path();
     const hash=crypto.createHash("sha256");
@@ -120,10 +123,16 @@ async function checkFirstClick() {
     const bytes=fs.statSync(path).size,sha256=hash.digest("hex");
     assert.equal(bytes,release.bytes);
     assert.equal(sha256,release.sha256);
+    const manual=page.locator("dialog[open]").getByRole("link",{name:"Enregistrer le fichier APK"});
+    assert.ok(await manual.isVisible());
+    const [savedAgain]=await Promise.all([page.waitForEvent("download"),manual.click()]);
+    assert.equal(savedAgain.suggestedFilename(),filename);
+    assert.equal(await savedAgain.failure(),null);
+    assert.equal(apkRequests,1);
     const alias=await fetch(origin+"/downloads/spawt-latest.apk",{redirect:"manual"});
     assert.ok([302,307].includes(alias.status));
     assert.equal(new URL(alias.headers.get("location"),origin).href,origin+href);
-    receipt.firstClick={url:payload.url(),delivery:downloadedFrom.startsWith("blob:")?"browser-file-after-GET":"direct",filename,label,bytes,sha256,manifestBlocked:true};
+    receipt.firstClick={url:payload.url(),delivery:downloadedFrom.startsWith("blob:")?"browser-file-after-GET":"direct",filename,label,bytes,sha256,declaredLength,manualSaveInDialog:true,apkRequests,manifestBlocked:true};
     receipt.blocked=[...blocked];
     receipt.networkPostsSent=0;
   } finally { await browser.close(); }
