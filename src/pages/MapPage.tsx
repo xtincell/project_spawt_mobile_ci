@@ -5,6 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 maplibregl.setWorkerUrl(mapWorkerUrl);
 import { loadPublicPlaces, type PublicPlace } from '../lib/public-places';
+import { PublicPlaceSheet } from '../components/PublicPlaceSheet';
 function reveal(element: HTMLElement | null, block: ScrollLogicalPosition) {
   if (!element) return;
   element.focus({preventScroll: true});
@@ -101,6 +102,6 @@ export default function MapPage() {
     {!loading && !error && missingLinkedPlace && <p role="status">Ce lieu n’est pas disponible dans les adresses publiées. Tu peux explorer les autres spots ci-dessous.</p>}
     <div className={`spot-explorer__grid${mapUnavailable ? " spot-explorer__grid--list" : ""}`}><section aria-label="Carte des spots" className={`spot-map${mapUnavailable ? " spot-map--unavailable" : ""}`}><div ref={container} className="spot-map__canvas"/>{mapError && <p className="spot-map__notice">{mapUnavailable ? "Ce navigateur ne permet pas d’afficher la carte interactive. Retrouvez toutes les adresses dans les fiches ci-dessous." : "Le fond de carte est momentanément indisponible. Les fiches restent accessibles."}</p>}</section>
     <section className="spot-list" aria-label="Liste des spots"><p aria-live="polite">{filtered.length} adresse{filtered.length !== 1 ? 's' : ''} · {filtered.filter(p => p.lat !== null && p.lng !== null).length} sur la carte</p>{!loading && !error && filtered.length === 0 && <p>Aucune adresse pour cette recherche.</p>}{filtered.map(p=><button key={p.id} data-spot-id={p.id} className={`spot-card${selected===p.id?' spot-card--active':''}`} aria-pressed={selected===p.id} onClick={event=>select(p, event.currentTarget)}><strong>{p.name}</strong><span>{p.neighborhood || p.city}</span>{p.cuisine.length>0 && <small>{p.cuisine.join(' · ')}</small>}</button>)}</section></div>
-    {active && <section ref={detail} tabIndex={-1} style={{scrollMarginTop: '7rem'}} className="spot-detail" aria-label={`Fiche ${active.name}`}><button className="spot-detail__close" onClick={closeDetail} aria-label="Fermer la fiche">×</button><p className="eyebrow">LA FICHE</p><h2>{active.name}</h2><p>{active.descriptive_address || active.neighborhood || active.city}</p>{active.cuisine.length>0 && <p>{active.cuisine.join(' · ')}</p>}{(active.lat === null || active.lng === null) && <p>Localisation à préciser — cette fiche reste accessible sans point sur la carte.</p>}<p className="muted">Les horaires, tarifs et disponibilités sont à confirmer auprès du lieu.</p></section>}
+    {active && <PublicPlaceSheet key={active.id} place={active} detailRef={detail} onClose={closeDetail} />}
   </main>;
 }

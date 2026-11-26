@@ -1,0 +1,67 @@
+.spot-detail.place-sheet {
+  scroll-margin-top: 7rem;
+  max-width: 56rem;
+  margin: 1.5rem auto;
+  padding: 0;
+  overflow: hidden;
+  background: var(--reference-paper);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 1.35rem;
+  overflow-wrap: anywhere;
+}
+.place-sheet:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+.place-sheet .spot-detail__close {
+  z-index: 1;
+  top: .75rem;
+  right: .75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--reference-paper);
+  border: 1px solid var(--line-strong);
+  line-height: 1;
+}
+.place-sheet__head { display: flex; align-items: stretch; border-bottom: 1px solid var(--line-strong); }
+.place-sheet__head > div { flex: 1; min-width: 0; padding: clamp(1.25rem, 4vw, 2.5rem); padding-right: 3.5rem; }
+.place-sheet__head img { width: 38%; height: auto; max-height: 14rem; object-fit: cover; }
+.place-sheet__head h2 { color: var(--ink); margin: .35rem 0; font-size: clamp(1.85rem, 4.5vw, 3rem); line-height: 1.05; }
+.place-sheet__head p, .place-sheet__body p { margin: .35rem 0; color: var(--ink-soft); }
+.place-sheet__head .place-sheet__locality { font-size: .8rem; font-weight: 700; color: var(--vert-chat-profond); }
+.place-sheet__body { padding: 1.4rem clamp(1.25rem, 4vw, 2.5rem) 1.7rem; }
+.place-sheet__body address { font-style: normal; font-weight: 650; }
+.place-sheet__body .place-sheet__intro { line-height: 1.6; margin-bottom: 1rem; max-width: 65ch; }
+.place-sheet__coordinates, .place-sheet__note { font-size: .85rem; }
+.place-sheet__body a, .place-sheet__note button { color: var(--vert-chat-profond); text-decoration: underline; text-underline-offset: .15em; }
+.place-sheet__note button { border: 0; padding: .25rem; background: transparent; font: inherit; cursor: pointer; }
+.place-sheet__actions { display: flex; flex-wrap: wrap; gap: .55rem; }
+.place-sheet__actions:not(:empty) { margin: .85rem 0; }
+.place-sheet__actions a, .place-sheet__actions button {
+  display: inline-flex; align-items: center; min-height: 2.75rem; padding: .45rem 1rem;
+  border: 1px solid var(--line-strong); border-radius: 2rem; color: var(--ink); background: transparent; text-decoration: none; font: inherit; font-weight: 650; cursor: pointer;
+}
+.place-sheet__shared { display: grid; gap: .3rem; margin: .5rem 0; }
+.place-sheet__shared input { min-width: 0; width: 100%; padding: .5rem; font: inherit; }
+.place-sheet__actions a:first-child { color: var(--ink-inverse); background: var(--vert-chat-profond); }
+.place-sheet a:focus-visible, .place-sheet button:focus-visible, .place-sheet summary:focus-visible { outline: 3px solid var(--or-profond); outline-offset: 2px; }
+.place-sheet__section { padding: 1rem 0; border-top: 1px solid var(--line-strong); }
+.place-sheet__section h3, .place-sheet__section > summary { font: inherit; font-size: 1.1rem; font-weight: 750; color: var(--ink); margin: 0 0 .35rem; }
+.place-sheet summary { cursor: pointer; }
+.place-sheet__menu { margin: .55rem 0 0; }
+.place-sheet__menu summary { font-weight: 650; }
+.place-sheet__menu summary span { margin-left: .35rem; font-weight: normal; font-size: .85rem; color: var(--ink-soft); }
+.place-sheet__body ul { padding-left: 1.2rem; margin: .45rem 0; }
+.place-sheet__body .place-sheet__menu-list { list-style: none; padding-left: 0; }
+.place-sheet__menu-list li, .place-sheet__hours div { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem 0; border-bottom: 1px solid var(--line); }
+.place-sheet__menu-list small { display: block; color: var(--ink-soft); }
+.place-sheet__menu-list strong { white-space: nowrap; }
+.place-sheet__hours { margin: .45rem 0; }
+.place-sheet__hours dd { margin: 0; text-align: right; }
+.place-sheet__body .place-sheet__distribution { list-style: none; padding: 0; }
+.place-sheet__distribution li { display: flex; gap: .75rem; align-items: center; }
+.place-sheet__distribution meter { max-width: 12rem; flex: 1; }
+@media (max-width: 520px) {
+  .place-sheet__head { flex-direction: column-reverse; }
+  .place-sheet__head img { width: 100%; height: 8rem; }
+}

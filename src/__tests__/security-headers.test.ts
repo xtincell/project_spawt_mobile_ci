@@ -55,7 +55,7 @@ describe("En-têtes de sécurité HTTP (nginx)", () => {
 
   it("img-src : local et coffre public borné ; font-src local", () => {
     expect(directives.get("img-src")).toContain("'self'");
-    expect(directives.get("img-src")).toBe("'self' data: https://powerupgraders.com/brand/ https://tiles.openfreemap.org/");
+    expect(directives.get("img-src")).toBe("'self' data: https://powerupgraders.com/brand/ https://tiles.openfreemap.org/ https://api.spawt.online/storage/v1/object/public/place-covers/");
     expect(directives.get("font-src")).toBe("'self'");
   });
 

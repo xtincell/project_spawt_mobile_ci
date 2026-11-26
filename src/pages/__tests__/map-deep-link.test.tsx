@@ -8,6 +8,10 @@ import MapPage from "../MapPage";
 const mapMocks = vi.hoisted(() => ({ flyTo: vi.fn(), scrollIntoView: vi.fn() }));
 
 vi.mock("../../lib/public-places", () => ({ loadPublicPlaces: vi.fn() }));
+vi.mock("../../lib/place-details", () => ({
+  loadPlaceContact: vi.fn().mockResolvedValue(null), loadPractical: vi.fn().mockResolvedValue(null),
+  loadPlaceMenu: vi.fn().mockResolvedValue([]), loadReviewStats: vi.fn().mockResolvedValue(null),
+}));
 vi.mock("maplibre-gl", () => ({
   setWorkerUrl: vi.fn(),
   Map: class {
