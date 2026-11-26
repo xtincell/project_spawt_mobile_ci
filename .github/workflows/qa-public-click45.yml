@@ -1,0 +1,24 @@
+name: Recette publique du premier clic Android 45
+on:
+  push:
+    branches: ['codex/qualification-clic-public-45']
+permissions:
+  contents: read
+jobs:
+  premiere-ouverture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Vérifier le premier clic réel sur spawt.online
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix "$RUNNER_TEMP/qa-spawt" playwright-core@1.51.1
+          NODE_PATH="$RUNNER_TEMP/qa-spawt/node_modules" node scripts/qa-public-click45.cjs public-download.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: premier-clic-public-spawt-45
+          path: public-download.json
+
