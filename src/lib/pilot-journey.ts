@@ -7,7 +7,8 @@ const storageKey = "spawt.pilote.visite.v1";
 const week = 7 * 24 * 60 * 60 * 1000;
 type Entry = { source: "facebook" | "instagram" | "unknown"; campaign: string; creative: string; medium: string };
 type Receipt = { token: string; code: string; expires: number };
-type Visit = { key: string; entry: Entry; started: number; clicked: boolean; receipt?: Receipt };
+type DownloadReceipt = { build:number; bytes:number };
+type Visit = { key: string; entry: Entry; started: number; clicked: boolean; receipt?: Receipt; completed?: DownloadReceipt };
 
 export function campaignEntry(search: string): Entry {
   const params = new URLSearchParams(search);
@@ -53,18 +54,35 @@ function createVisit(entry: Entry): Visit {
   return visit;
 }
 
-async function touch(visit: Visit, action: "arrival" | "download_click", signal: AbortSignal) {
+async function pilotRequest(name:string, params:Record<string, unknown>, signal: AbortSignal) {
   const local = import.meta.env.DEV && import.meta.env.VITE_PILOT_LOCAL_API === "1";
   const endpoint = local ? "/pilot-api" : backend.url + "/rest/v1";
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (!local) { headers.apikey = backend.anonKey; headers.Authorization = "Bearer " + backend.anonKey; }
-  const response = await fetch(endpoint + "/rpc/pilot_campaign_touch", {
-    method: "POST", headers, credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store", signal,
-    body: JSON.stringify({ p_visit_key: visit.key, p_action: action, p_source: visit.entry.source,
-      p_medium: visit.entry.medium, p_campaign: visit.entry.campaign, p_creative: visit.entry.creative }),
-  });
+  const headers: Record<string,string> = {"Content-Type":"application/json"};
+  if (!local) { headers.apikey=backend.anonKey; headers.Authorization="Bearer "+backend.anonKey; }
+  return fetch(endpoint+"/rpc/"+name,{method:"POST",headers,credentials:"omit",referrerPolicy:"no-referrer",cache:"no-store",signal,body:JSON.stringify(params)});
+}
+
+async function touch(visit: Visit, action: "arrival" | "download_click", signal: AbortSignal) {
+  const response = await pilotRequest("pilot_campaign_touch", {
+    p_visit_key:visit.key,p_action:action,p_source:visit.entry.source,p_medium:visit.entry.medium,
+    p_campaign:visit.entry.campaign,p_creative:visit.entry.creative,
+  },signal);
   if (!response.ok) throw new Error("Le suivi du parcours est indisponible.");
   return response.json();
+}
+
+async function flushApkReceipt(visit: Visit) {
+  const item=visit.completed;
+  if (!item || !visit.receipt || !validReceipt(visit.receipt)) return;
+  const control=new AbortController();
+  const timeout=window.setTimeout(()=>control.abort(),10_000);
+  try {
+    const result=await pilotRequest("pilot_download_received", {
+      p_visit_key:visit.key,p_build:item.build,p_bytes:item.bytes,
+    },control.signal);
+    if (result.ok && visit.completed===item) { delete visit.completed; store(visit); }
+  } catch { /* retry on reopening or recovering network */ }
+  finally { clearTimeout(timeout); }
 }
 
 export function usePilotJourney(search: string) {
@@ -77,7 +95,7 @@ export function usePilotJourney(search: string) {
   const request = useRef<AbortController | null>(null);
 
   const issue = useCallback(async () => {
-    if (visit.receipt && visit.receipt.expires > Date.now()) return;
+    if (visit.receipt && visit.receipt.expires > Date.now()) { void flushApkReceipt(visit); return; }
     if (request.current || !visit.clicked) return;
     if (!visit.key) { setErrorVisit(visit); return; }
     const controller = new AbortController();
@@ -92,6 +110,7 @@ export function usePilotJourney(search: string) {
       if (!validReceipt(receipt)) throw new Error();
       visit.receipt = receipt;
       store(visit);
+      void flushApkReceipt(visit);
       refresh();
     } catch { if (request.current === controller) setErrorVisit(visit); }
     finally { clearTimeout(timer); if (request.current === controller) request.current = null; }
@@ -113,6 +132,10 @@ export function usePilotJourney(search: string) {
     setShowResume(true);
     void issue();
   }
-  return { entry: visit.entry, receipt: visit.receipt, error: errorVisit === visit, clicked: visit.clicked,
+  function reportApkReceived(build:number,bytes:number) {
+    visit.completed={build,bytes};store(visit);
+    void issue();
+  }
+  return { reportApkReceived, entry: visit.entry, receipt: visit.receipt, error: errorVisit === visit, clicked: visit.clicked,
     showResume: openVisit === visit, setShowResume, issue, startDownload };
 }
