@@ -92,9 +92,15 @@ async function checkFirstClick() {
     assert.ok(label.includes(release.version));
     const href = "/downloads/"+filename;
     assert.equal(await a.getAttribute("href"),href);
-    const [download] = await Promise.all([page.waitForEvent("download",{timeout:120000}),a.click()]);
+    const [download, payload] = await Promise.all([
+      page.waitForEvent("download",{timeout:180000}),
+      page.waitForResponse(response => response.url() === origin+href && response.status() === 200,{timeout:120000}),
+      a.click(),
+    ]);
     assert.equal(download.suggestedFilename(),filename);
-    assert.equal(download.url(),origin+href);
+    const downloadedFrom = download.url();
+    assert.ok(downloadedFrom === origin+href || downloadedFrom.startsWith("blob:"+origin+"/"));
+    assert.equal(Number(await payload.headerValue("content-length")),release.bytes);
     assert.equal(await download.failure(),null);
     const path=await download.path();
     const hash=crypto.createHash("sha256");
@@ -104,8 +110,8 @@ async function checkFirstClick() {
     assert.equal(sha256,release.sha256);
     const alias=await fetch(origin+"/downloads/spawt-latest.apk",{redirect:"manual"});
     assert.ok([302,307].includes(alias.status));
-    assert.equal(new URL(alias.headers.get("location"),origin).href,download.url());
-    receipt.firstClick={url:download.url(),filename,label,bytes,sha256,manifestBlocked:true};
+    assert.equal(new URL(alias.headers.get("location"),origin).href,origin+href);
+    receipt.firstClick={url:payload.url(),delivery:downloadedFrom.startsWith("blob:")?"browser-file-after-GET":"direct",filename,label,bytes,sha256,manifestBlocked:true};
     receipt.blocked=[...blocked];
     receipt.networkPostsSent=0;
   } finally { await browser.close(); }
