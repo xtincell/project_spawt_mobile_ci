@@ -12,6 +12,7 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import { lazy, Suspense } from "react";
 const MapPage = lazy(() => import("./pages/MapPage"));
+import { PageMetadata } from "./components/PageMetadata";
 import Layout from "./components/Layout";
 import { LeChaReview } from "./components/LeChaReview";
 import { ResumeLanding } from "./components/PilotResume";
@@ -30,6 +31,7 @@ import DirectionC, { ShowcaseHeader } from "./pages/proposals/DirectionC";
 export default function App() {
   return (
     <PublicBrandProvider><BrowserRouter>
+      <PageMetadata />
       <Routes>
         <Route element={<Layout header={<AccueilHeader />} className="accueil-layout" />}>
           <Route path="/" element={<Accueil />} />
