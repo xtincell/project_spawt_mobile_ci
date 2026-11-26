@@ -40,3 +40,18 @@ jobs:
           curl -fsSL --retry 2 "$url" -o "$RUNNER_TEMP/direct.apk"
           test "$(stat -c %s "$RUNNER_TEMP/direct.apk")" = 162897383
           echo "88042ac19e7c6d3af6626f761f25eab45bbe3d212651af05f0a8ab1e66214129  $RUNNER_TEMP/direct.apk" | sha256sum -c -
+      - name: Actionner le secours dans Chrome après une réponse incomplète simulée localement
+        env:
+          NODE_PATH: ${{ runner.temp }}/qa/node_modules
+        run: |
+          node <<'JS'
+          const {chromium,devices}=require('playwright-core'),fs=require('fs'),crypto=require('crypto'),a=require('assert/strict');
+          (async()=>{const b=await chromium.launch({executablePath:'/usr/bin/google-chrome'}),c=await b.newContext({...devices['Pixel 7'],acceptDownloads:true,serviceWorkers:'block'}),p=await c.newPage();
+            const start='https://spawt.online',file='/downloads/spawt-1.1.6-build47.apk';let injected=0,realGet=0,events=0,receiptAttempt=0;
+            await c.route('**/*',async route=>{const q=route.request();if(!['GET','HEAD','OPTIONS'].includes(q.method())){if((q.postData()||'').includes('apk_received')) receiptAttempt++;return route.abort();}
+              if(q.url()===start+file&&q.method()==='GET'){if(!injected++){return route.fulfill({status:200,contentType:'application/vnd.android.package-archive',headers:{'content-length':'4'},body:Buffer.from([80,75,3,4])});}realGet++;}return route.continue();});
+            p.on('download',()=>events++);await p.goto(start+'/?utm_source=facebook&utm_medium=paid_social#telecharger');
+            await p.locator('#telecharger a[download]').first().click();const fallback=p.getByRole('link',{name:'Télécharger directement'});await fallback.waitFor({timeout:30000});
+            a.equal(events,0);a.equal(receiptAttempt,0);a.equal(await fallback.getAttribute('href'),file);const wait=p.waitForEvent('download',{timeout:90000});await fallback.click();const d=await wait,f=await d.path();a.equal(await d.failure(),null);const h=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(f))h.update(chunk);
+            const sha=h.digest('hex'),size=fs.statSync(f).size;a.equal(sha,'88042ac19e7c6d3af6626f761f25eab45bbe3d212651af05f0a8ab1e66214129');a.equal(size,162897383);a.equal(realGet,1);a.equal(events,1);a.equal(receiptAttempt,0);console.log(JSON.stringify({scenario:'secours après échec local injecté',eventsBeforeFallback:0,realGet,events,receiptAttempt,size,sha,file:d.suggestedFilename()}));await b.close();})().catch(e=>{console.error(e);process.exit(1)});
+          JS
