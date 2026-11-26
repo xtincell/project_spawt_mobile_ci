@@ -21,7 +21,7 @@ it('updates both buttons together and preserves the last link after a downgrade 
   const { default: StoreBadges } = await import('../components/StoreBadges');
   const { default: ApkDownload } = await import('../components/ApkDownload');
   render(<><StoreBadges /><ApkDownload /></>);
-  const buttons = () => screen.getAllByRole('link', { name: /Télécharger SPAWT pour Android|Télécharger l’APK/ });
+  const buttons = () => screen.getAllByRole('link', { name: /Télécharger SPAWT/ });
   expect(buttons()).toHaveLength(2);
   expect(buttons()[0]).toHaveAttribute('href', `/downloads/${pinned.fileName}`);
   expect(buttons()[1]).toHaveAttribute('href', `/downloads/${pinned.fileName}`);

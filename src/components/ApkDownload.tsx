@@ -62,11 +62,11 @@ export default function ApkDownload({ className, onDownload, onReceived, id }: D
     <a className={className} href={release.url} download={release.fileName} onClick={begin}
       target={onDownload ? "_blank" : undefined} rel="noopener noreferrer">
       <img src="/brand/accueil/telecharger.png" width="24" height="24" alt="" />
-      <span>Télécharger l’APK</span>
+      <span>Télécharger SPAWT</span>
     </a>
-    {transfer==="loading" && <p role="status">Réception de l’APK en cours… Ne ferme pas cette page. <a href={release.url} download={release.fileName} onClick={()=>{request.current?.abort();request.current=null;setTransfer("idle");}}>Utiliser le téléchargement direct</a></p>}
+    {transfer==="loading" && <p role="status">Téléchargement en cours… Ne ferme pas cette page. <a href={release.url} download={release.fileName} onClick={()=>{request.current?.abort();request.current=null;setTransfer("idle");}}>Utiliser le téléchargement direct</a></p>}
     {transfer==="failed" && <p role="status">La réception n’a pas pu être confirmée. <a href={release.url} download={release.fileName}>Télécharger directement</a></p>}
-    {saving && <p role="status">APK reçu. <a href={saving.url} download={saving.name}>Enregistrer le fichier APK</a></p>}
-    <small>Android · Gratuit · v{release.version} · build {release.build} · {megabytes} Mo</small>
+    {saving && <p role="status">Fichier d’installation reçu. <a href={saving.url} download={saving.name}>Enregistrer le fichier</a></p>}
+    <small>Pour Android · Gratuit · v{release.version} · build {release.build} · {megabytes} Mo</small>
   </div>;
 }

@@ -66,9 +66,9 @@ describe("BrandHero — découverte sans perdre le téléchargement", () => {
     expect(hero.getByRole("link", { name: "Voir la fiche de Villa le Prisé" })).toHaveAttribute("href", "/carte?lieu=5fc3912f-d79a-5b6c-b263-2bfbaf2d820e");
 
     function checkDownloads() {
-      const downloads = screen.getAllByRole("link", { name: "Télécharger l’APK" });
+      const downloads = screen.getAllByRole("link", { name: "Télécharger SPAWT" });
       expect(downloads).toHaveLength(2);
-      expect(hero.getByRole("link", { name: "Télécharger l’APK" })).toBe(downloads[0]);
+      expect(hero.getByRole("link", { name: "Télécharger SPAWT" })).toBe(downloads[0]);
       for (const download of downloads) {
         expect(download).toBeVisible();
         expect(new URL((download as HTMLAnchorElement).href).pathname).toBe(mirror);

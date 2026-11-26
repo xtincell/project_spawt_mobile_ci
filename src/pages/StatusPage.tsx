@@ -29,7 +29,7 @@ export default function StatusPage() {
     <h2>La version disponible</h2>
     {release ? <>
       <p>Android {release.version} · build {release.build}. Le bouton suit la dernière version publiée après ses contrôles.</p>
-      <p><a href={release.url}>Télécharger cette version</a> · <a href="https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases" target="_blank" rel="noreferrer">Voir les versions et leurs preuves</a></p>
+      <p><a href={release.url}>Télécharger SPAWT</a> · <a href="https://github.com/xtincell/spawt-ci-mobile-v1-mvp/releases" target="_blank" rel="noreferrer">Voir les versions et leurs preuves</a></p>
     </> : <AndroidReleasePending failed={release === null} />}
     <h2>Quelque chose ne va pas ?</h2>
     <p>Dans l’app, ouvre Palais → Paramètres → Aide et retours. Tu peux vérifier les contenus, signaler un souci, proposer une idée et retrouver la réponse de l’équipe. Les écrans en erreur proposent aussi un accès direct.</p>

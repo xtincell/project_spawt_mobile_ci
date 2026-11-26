@@ -29,7 +29,7 @@ export function PilotResume({ journey }: { journey: ReturnType<typeof usePilotJo
       journey.setShowResume(false);
     }}><button aria-label="Fermer">Fermer</button></form>
     <h2 id="reprise-titre">Après l’installation</h2>
-    <p>Installe le fichier APK téléchargé, puis ouvre SPAWT.</p>
+    <p>Ouvre le fichier téléchargé pour installer SPAWT, puis lance l’application.</p>
     {receipt && receipt.expires > Date.now() ? <>
       <a className="accueil-apk" href={"https://spawt.online/reprendre/" + receipt.token} rel="noreferrer">Ouvrir SPAWT après installation</a>
       <p>Si ton navigateur garde la main, saisis ce code dans l’app.</p>
