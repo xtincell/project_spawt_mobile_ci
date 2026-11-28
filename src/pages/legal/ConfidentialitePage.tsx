@@ -43,12 +43,23 @@ export default function ConfidentialitePage() {
             contrat.
           </li>
           <li>
-            <strong>Ta géolocalisation</strong> — uniquement avec ton{" "}
-            <strong>consentement explicite</strong>, recueilli via la demande de
-            permission de ton téléphone, pour te proposer des lieux proches et
-            vérifier tes spawts (Le Guet). Tu peux retirer ce consentement à
-            tout moment dans les réglages de ton téléphone&nbsp;; l'app reste
-            utilisable en mode dégradé.
+            <strong>Ta localisation</strong> : quand tu utilises SPAWT et
+            autorises la localisation, la position de ton téléphone peut servir
+            à afficher des lieux proches et à vérifier que tu es sur place pour
+            un spawt manuel.
+          </li>
+          <li>
+            <strong>Le Guet sur Android</strong> : si tu choisis de l’activer et
+            accordes l’autorisation Android de localisation en arrière-plan, ton
+            téléphone détecte l’entrée et la sortie de zones autour de lieux,
+            même lorsque SPAWT est fermé ou que tu ne l’utilises pas. Le Guet
+            peut t’alerter quand tu es proche d’un lieu à découvrir ou que tu as
+            enregistré. Si tu as validé une visite, il peut aussi te rappeler de
+            laisser un avis après ton départ. La détection de proximité ne
+            valide jamais une visite. Tu peux couper le Guet dans Paramètres →
+            Le Guet ou retirer l’autorisation dans les réglages Android. Le spawt
+            manuel reste disponible avec l’autorisation de localisation au
+            premier plan quand elle est nécessaire.
           </li>
           <li>
             <strong>Ton activité dans l'app</strong> (spawts, avis, Coups de
